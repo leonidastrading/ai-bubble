@@ -1,0 +1,50 @@
+# AI Bubble Monitor
+
+A one-page Next.js dashboard that tracks the signals behind one plausible AI-bubble-pop scenario:
+**monetization stalls → price deflation → capex cuts → credit transmits the shock → circular deals unwind → macro spillover.**
+
+It refreshes once a day on Vercel and needs no API keys.
+
+## What's on the page
+
+| Section | What it shows | Source |
+| --- | --- | --- |
+| Composite stress gauge | 14 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
+| AI chips, hyperscalers, neoclouds, private credit, DC REITs & power, broad market | Relative-performance charts vs. S&P 500 and a scoreboard (1D/1M/3M/YTD/off 52-week high) | Yahoo Finance |
+| BDCs & redemptions | Price / NAV for public BDCs; SC TO-I tender-offer filings from non-traded private-credit funds | Yahoo, SEC EDGAR |
+| GPU rental market | Median and interquartile $/GPU-hour for B200, H200, H100, A100 | Vast.ai marketplace |
+| Credit spreads & stress | HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
+| Labor | Information and professional-services unemployment, claims, job openings | FRED |
+| Adoption & compute | Gen-AI adoption share, hosting PPI, semiconductor production | FRED |
+| News | Seven Google News searches over the last 7 days | Google News RSS |
+
+All tickers, FRED series, news queries and scoring thresholds live in `lib/config.ts` and `lib/signals.ts`.
+
+## How the daily refresh works
+
+- The page is statically generated with `revalidate = 86400`, and every upstream fetch is cached under one tag.
+- `vercel.json` schedules a cron job at 21:30 UTC daily (after the US close) that calls `/api/refresh`. The job clears the cache tag, re-fetches everything, saves a snapshot, and rebuilds the page.
+- Feeds fail independently. If one is down, its card says so and the rest of the page still renders. The failures are listed at the bottom of the page.
+
+### Optional: history charts
+
+Prices and FRED series have their own history. The GPU rental rates, BDC price/NAV and composite score don't, so the refresh job stores a daily snapshot of them in **Vercel Blob** when a store is connected:
+
+1. In the Vercel project, go to **Storage → Create → Blob**. Pick a **private** store and connect it to the project. This sets `BLOB_READ_WRITE_TOKEN`.
+2. Redeploy. The score-history and H100-history charts appear after the second daily run.
+
+### Optional environment variables
+
+- `CRON_SECRET`: if set, `/api/refresh` only accepts requests carrying it. Vercel Cron sends it automatically.
+- `SEC_USER_AGENT`: SEC EDGAR requires a descriptive User-Agent with a contact email, for example `"Your Name you@example.com"`.
+
+## Develop
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run typecheck
+npm run build
+```
+
+Not investment advice. The composite score is a heuristic, not a forecast.
