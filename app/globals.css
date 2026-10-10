@@ -11,6 +11,7 @@
   --watch: #e8c547;
   --elevated: #f08c3a;
   --stress: #f0524f;
+  --ramp-l: 0.72;
   --up: #3ecf8e;
   --down: #f0524f;
   --grid: #222733;
@@ -39,6 +40,7 @@
     --watch: #a68100;
     --elevated: #c4610f;
     --stress: #c9302c;
+    --ramp-l: 0.56;
     --up: #158a57;
     --down: #c9302c;
     --grid: #e8eaef;

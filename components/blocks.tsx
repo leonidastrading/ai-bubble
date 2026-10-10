@@ -1,6 +1,7 @@
 import type { Filing } from "@/lib/sec";
 import type { NewsItem } from "@/lib/news";
 import { scoreLabel, type Signal } from "@/lib/signals";
+import { stressColor, toScore } from "@/lib/stress-color";
 import type { Quote } from "@/lib/yahoo";
 
 export function Pct({ v, digits = 1 }: { v: number | null | undefined; digits?: number }) {
@@ -13,14 +14,12 @@ export function Pct({ v, digits = 1 }: { v: number | null | undefined; digits?: 
   );
 }
 
-function toneVar(score: number) {
-  return `var(--${scoreLabel(score).tone})`;
-}
+const toneVar = (score: number) => stressColor(score);
 
 /** Semicircle gauge for the composite score. */
 export function Gauge({ score }: { score: number | null }) {
   const s = score ?? 0;
-  const { label, tone } = scoreLabel(s);
+  const { label } = scoreLabel(s);
   const r = 80;
   const cx = 100;
   const cy = 96;
@@ -30,19 +29,26 @@ export function Gauge({ score }: { score: number | null }) {
     const a1 = Math.PI * (1 - to / 100);
     return `M ${cx + r * Math.cos(a0)} ${cy - r * Math.sin(a0)} A ${r} ${r} 0 0 1 ${cx + r * Math.cos(a1)} ${cy - r * Math.sin(a1)}`;
   };
-  const bands: [number, number, string][] = [
-    [0, 25, "calm"],
-    [25, 45, "watch"],
-    [45, 65, "elevated"],
-    [65, 100, "stress"],
-  ];
+  // The arc is drawn as short segments so it can shade continuously from
+  // green to red; the part beyond the score stays faint.
+  const STEP = 2;
+  const segments = Array.from({ length: 100 / STEP }, (_, i) => i * STEP);
   return (
     <div style={{ textAlign: "center" }}>
       <svg viewBox="0 0 200 110" width="100%" style={{ maxWidth: 280 }} role="img" aria-label={`Bubble stress score ${s} of 100, ${label}`}>
-        {bands.map(([a, b, t]) => (
-          <path key={t} d={arc(a + 0.6, b - 0.6)} stroke={`var(--${t})`} strokeOpacity={0.28} strokeWidth={14} fill="none" />
-        ))}
-        {score != null && <path d={arc(0.01, Math.max(0.5, s))} stroke={`var(--${tone})`} strokeWidth={14} fill="none" strokeLinecap="round" />}
+        {segments.map((a) => {
+          const filled = score != null && a < s;
+          return (
+            <path
+              key={a}
+              d={arc(a, Math.min(100, a + STEP + 0.4))}
+              // Opaque dim tint (mixed with the card colour) so overlapping segments leave no seams.
+              stroke={filled ? stressColor(a + STEP / 2) : `color-mix(in oklch, ${stressColor(a + STEP / 2)} 22%, var(--panel))`}
+              strokeWidth={14}
+              fill="none"
+            />
+          );
+        })}
         <line
           x1={cx}
           y1={cy}
@@ -58,9 +64,7 @@ export function Gauge({ score }: { score: number | null }) {
         {score ?? "—"}
         <span className="faint" style={{ fontSize: 16 }}> / 100</span>
       </div>
-      <div className={`tone-${tone}`} style={{ fontWeight: 650, fontSize: 15 }}>
-        {label}
-      </div>
+      <div style={{ fontWeight: 650, fontSize: 15, color: stressColor(s) }}>{label}</div>
     </div>
   );
 }
@@ -144,7 +148,7 @@ export function QuoteTable({ quotes }: { quotes: Quote[] }) {
               <td><Pct v={q.chg3m} /></td>
               <td><Pct v={q.chgYtd} /></td>
               <td>
-                <span style={{ color: q.drawdown < -30 ? "var(--stress)" : q.drawdown < -15 ? "var(--elevated)" : q.drawdown < -7 ? "var(--watch)" : "var(--muted)" }}>
+                <span style={{ color: q.drawdown > -3 ? "var(--muted)" : stressColor(toScore(q.drawdown, -3, -40)) }}>
                   {q.drawdown.toFixed(1)}%
                 </span>
               </td>

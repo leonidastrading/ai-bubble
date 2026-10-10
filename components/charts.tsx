@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo } from "react";
+import { stressColor, toScore } from "@/lib/stress-color";
 import { usePersistedChoice, usePersistedSet } from "./persisted";
 import {
   Area,
@@ -37,6 +38,25 @@ const fmtTick = (v: number) => compact.format(v);
 function fmtDate(t: string) {
   const d = new Date(t + "T00:00:00Z");
   return d.toLocaleDateString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" });
+}
+
+const isoDay = (ts: number) => new Date(ts).toISOString().slice(0, 10);
+
+/**
+ * A true time axis: points sit at their dates, not at evenly spaced slots.
+ * Matters when series have different calendars (fiscal quarters ending in
+ * different months) or uneven spacing (thinned older history).
+ */
+const timeAxis = {
+  dataKey: "ts",
+  type: "number" as const,
+  scale: "time" as const,
+  domain: ["dataMin", "dataMax"] as [string, string],
+  tickFormatter: (v: number) => fmtDate(isoDay(v)),
+};
+
+function withTs<T extends Record<string, unknown>>(rows: T[], key = "t"): (T & { ts: number })[] {
+  return rows.map((r) => ({ ...r, ts: Date.parse(`${String(r[key])}T00:00:00Z`) }));
 }
 
 function RangePicker({ value, onChange, options }: { value: RangeKey; onChange: (r: RangeKey) => void; options: RangeKey[] }) {
@@ -88,7 +108,7 @@ export function RelativeChart({
         rows.set(p.t, row);
       }
     }
-    return [...rows.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
+    return withTs([...rows.values()].sort((a, b) => String(a.t).localeCompare(String(b.t))));
   }, [series, range]);
 
   return (
@@ -101,14 +121,14 @@ export function RelativeChart({
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis dataKey="t" tickFormatter={fmtDate} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
             <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmtTick} {...axisProps} />
             <ReferenceLine y={100} stroke="var(--faint)" strokeDasharray="3 3" />
             <Tooltip
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <div className="tt">
-                    <div className="tt-date">{label}</div>
+                    <div className="tt-date">{isoDay(Number(label))}</div>
                     {[...payload]
                       .sort((a, b) => Number(b.value) - Number(a.value))
                       .map((p) => (
@@ -182,7 +202,7 @@ export function SeriesChart({
   decimals?: number;
 }) {
   const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange, ["6M", "1Y", "2Y", "5Y"]);
-  const data = useMemo(() => sliceByRange(points, range), [points, range]);
+  const data = useMemo(() => withTs(sliceByRange(points, range)), [points, range]);
   const id = `g${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
@@ -200,7 +220,7 @@ export function SeriesChart({
               </linearGradient>
             </defs>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis dataKey="t" tickFormatter={fmtDate} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
             <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmtTick} {...axisProps} />
             {refs.map((r) => (
               <ReferenceLine
@@ -215,7 +235,7 @@ export function SeriesChart({
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <div className="tt">
-                    <div className="tt-date">{label}</div>
+                    <div className="tt-date">{isoDay(Number(label))}</div>
                     <div>
                       {Number(payload[0].value).toLocaleString("en-US", { maximumFractionDigits: decimals })}
                       {unit}
@@ -254,7 +274,7 @@ export function HBarChart({
 }) {
   const fmt = (v: number) => (format === "ratio" ? `${v.toFixed(2)}x` : `$${v.toFixed(2)}`);
   const tone = (v: number) =>
-    toneFor === "pnav" ? (v >= 1 ? "var(--calm)" : v >= 0.9 ? "var(--watch)" : v >= 0.8 ? "var(--elevated)" : "var(--stress)") : "var(--s1)";
+    toneFor === "pnav" ? stressColor(toScore(v, 1.05, 0.8)) : "var(--s1)";
   const max = Math.max(...rows.map((r) => r.value), reference ?? 0);
   return (
     <div style={{ height: Math.max(120, rows.length * 34 + 30) }}>
@@ -302,16 +322,16 @@ export function HistoryChart({
   return (
     <div style={{ height: 220 }}>
       <ResponsiveContainer>
-        <LineChart data={rows} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
+        <LineChart data={withTs(rows, "date")} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="var(--grid)" vertical={false} />
-          <XAxis dataKey="date" minTickGap={40} {...axisProps} />
+          <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
           <YAxis yAxisId="left" domain={[0, 100]} width={44} {...axisProps} />
           <YAxis yAxisId="right" orientation="right" domain={["auto", "auto"]} width={44} {...axisProps} />
           <Tooltip
             content={({ active, payload, label }) =>
               active && payload?.length ? (
                 <div className="tt">
-                  <div className="tt-date">{label}</div>
+                  <div className="tt-date">{isoDay(Number(label))}</div>
                   {payload.map((p) => (
                     <div className="tt-row" key={String(p.dataKey)}>
                       <span style={{ color: p.color }}>{keys.find((k) => k.key === p.dataKey)?.label}</span>
@@ -358,11 +378,13 @@ export function TrendsChart({
 
   const data = useMemo(
     () =>
-      sliceByRange(points, range).map((p) => {
-        const row: Record<string, number | string> = { t: p.t };
-        keywords.forEach((k, i) => (row[k] = p.values[i] ?? 0));
-        return row;
-      }),
+      withTs(
+        sliceByRange(points, range).map((p) => {
+          const row: Record<string, number | string> = { t: p.t };
+          keywords.forEach((k, i) => (row[k] = p.values[i] ?? 0));
+          return row;
+        }),
+      ),
     [points, keywords, range],
   );
 
@@ -376,13 +398,13 @@ export function TrendsChart({
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis dataKey="t" tickFormatter={fmtDate} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
             <YAxis domain={[0, 100]} width={36} {...axisProps} />
             <Tooltip
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <div className="tt">
-                    <div className="tt-date">Week of {label}</div>
+                    <div className="tt-date">Week of {isoDay(Number(label))}</div>
                     {[...payload]
                       .sort((a, b) => Number(b.value) - Number(a.value))
                       .map((p) => (
@@ -452,15 +474,15 @@ export function MultiSeriesChart({
     <div>
       <div style={{ height: 240 }}>
         <ResponsiveContainer>
-          <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <LineChart data={withTs(rows)} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis dataKey="t" tickFormatter={fmtDate} minTickGap={30} {...axisProps} />
+            <XAxis {...timeAxis} minTickGap={30} {...axisProps} />
             <YAxis domain={[0, "auto"]} width={44} tickFormatter={fmt} {...axisProps} />
             <Tooltip
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <div className="tt">
-                    <div className="tt-date">Quarter ending {label}</div>
+                    <div className="tt-date">Quarter ending {isoDay(Number(label))}</div>
                     {[...payload]
                       .sort((a, b) => Number(b.value) - Number(a.value))
                       .map((p) => (
