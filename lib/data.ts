@@ -1,8 +1,8 @@
 import { BDCS, CAPEX_COMPANIES, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
 import { fetchFred, type FredData } from "./fred";
 import { fetchCapex, fetchNvidiaHealth, type CapexRow, type NvidiaHealth } from "./fundamentals";
-import { fetchGpuPrice, type GpuPrice } from "./gpu";
-import { readHistory, readSavedTrends, type Snapshot } from "./history";
+import { fetchGpuHistory, fetchGpuPrice, fetchLambdaPrices, fetchRunpodPrices, mergeGpuHistory, type GpuPrice, type GpuWeek, type ListPrices } from "./gpu";
+import { readGpuArchive, readHistory, readSavedTrends, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
 import { fetchNews, type NewsItem } from "./news";
 import { getNetwork, type Network } from "./network";
@@ -39,6 +39,9 @@ export type DashboardData = {
   bdcPriceToNav: number | null;
   gpu: GpuPrice[];
   gpuChange30d: number | null;
+  runpod: ListPrices | null;
+  lambda: ListPrices | null;
+  gpuHistory: GpuWeek[];
   news: { id: string; title: string; items: NewsItem[] }[];
   tenderOffers: Filing[] | null;
   trends: TrendsGroup[];
@@ -165,10 +168,20 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
+    settle(fetchRunpodPrices()),
+    settle(fetchLambdaPrices()),
+    settle(fetchGpuHistory()),
+    readGpuArchive<GpuWeek>(),
   ]);
+  if (!runpodR.ok) errors.push(`GPU RunPod: ${runpodR.error}`);
+  if (!lambdaR.ok) errors.push(`GPU Lambda: ${lambdaR.error}`);
+  if (!gpuHistR.ok) errors.push(`GPU market history: ${gpuHistR.error}`);
+  const gpuHistory = mergeGpuHistory(gpuArchive, gpuHistR.ok ? gpuHistR.data : []);
+  const h100Weeks = gpuHistory.filter((w) => w.slug === "nvidia-h100" && w.onDemand != null);
+  const h100Market = h100Weeks.length ? h100Weeks[h100Weeks.length - 1] : null;
   const offBalance: OffBalanceRow[] = [];
   offBalanceResults.forEach((r, i) => {
     if (r.ok) offBalance.push(r.data);
@@ -177,7 +190,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const spv = getSpvSummary(Object.fromEntries(quotes));
   if (!networkResult.ok) errors.push(`Deal network: ${networkResult.error}`);
 
-  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice });
+  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -198,9 +211,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     network: networkResult.ok ? networkResult.data : null,
     spv,
     offBalance,
+    runpod: runpodR.ok ? runpodR.data : null,
+    lambda: lambdaR.ok ? lambdaR.data : null,
+    gpuHistory,
     history,
     errors,
   };
+}
+
+function isoDaysAgo(iso: string, days: number): string {
+  return new Date(Date.parse(iso) - days * 86400_000).toISOString().slice(0, 10);
 }
 
 export function toSnapshot(d: DashboardData): Snapshot {
@@ -209,6 +229,16 @@ export function toSnapshot(d: DashboardData): Snapshot {
     score: d.score,
     bdcPriceToNav: d.bdcPriceToNav,
     gpu: Object.fromEntries(d.gpu.map((g) => [g.model, +g.median.toFixed(3)])),
+    gpuList: Object.fromEntries(
+      (
+        [
+          ["runpod", d.runpod],
+          ["lambda", d.lambda],
+        ] as const
+      )
+        .filter(([, v]) => v)
+        .map(([k, v]) => [k, Object.fromEntries(Object.entries(v!).flatMap(([m, p]) => (p.onDemand != null ? [[m, p.onDemand]] : [])))]),
+    ),
     signals: Object.fromEntries(d.signals.map((s) => [s.id, s.score])),
   };
 }

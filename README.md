@@ -16,7 +16,7 @@ It refreshes once a day on Vercel and needs no API keys.
 | AI money web | Live recreation of Bloomberg's Nvidia/OpenAI deal web: companies sized by market value (price × SEC share count) or last private round, arrows for each deal by type, round-trip pairs, full deal list with sources | `data/ai-deals.json` (curated, reviewed weekly), Yahoo, SEC |
 | SPV tracker | Data-center and GPU-backed SPVs: tenant, equity holders, lenders, debt, rating, terms, reported loan prices and events; lender rollup with stock drawdowns; hyperscaler lease and purchase obligations vs. reported debt | `data/ai-spvs.json` (curated, reviewed weekly), SEC EDGAR (XBRL) |
 | BDCs & redemptions | Price / NAV for public BDCs; SC TO-I tender-offer filings from non-traded private-credit funds | Yahoo, SEC EDGAR |
-| GPU rental market | Median and interquartile $/GPU-hour for B200, H200, H100, A100 | Vast.ai marketplace |
+| GPU rental market | $/GPU-hour by source (weekly market median across ~90 providers with spot and 12-month reserved, Vast.ai marketplace, RunPod and Lambda list prices); weekly history charts, archived to Blob so they grow past the 53 free weeks | GetDeploying open dataset (CC BY 4.0), Vast.ai, RunPod API, Lambda pricing page |
 | Credit spreads & stress | HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
 | Concentration & Fed | Equal-weight ÷ cap-weight S&P 500, Fed funds rate, 10y−3m curve, recession probability | Yahoo, FRED |
 | Labor | Information and professional-services unemployment, claims, job openings | FRED |

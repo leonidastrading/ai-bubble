@@ -240,4 +240,20 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Shows how quickly off-balance-sheet commitments are piling up relative to each other.",
     watch: "A line steepening after capex guidance is cut: that would mean spending moved off the balance sheet rather than stopping.",
   },
+
+  gpuSources: {
+    what: "Today's price per GPU-hour from each source: the weekly market median across about 90 providers (with spot and 12-month reserved medians), the Vast.ai spot marketplace, and RunPod and Lambda list prices.",
+    why: "No single source is the market. When list prices, marketplace offers and the cross-provider median all move the same way, the move is real.",
+    watch: "The market median falling while list prices hold (discounting off the list), or the reserved price dropping below on-demand by a wide margin (lenders and buyers expect lower prices ahead).",
+  },
+  gpuMarket: {
+    what: "Weekly median on-demand rental price for each GPU generation across about 90 cloud providers (GetDeploying open dataset).",
+    why: "The rental price is the income that pays down GPU-backed loans. Each new generation should hold a premium; older ones decline as supply arrives.",
+    watch: "Newest chips (B200) falling quickly toward H100 prices, or H100 falling below about $1.50 per hour.",
+  },
+  gpuH100: {
+    what: "H100 weekly medians for on-demand, spot (interruptible) and 12-month reserved contracts.",
+    why: "Reserved prices show what buyers will commit to for a year, the closest free proxy for the term contracts behind neocloud debt. Spot shows idle capacity.",
+    watch: "Spot falling well below on-demand (excess capacity), or reserved prices dropping (buyers expect cheaper compute ahead).",
+  },
 };

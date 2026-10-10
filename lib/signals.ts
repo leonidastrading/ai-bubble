@@ -47,8 +47,9 @@ export function computeSignals(input: {
   capexAggregate: { capexYoY: number; revenueYoY: number; capexToRevenue: number } | null;
   nvidia: NvidiaHealth | null;
   spvWorst: { price: number; asOf: string; spv: string } | null;
+  h100Market: { price: number; date: string; providers: number | null; yearAgo: number | null } | null;
 }): Signal[] {
-  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst } = input;
+  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market } = input;
   const out: Signal[] = [];
 
   if (spvWorst)
@@ -179,8 +180,21 @@ export function computeSignals(input: {
       detail: "Market price vs. self-reported NAV. A 15–20% discount says private marks are too high.",
     });
 
+  // Prefer the cross-provider weekly median; fall back to the single marketplace.
   const h100 = gpu.find((g) => g.model === "H100 SXM");
-  if (h100)
+  if (h100Market) {
+    const yoy = h100Market.yearAgo ? (h100Market.price / h100Market.yearAgo - 1) * 100 : null;
+    out.push({
+      id: "gpu",
+      label: "H100 rental $/hr",
+      stage: "2 · Price deflation",
+      value: `$${f2(h100Market.price)}${yoy != null ? ` (${yoy >= 0 ? "+" : ""}${f1(yoy)}% 1y)` : ""}`,
+      score: scale(h100Market.price, 2.75, 1.0),
+      calm: "> $2.75",
+      stress: "< $1.00",
+      detail: `Median on-demand price across ${h100Market.providers ?? "~40"} cloud providers, week of ${h100Market.date} (GetDeploying). Falling rates erode GPU-SPV collateral.`,
+    });
+  } else if (h100)
     out.push({
       id: "gpu",
       label: "H100 rental $/hr",
@@ -189,7 +203,7 @@ export function computeSignals(input: {
       score: scale(h100.median, 2.75, 1.0),
       calm: "> $2.75",
       stress: "< $1.00",
-      detail: "Median on-demand marketplace price. Falling rates erode GPU-SPV collateral.",
+      detail: "Median on-demand marketplace price (Vast.ai). Falling rates erode GPU-SPV collateral.",
     });
 
   const reits = basketDrawdown(quotes, ["EQIX", "DLR", "IRM"]);

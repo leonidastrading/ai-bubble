@@ -548,3 +548,91 @@ export function MultiSeriesChart({
     </div>
   );
 }
+
+/** Several dated price series on a true time axis, with range picker and toggleable legend. */
+export function TimeLinesChart({
+  rows,
+  keys,
+  storageKey,
+  ranges = ["3M", "6M", "1Y"],
+  defaultRange,
+  unit = "$",
+}: {
+  rows: Record<string, number | string | null>[];
+  keys: string[];
+  storageKey?: string;
+  ranges?: RangeKey[];
+  defaultRange?: RangeKey;
+  unit?: "$";
+}) {
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange ?? ranges[ranges.length - 1], ranges);
+  const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
+  const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
+  const fmt = (v: number) => `${unit}${v.toFixed(2)}`;
+  return (
+    <div>
+      <div className="card-head" style={{ justifyContent: "flex-end" }}>
+        <RangePicker value={range} onChange={setRange} options={ranges} />
+      </div>
+      <div style={{ height: 240 }}>
+        <ResponsiveContainer>
+          <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke="var(--grid)" vertical={false} />
+            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
+            <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmt} {...axisProps} />
+            <Tooltip
+              content={({ active, payload, label }) =>
+                active && payload?.length ? (
+                  <div className="tt">
+                    <div className="tt-date">Week of {isoDay(Number(label))}</div>
+                    {[...payload]
+                      .sort((a, b) => Number(b.value) - Number(a.value))
+                      .map((p) => (
+                        <div className="tt-row" key={String(p.dataKey)}>
+                          <span style={{ color: p.color }}>{String(p.dataKey)}</span>
+                          <span>{fmt(Number(p.value))}/hr</span>
+                        </div>
+                      ))}
+                  </div>
+                ) : null
+              }
+            />
+            {keys.map((k, i) =>
+              hidden.has(k) ? null : (
+                <Line
+                  key={k}
+                  type="monotone"
+                  dataKey={k}
+                  stroke={PALETTE[i % PALETTE.length]}
+                  strokeWidth={1.8}
+                  dot={false}
+                  connectNulls
+                  isAnimationActive={false}
+                />
+              ),
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="legend">
+        {keys.map((k, i) => (
+          <button
+            key={k}
+            aria-pressed={!hidden.has(k)}
+            onClick={() =>
+              setHidden((h) => {
+                const n = new Set(h);
+                if (n.has(k)) n.delete(k);
+                else n.add(k);
+                return n;
+              })
+            }
+          >
+            <i style={{ background: PALETTE[i % PALETTE.length] }} />
+            {k}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

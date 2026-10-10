@@ -4,7 +4,7 @@ import { ResetSettings } from "@/components/reset-settings";
 import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { stressColor, toScore } from "@/lib/stress-color";
-import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
+import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
@@ -54,6 +54,14 @@ function trim(q: Quote) {
 }
 
 const usdB = (v: number) => `$${(v / 1e9).toLocaleString("en-US", { maximumFractionDigits: 0 })}B`;
+
+const GPU_ROWS: { model: string; label: string; slug: string | null }[] = [
+  { model: "B200", label: "B200", slug: "nvidia-b200" },
+  { model: "H200", label: "H200", slug: "nvidia-h200" },
+  { model: "H100 SXM", label: "H100 SXM", slug: "nvidia-h100" },
+  { model: "H100 PCIE", label: "H100 PCIe", slug: null },
+  { model: "A100 SXM4", label: "A100 80GB", slug: "nvidia-a100" },
+];
 
 function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof getDashboardData>>["fred"][string] | undefined }) {
   return (
@@ -118,6 +126,38 @@ export default async function Page() {
     if (!rsp || !spy.size) return [];
     return rsp.filter((p) => spy.has(p.t)).map((p) => ({ t: p.t, v: +((p.v / spy.get(p.t)!) * 100).toFixed(3) }));
   })();
+
+  // GPU market history, keyed by model.
+  const gpuLatestWeek = d.gpuHistory.length ? d.gpuHistory[d.gpuHistory.length - 1].date : null;
+  const gpuMarket: Record<string, { onDemand: number | null; spot: number | null; reserved12: number | null; providers: number | null; yoy: number | null }> = {};
+  for (const slug of ["nvidia-b200", "nvidia-h200", "nvidia-h100", "nvidia-a100"]) {
+    const ws = d.gpuHistory.filter((w) => w.slug === slug);
+    const last = ws[ws.length - 1];
+    if (!last) continue;
+    const cutoff = new Date(Date.parse(last.date) - 364 * 86400_000).toISOString().slice(0, 10);
+    const yearAgo = ws.find((w) => w.date >= cutoff && w.onDemand != null)?.onDemand;
+    gpuMarket[slug] = {
+      onDemand: last.onDemand,
+      spot: last.spot,
+      reserved12: last.reserved12,
+      providers: last.providers,
+      yoy: last.onDemand != null && yearAgo ? (last.onDemand / yearAgo - 1) * 100 : null,
+    };
+  }
+  const gpuTrendRows = (() => {
+    const byDate = new Map<string, Record<string, number | string | null>>();
+    const label: Record<string, string> = { "nvidia-b200": "B200", "nvidia-h200": "H200", "nvidia-h100": "H100", "nvidia-a100": "A100" };
+    for (const w of d.gpuHistory) {
+      if (!label[w.slug] || w.onDemand == null) continue;
+      const row = byDate.get(w.date) ?? { t: w.date };
+      row[label[w.slug]] = w.onDemand;
+      byDate.set(w.date, row);
+    }
+    return [...byDate.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
+  })();
+  const h100Rows = d.gpuHistory
+    .filter((w) => w.slug === "nvidia-h100")
+    .map((w) => ({ t: w.date, "On-demand": w.onDemand, "12-month reserved": w.reserved12, Spot: w.spot }));
 
   const updated = new Date(d.generatedAt).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -816,52 +856,124 @@ export default async function Page() {
         <h2>GPU rental market</h2>
         <p className="blurb">
           GPU rental rates are the collateral value behind GPU-backed SPVs and neocloud loans. If intelligence gets cheap, who
-          earns a return on $50B clusters? Prices are the median on-demand $/GPU-hour on the Vast.ai marketplace; term contracts differ and a small marketplace is noisy day to day, so watch the trend, not one print.
+          earns a return on $50B clusters? Three live sources (a spot marketplace and two list-price clouds) plus a weekly
+          market median across about 90 providers, with history.
         </p>
-        <div className="grid g2">
+
+        <div className="card">
+          <h3>Price by source, $/GPU-hour</h3>
+          <p className="sub">
+            Market = weekly median across providers (week of {gpuLatestWeek ?? "—"}). Vast.ai is a spot marketplace; RunPod and
+            Lambda are list prices.
+          </p>
+          <SortableTable
+            storageKey="table:gpu-sources"
+            columns={[
+              { label: "GPU" },
+              { label: "Market", title: "Weekly median on-demand price across providers (GetDeploying)", firstDir: "desc" },
+              { label: "1y", title: "Change in the market median over 52 weeks", firstDir: "desc" },
+              { label: "12-mo reserved", title: "Weekly median 12-month reservation price", firstDir: "desc" },
+              { label: "Market spot", title: "Weekly median spot/interruptible price", firstDir: "desc" },
+              { label: "Vast.ai", title: "Median on-demand offer on the Vast.ai marketplace today", firstDir: "desc" },
+              { label: "RunPod", title: "RunPod secure cloud list price", firstDir: "desc" },
+              { label: "RunPod comm.", title: "RunPod community cloud list price", firstDir: "desc" },
+              { label: "Lambda", title: "Lambda on-demand list price (lowest per-GPU across instance sizes)", firstDir: "desc" },
+              { label: "Providers", title: "Providers in this week's market median", firstDir: "desc" },
+            ]}
+            rows={GPU_ROWS.map((g) => {
+              const m = gpuMarket[g.slug ?? ""];
+              const vast = d.gpu.find((x) => x.model === g.model)?.median ?? null;
+              const rp = d.runpod?.[g.model];
+              const lb = d.lambda?.[g.model]?.onDemand ?? null;
+              const usd = (v: number | null | undefined) => (v != null ? `$${v.toFixed(2)}` : "—");
+              return {
+                key: g.model,
+                sort: [g.label, m?.onDemand ?? null, m?.yoy ?? null, m?.reserved12 ?? null, m?.spot ?? null, vast, rp?.onDemand ?? null, rp?.community ?? null, lb, m?.providers ?? null],
+                cells: [
+                  <span className="sym">{g.label}</span>,
+                  <strong>{usd(m?.onDemand)}</strong>,
+                  <Pct v={m?.yoy} digits={0} />,
+                  usd(m?.reserved12),
+                  usd(m?.spot),
+                  usd(vast),
+                  usd(rp?.onDemand),
+                  usd(rp?.community),
+                  usd(lb),
+                  <span className="muted">{m?.providers ?? "—"}</span>,
+                ],
+              };
+            })}
+          />
+          <Explain id="gpuSources" />
+        </div>
+
+        <div className="grid g2" style={{ marginTop: 14 }}>
           <div className="card">
-            <h3>Median $/GPU-hour today</h3>
-            {d.gpu.length ? (
-              <HBarChart rows={d.gpu.map((g) => ({ label: g.model, value: +g.median.toFixed(2) }))} format="usd" />
+            <h3>Market median on-demand, weekly</h3>
+            <p className="sub">Across about 90 cloud providers · $/GPU-hour</p>
+            {gpuTrendRows.length ? (
+              <TimeLinesChart rows={gpuTrendRows} keys={["B200", "H200", "H100", "A100"]} storageKey="gpu:market" />
             ) : (
-              <div className="empty">Unavailable today.</div>
+              <div className="empty">Market history is unavailable today.</div>
             )}
+            <Explain id="gpuMarket" />
           </div>
           <div className="card">
-            <h3>Distribution</h3>
-            <SortableTable
-              storageKey="table:gpu"
-              columns={[
-                { label: "GPU" },
-                { label: "25th pct", firstDir: "desc" },
-                { label: "Median", firstDir: "desc" },
-                { label: "75th pct", firstDir: "desc" },
-                { label: "Offers", firstDir: "desc" },
-              ]}
-              rows={d.gpu.map((g) => ({
-                key: g.model,
-                sort: [g.model, g.p25, g.median, g.p75, g.offers],
-                cells: [
-                  <span className="sym">{g.model}</span>,
-                  `$${g.p25.toFixed(2)}`,
-                  <strong>${g.median.toFixed(2)}</strong>,
-                  `$${g.p75.toFixed(2)}`,
-                  <span className="muted">{g.offers}</span>,
-                ],
-              }))}
-            />
-            {historyRows.length >= 2 && (
-              <>
-                <h3 style={{ marginTop: 16 }}>H100 history</h3>
-                <HistoryChart rows={historyRows} keys={[{ key: "h100", label: "H100 $/hr", color: "var(--s1)", axis: "left" }]} />
-              </>
+            <h3>H100: on-demand vs. spot vs. 12-month reserved</h3>
+            <p className="sub">Weekly medians · $/GPU-hour</p>
+            {h100Rows.length ? (
+              <TimeLinesChart rows={h100Rows} keys={["On-demand", "12-month reserved", "Spot"]} storageKey="gpu:h100" />
+            ) : (
+              <div className="empty">Market history is unavailable today.</div>
             )}
-            <p className="note">
-              For institutional-grade indices see Silicon Data&apos;s H100 rental index and Ornn. Both are paid.
-            </p>
-            <Explain id="gpu" />
+            <Explain id="gpuH100" />
           </div>
         </div>
+
+        <details className="card" style={{ marginTop: 14 }}>
+          <summary style={{ cursor: "pointer", fontWeight: 600 }}>Vast.ai marketplace detail</summary>
+          <div className="grid g2" style={{ marginTop: 10 }}>
+            <div>
+              {d.gpu.length ? (
+                <HBarChart rows={d.gpu.map((g) => ({ label: g.model, value: +g.median.toFixed(2) }))} format="usd" />
+              ) : (
+                <div className="empty">Unavailable today.</div>
+              )}
+            </div>
+            <div>
+              <SortableTable
+                storageKey="table:gpu"
+                columns={[
+                  { label: "GPU" },
+                  { label: "25th pct", firstDir: "desc" },
+                  { label: "Median", firstDir: "desc" },
+                  { label: "75th pct", firstDir: "desc" },
+                  { label: "Offers", firstDir: "desc" },
+                ]}
+                rows={d.gpu.map((g) => ({
+                  key: g.model,
+                  sort: [g.model, g.p25, g.median, g.p75, g.offers],
+                  cells: [
+                    <span className="sym">{g.model}</span>,
+                    `$${g.p25.toFixed(2)}`,
+                    <strong>${g.median.toFixed(2)}</strong>,
+                    `$${g.p75.toFixed(2)}`,
+                    <span className="muted">{g.offers}</span>,
+                  ],
+                }))}
+              />
+              {historyRows.length >= 2 && (
+                <>
+                  <h3 style={{ marginTop: 16 }}>Vast.ai H100, daily snapshots</h3>
+                  <HistoryChart rows={historyRows} keys={[{ key: "h100", label: "H100 $/hr", color: "var(--s1)", axis: "left" }]} />
+                </>
+              )}
+            </div>
+          </div>
+        </details>
+        <p className="note">
+          Weekly market data: <a href="https://getdeploying.com/dataset/gpu-prices" target="_blank" rel="noopener noreferrer">GetDeploying GPU rental price history</a> (CC BY 4.0). The free files cover 53 trailing weeks; this dashboard archives each week so the history keeps growing.
+        </p>
       </section>
 
       <section id="credit">

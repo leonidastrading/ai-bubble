@@ -12,6 +12,8 @@ export type Snapshot = {
   score: number | null;
   bdcPriceToNav: number | null;
   gpu: Record<string, number>;
+  /** Daily list prices by source and model (added Oct 2026; absent in older snapshots). */
+  gpuList?: Record<string, Record<string, number>>;
   signals: Record<string, number>;
 };
 
@@ -65,4 +67,19 @@ export async function readSavedTrends<T>(): Promise<Record<string, T>> {
 export async function saveTrends<T>(groups: Record<string, T>): Promise<void> {
   const merged = { ...(await readSavedTrends<T>()), ...groups };
   await writeJson(TRENDS_PATH, merged);
+}
+
+/**
+ * Our own archive of the weekly GPU market history. The free dataset only
+ * covers the trailing 53 weeks, so each refresh merges it in here and the
+ * history keeps growing.
+ */
+const GPU_PATH = "history/gpu-weekly.json";
+
+export async function readGpuArchive<T>(): Promise<T[]> {
+  return (await readJson<T[]>(GPU_PATH)) ?? [];
+}
+
+export async function saveGpuArchive<T>(rows: T[]): Promise<void> {
+  await writeJson(GPU_PATH, rows);
 }
