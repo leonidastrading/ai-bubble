@@ -87,7 +87,8 @@ export function yearAgo(series: Quarter[], end: string): number | null {
 async function mergedQuarters(symbol: string, concepts: string[]): Promise<Quarter[]> {
   const lists = await Promise.all(
     concepts.map((c) =>
-      fetchConcept(symbol, [c])
+      // Keep retired tags too: they hold the older quarters.
+      fetchConcept(symbol, [c], "USD", false)
         .then((r) => toQuarters(r.facts))
         .catch(() => [] as Quarter[]),
     ),

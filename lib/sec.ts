@@ -90,6 +90,7 @@ export async function fetchConcept(
   ticker: string,
   concepts: string[],
   unit = "USD",
+  requireRecent = true,
 ): Promise<{ concept: string; facts: Fact[] }> {
   const cik = (await loadTickerMap()).get(ticker);
   if (!cik) throw new Error(`No CIK for ${ticker}`);
@@ -103,7 +104,7 @@ export async function fetchConcept(
       const facts = (json.units[unit] ?? []).filter((f) => f.form === "10-Q" || f.form === "10-K");
       // A concept the company stopped using years ago is as good as missing.
       const recent = facts.some((f) => f.end >= new Date(Date.now() - 400 * 86400_000).toISOString().slice(0, 10));
-      if (recent) return { concept, facts };
+      if (recent || (!requireRecent && facts.length)) return { concept, facts };
       errors.push(`${concept}: stale`);
     } catch (err) {
       errors.push(`${concept}: ${err instanceof Error ? err.message : String(err)}`);
