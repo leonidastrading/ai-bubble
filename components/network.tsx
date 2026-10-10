@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { DEAL_TYPES } from "@/lib/deal-types";
-import type { DealEdge, DealType, NetworkNode } from "@/lib/network";
+import { usePersistedChoice, usePersistedSet } from "./persisted";
+import type { DealEdge, DealType, NetworkNode, Placement, SizeMode } from "@/lib/network";
 
 const colorOf = (t: DealType) => DEAL_TYPES.find((d) => d.type === t)?.color ?? "var(--faint)";
 
@@ -16,7 +17,19 @@ function fmtAmount(e: DealEdge) {
 }
 
 /** Curved path between circle edges; the bend keeps A→B and B→A apart. */
-function edgePath(a: NetworkNode, b: NetworkNode) {
+export const SIZE_MODES: { mode: SizeMode; label: string; hint: string }[] = [
+  { mode: "exposure", label: "Exposure", hint: "Disclosed deal dollars ÷ company value. Big circles have bet a large share of themselves on these deals." },
+  { mode: "deals", label: "Deal dollars", hint: "Total disclosed deal dollars flowing in and out of each company." },
+  { mode: "market", label: "Market value", hint: "Market cap for public companies, last priced round for private ones (as in Bloomberg's original)." },
+];
+
+function fmtMetric(n: NetworkNode, mode: SizeMode) {
+  if (mode === "market") return fmtValue(n.valueB);
+  if (mode === "deals") return n.dealsB ? `${fmtValue(n.dealsB)} deals` : "undisclosed";
+  return n.exposure != null ? `${n.exposure >= 1 ? n.exposure.toFixed(1) : n.exposure.toFixed(2)}× value` : "n/a";
+}
+
+function edgePath(a: Placement, b: Placement) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
@@ -26,7 +39,7 @@ function edgePath(a: NetworkNode, b: NetworkNode) {
   const mx = (a.x + b.x) / 2 - uy * bend;
   const my = (a.y + b.y) / 2 + ux * bend;
   // Start and end where the curve meets each circle, plus a little air for the arrowhead.
-  const toward = (n: NetworkNode, tx: number, ty: number, pad: number) => {
+  const toward = (n: Placement, tx: number, ty: number, pad: number) => {
     const vx = tx - n.x;
     const vy = ty - n.y;
     const l = Math.hypot(vx, vy) || 1;
@@ -52,7 +65,9 @@ export function NetworkGraph({
 }) {
   const [hover, setHover] = useState<Hover>(null);
   const [pinned, setPinned] = useState<Hover>(null);
-  const [off, setOff] = useState<Set<DealType>>(new Set());
+  const [off, setOff] = usePersistedSet<DealType>("web:hidden-types");
+  const [mode, setMode] = usePersistedChoice<SizeMode>("web:size", "exposure", ["exposure", "deals", "market"]);
+  const at = (n: NetworkNode) => n.layouts[mode];
   const active = pinned ?? hover;
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
 
@@ -74,13 +89,35 @@ export function NetworkGraph({
     }
     const n = byId.get(active.id);
     return {
-      title: `${n?.name} · ${fmtValue(n?.valueB ?? null)}${n?.basis === "private" ? " (private round)" : ""}`,
+      title: n
+        ? `${n.name} · ${fmtValue(n.valueB)}${n.basis === "private" ? " (private round)" : ""} · ${n.dealsB ? `${fmtValue(n.dealsB)} in disclosed deals` : "no disclosed amounts"}${n.exposure != null ? ` · exposure ${n.exposure.toFixed(2)}×` : ""}`
+        : "",
       deals: visible.filter(({ e }) => e.from === active.id || e.to === active.id).map(({ e }) => e),
     };
   })();
 
   return (
     <div>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 12px", marginBottom: 8 }}>
+        <div className="seg" role="radiogroup" aria-label="Size circles by">
+          {SIZE_MODES.map((m) => (
+            <label key={m.mode} className="seg-radio" title={m.hint}>
+              <input
+                type="radio"
+                name="size-mode"
+                value={m.mode}
+                checked={mode === m.mode}
+                onChange={() => setMode(m.mode)}
+              />
+              <span>{m.label}</span>
+            </label>
+          ))}
+        </div>
+        <span className="sub" style={{ margin: 0 }}>
+          {SIZE_MODES.find((m) => m.mode === mode)?.hint}
+          {mode !== "market" && " Undisclosed amounts count as zero."}
+        </span>
+      </div>
       <div className="legend" style={{ marginTop: 0, marginBottom: 8 }}>
         {DEAL_TYPES.map((t) => (
           <button
@@ -99,7 +136,7 @@ export function NetworkGraph({
             {t.label}
           </button>
         ))}
-        <span className="faint">· arrows point the way money flows · circles sized by value · click to pin</span>
+        <span className="faint">· arrows point the way money flows · click to pin</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
         <svg
@@ -130,7 +167,7 @@ export function NetworkGraph({
           {visible.map(({ e, i }) => {
             const a = byId.get(e.from)!;
             const b = byId.get(e.to)!;
-            const { d } = edgePath(a, b);
+            const { d } = edgePath(at(a), at(b));
             const on = lit(e, i);
             return (
               <g key={i}>
@@ -160,7 +197,8 @@ export function NetworkGraph({
               </g>
             );
           })}
-          {nodes.map((n) => {
+          {nodes.map((node) => {
+            const n = { ...node, ...at(node) };
             const on = nodeLit(n.id);
             // Label inside the circle only when it fits.
             const inside = n.r >= 40 && n.name.length * 8.6 < n.r * 2 - 10;
@@ -189,6 +227,10 @@ export function NetworkGraph({
                   x={n.x}
                   y={inside ? n.y - 2 : n.y - n.r - 18}
                   textAnchor="middle"
+                  paintOrder="stroke"
+                  stroke="var(--panel)"
+                  strokeWidth={4}
+                  strokeLinejoin="round"
                   fill="var(--text)"
                   fontSize={inside ? 15 : 12}
                   fontWeight={600}
@@ -199,10 +241,14 @@ export function NetworkGraph({
                   x={n.x}
                   y={inside ? n.y + 16 : n.y - n.r - 5}
                   textAnchor="middle"
+                  paintOrder="stroke"
+                  stroke="var(--panel)"
+                  strokeWidth={4}
+                  strokeLinejoin="round"
                   fill="var(--muted)"
                   fontSize={inside ? 13 : 11}
                 >
-                  {fmtValue(n.valueB)}
+                  {fmtMetric(node, mode)}
                 </text>
               </g>
             );

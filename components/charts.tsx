@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo } from "react";
+import { usePersistedChoice, usePersistedSet } from "./persisted";
 import {
   Area,
   AreaChart,
@@ -63,9 +64,17 @@ function sliceByRange<T extends { t: string }>(points: T[], range: RangeKey): T[
 type Series = { symbol: string; name: string; points: Point[] };
 
 /** Rebased-to-100 performance chart with a toggleable legend. */
-export function RelativeChart({ series, defaultRange = "1Y" }: { series: Series[]; defaultRange?: RangeKey }) {
-  const [range, setRange] = useState<RangeKey>(defaultRange);
-  const [hidden, setHidden] = useState<Set<string>>(new Set());
+export function RelativeChart({
+  series,
+  defaultRange = "1Y",
+  storageKey,
+}: {
+  series: Series[];
+  defaultRange?: RangeKey;
+  storageKey?: string;
+}) {
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange, ["3M", "6M", "1Y", "2Y"]);
+  const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
 
   const data = useMemo(() => {
     const rows = new Map<string, Record<string, number | string>>();
@@ -162,7 +171,9 @@ export function SeriesChart({
   defaultRange = "2Y",
   refs = [],
   decimals = 2,
+  storageKey,
 }: {
+  storageKey?: string;
   points: Point[];
   unit?: string;
   color?: string;
@@ -170,7 +181,7 @@ export function SeriesChart({
   refs?: { y: number; label: string; tone: "calm" | "stress" | "watch" }[];
   decimals?: number;
 }) {
-  const [range, setRange] = useState<RangeKey>(defaultRange);
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange, ["6M", "1Y", "2Y", "5Y"]);
   const data = useMemo(() => sliceByRange(points, range), [points, range]);
   const id = `g${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
@@ -335,13 +346,15 @@ export function TrendsChart({
   keywords,
   points,
   ranges,
+  storageKey,
 }: {
+  storageKey?: string;
   keywords: string[];
   points: { t: string; values: number[] }[];
   ranges: RangeKey[];
 }) {
-  const [range, setRange] = useState<RangeKey>(ranges[ranges.length - 1]);
-  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, ranges[ranges.length - 1], ranges);
+  const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
 
   const data = useMemo(
     () =>
@@ -426,12 +439,14 @@ export function MultiSeriesChart({
   rows,
   keys,
   format,
+  storageKey,
 }: {
+  storageKey?: string;
   rows: Record<string, number | string | null>[];
   keys: string[];
   format: "pct" | "days";
 }) {
-  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
   const fmt = (v: number) => (format === "pct" ? `${v.toFixed(0)}%` : `${v.toFixed(0)}d`);
   return (
     <div>

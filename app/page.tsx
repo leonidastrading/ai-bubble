@@ -1,5 +1,6 @@
 import { FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
 import { NetworkGraph } from "@/components/network";
+import { ResetSettings } from "@/components/reset-settings";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
@@ -81,7 +82,7 @@ function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof 
           FRED {s.id} ↗
         </a>
       </div>
-      {data && <SeriesChart points={thin(data.points)} unit={s.unit === "%" ? "%" : ""} refs={REFS[s.id]} />}
+      {data && <SeriesChart points={thin(data.points)} unit={s.unit === "%" ? "%" : ""} refs={REFS[s.id]} storageKey={`fred:${s.id}`} />}
       {s.note && <p className="note">{s.note}</p>}
     </div>
   );
@@ -134,7 +135,9 @@ export default async function Page() {
             capex cuts → credit transmits the shock → circular deals unwind → macro spillover.
           </p>
         </div>
-        <div className="stamp">Updated {updated} ET · refreshes daily</div>
+        <div className="stamp">
+          Updated {updated} ET · refreshes daily · <ResetSettings />
+        </div>
       </header>
 
       <nav className="toc" aria-label="Sections">
@@ -197,7 +200,7 @@ export default async function Page() {
             <div className="grid g2">
               <div className="card">
                 <h3>Relative performance{bench ? " vs S&P 500 (dashed)" : ""}</h3>
-                {series.length ? <RelativeChart series={series} /> : <div className="empty">Unavailable today.</div>}
+                {series.length ? <RelativeChart series={series} storageKey={`rel:${g.id}`} /> : <div className="empty">Unavailable today.</div>}
               </div>
               <div className="card">
                 <h3>Scoreboard</h3>
@@ -224,7 +227,7 @@ export default async function Page() {
                 : "Trailing twelve months"}
             </p>
             {capexRows.length ? (
-              <MultiSeriesChart rows={capexRows} keys={d.capex.map((c) => c.symbol)} format="pct" />
+              <MultiSeriesChart rows={capexRows} keys={d.capex.map((c) => c.symbol)} format="pct" storageKey="multi:capex" />
             ) : (
               <div className="empty">SEC filings data is unavailable today.</div>
             )}
@@ -290,6 +293,7 @@ export default async function Page() {
                   rows={d.nvidia.series.map((q) => ({ t: q.end, "Days sales outstanding": q.dso, "Days inventory": q.dio }))}
                   keys={["Days sales outstanding", "Days inventory"]}
                   format="days"
+                  storageKey="multi:nvidia"
                 />
               </>
             ) : (
@@ -320,9 +324,10 @@ export default async function Page() {
       <section id="web">
         <h2>The AI money web</h2>
         <p className="blurb">
-          A live version of Bloomberg&apos;s &ldquo;How Nvidia and OpenAI fuel the AI money machine&rdquo;. Public companies are
-          sized by today&apos;s market value; private labs by their latest priced round. Deals are curated from announcements
-          and press reports and reviewed weekly.
+          A live version of Bloomberg&apos;s &ldquo;How Nvidia and OpenAI fuel the AI money machine&rdquo;. Size the circles by
+          exposure (deal dollars relative to company value), by deal dollars, or by market value as in the original. Deals are
+          curated from announcements and press reports and reviewed weekly; your chart settings are remembered on this
+          device.
         </p>
         {d.network ? (
           <>
@@ -377,8 +382,8 @@ export default async function Page() {
                 </div>
               </div>
               <div className="card">
-                <h3>Market values used</h3>
-                <p className="sub">Price × shares outstanding (SEC filings); private labs at last round</p>
+                <h3>Values and exposure</h3>
+                <p className="sub">Value = price × shares outstanding (SEC filings), or last private round. Exposure = disclosed deal dollars ÷ value.</p>
                 <div className="table-scroll" style={{ maxHeight: 360, overflowY: "auto" }}>
                   <table>
                     <thead>
@@ -387,11 +392,13 @@ export default async function Page() {
                         <th>Value</th>
                         <th>Basis</th>
                         <th>As of</th>
+                        <th title="Disclosed deal dollars in and out">Deals</th>
+                        <th title="Deal dollars ÷ value">Exposure</th>
                       </tr>
                     </thead>
                     <tbody>
                       {[...d.network.nodes]
-                        .sort((a, b) => (b.valueB ?? 0) - (a.valueB ?? 0))
+                        .sort((a, b) => (b.exposure ?? -1) - (a.exposure ?? -1))
                         .map((n) => (
                           <tr key={n.id}>
                             <td className="sym">{n.name}</td>
@@ -414,6 +421,8 @@ export default async function Page() {
                               )}
                             </td>
                             <td className="faint">{n.asOf ?? "—"}</td>
+                            <td>{n.dealsB ? `$${n.dealsB.toFixed(0)}B` : "—"}</td>
+                            <td style={{ fontWeight: 600 }}>{n.exposure != null ? `${n.exposure.toFixed(2)}×` : "—"}</td>
                           </tr>
                         ))}
                     </tbody>
@@ -539,7 +548,10 @@ export default async function Page() {
         </div>
         <div className="card" style={{ marginTop: 14 }}>
           <h3>BDC prices vs S&P 500</h3>
-          <RelativeChart series={[...d.bdcs.map((b) => d.quotes[b.symbol]), d.quotes.SPY].filter(Boolean).map(trim)} />
+          <RelativeChart
+            series={[...d.bdcs.map((b) => d.quotes[b.symbol]), d.quotes.SPY].filter(Boolean).map(trim)}
+            storageKey="rel:bdcs"
+          />
         </div>
       </section>
 
@@ -623,7 +635,7 @@ export default async function Page() {
               RSP ÷ SPY × 100. Falling = the index depends more on a few giants; a sharp reversal often marks a mega-cap
               unwind.
             </p>
-            {breadth.length ? <SeriesChart points={breadth} decimals={3} /> : <div className="empty">Unavailable today.</div>}
+            {breadth.length ? <SeriesChart points={breadth} decimals={3} storageKey="series:breadth" /> : <div className="empty">Unavailable today.</div>}
           </div>
           {fredGroup("fed").map((s) => (
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />
@@ -680,6 +692,7 @@ export default async function Page() {
                   keywords={g.data.keywords}
                   points={g.data.points}
                   ranges={g.data.time === "today 12-m" ? ["3M", "6M", "1Y"] : ["1Y", "2Y", "5Y"]}
+                  storageKey={`trends:${g.id}`}
                 />
               ) : (
                 <div className="empty">Google Trends is rate-limiting requests today. The chart returns on the next successful refresh.</div>

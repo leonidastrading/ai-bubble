@@ -17,6 +17,10 @@ export type DealEdge = {
   source: string;
 };
 
+export type SizeMode = "market" | "deals" | "exposure";
+
+export type Placement = { x: number; y: number; r: number };
+
 export type NetworkNode = {
   id: string;
   name: string;
@@ -24,10 +28,12 @@ export type NetworkNode = {
   basis: "market" | "private" | "unknown";
   asOf: string | null;
   source: string | null;
-  x: number;
-  y: number;
-  r: number;
+  dealsB: number; // disclosed deal dollars in + out
+  exposure: number | null; // dealsB / valueB
+  layouts: Record<SizeMode, Placement>;
 };
+
+type Valued = Omit<NetworkNode, "layouts">;
 
 export type RoundTrip = { a: string; b: string; aToB: DealEdge[]; bToA: DealEdge[]; knownB: number };
 
@@ -81,13 +87,14 @@ async function valueOf(
 }
 
 /** Deterministic force layout: same data in, same picture out. */
-function layout(nodes: (Omit<NetworkNode, "x" | "y" | "r"> & { r?: number })[], edges: DealEdge[]) {
-  const maxV = Math.max(...nodes.map((n) => n.valueB ?? 0), 1);
+function layout(nodes: Valued[], edges: DealEdge[], metric: (n: Valued) => number | null): Placement[] {
+  // Circle area proportional to the metric.
+  const maxV = Math.max(...nodes.map((n) => metric(n) ?? 0), 1e-9);
   const radius = (v: number | null) => (v ? Math.max(16, Math.sqrt(v / maxV) * 92) : 14);
   type SimNode = SimulationNodeDatum & { id: string; r: number };
   const sim: SimNode[] = nodes.map((n, i) => {
     const a = (i / nodes.length) * Math.PI * 2;
-    return { id: n.id, r: radius(n.valueB), x: WIDTH / 2 + Math.cos(a) * 300, y: HEIGHT / 2 + Math.sin(a) * 280 };
+    return { id: n.id, r: radius(metric(n)), x: WIDTH / 2 + Math.cos(a) * 300, y: HEIGHT / 2 + Math.sin(a) * 280 };
   });
   // Pin the two hubs the original chart is organised around.
   const hub = (id: string, x: number, y: number) => {
@@ -107,16 +114,15 @@ function layout(nodes: (Omit<NetworkNode, "x" | "y" | "r"> & { r?: number })[], 
     .stop()
     .tick(400);
 
-  return nodes.map((n, i) => {
+  return nodes.map((_, i) => {
     const s = sim[i];
     const r = s.r;
     return {
-      ...n,
       r,
       x: Math.max(r + 60, Math.min(WIDTH - r - 60, s.x ?? WIDTH / 2)),
       // Leave room above for labels drawn outside small circles.
       y: Math.max(r + 44, Math.min(HEIGHT - r - 16, s.y ?? HEIGHT / 2)),
-    } as NetworkNode;
+    };
   });
 }
 
@@ -134,11 +140,11 @@ export async function getNetwork(quotes: Map<string, Quote>, errors: string[]): 
   });
   const jpyPerUsd = all.get("JPY=X")?.last;
 
-  const valued = await mapLimit(raw, 2, async (n) => ({
-    id: n.id,
-    name: n.name,
-    ...(await valueOf(n, all, jpyPerUsd ? 1 / jpyPerUsd : null, errors)),
-  }));
+  const valued: Valued[] = await mapLimit(raw, 2, async (n) => {
+    const v = await valueOf(n, all, jpyPerUsd ? 1 / jpyPerUsd : null, errors);
+    const dealsB = edges.filter((e) => e.from === n.id || e.to === n.id).reduce((t, e) => t + (e.amountB ?? 0), 0);
+    return { id: n.id, name: n.name, ...v, dealsB, exposure: v.valueB && dealsB ? dealsB / v.valueB : null };
+  });
 
   // Pairs with money flowing both ways: the "circular" part of the web.
   const roundTrips: RoundTrip[] = [];
@@ -159,7 +165,12 @@ export async function getNetwork(quotes: Map<string, Quote>, errors: string[]): 
   return {
     updated: deals.updated,
     notes: deals.notes,
-    nodes: layout(valued, edges),
+    nodes: (() => {
+      const market = layout(valued, edges, (n) => n.valueB);
+      const dealsL = layout(valued, edges, (n) => n.dealsB || null);
+      const exposure = layout(valued, edges, (n) => n.exposure);
+      return valued.map((n, i) => ({ ...n, layouts: { market: market[i], deals: dealsL[i], exposure: exposure[i] } }));
+    })(),
     edges,
     roundTrips,
     width: WIDTH,
