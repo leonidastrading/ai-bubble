@@ -89,8 +89,18 @@ export async function getDashboardData(): Promise<DashboardData> {
       priceToNav: price != null && nav ? price / nav : null,
     };
   });
-  const ratios = bdcs.map((b) => b.priceToNav).filter((x): x is number => x != null);
-  const bdcPriceToNav = ratios.length ? ratios.reduce((a, b) => a + b, 0) / ratios.length : null;
+  // Median, not mean: internally managed BDCs (MAIN, HTGC) carry structural
+  // premiums that would otherwise mask discounts elsewhere.
+  const ratios = bdcs
+    .map((b) => b.priceToNav)
+    .filter((x): x is number => x != null)
+    .sort((a, b) => a - b);
+  const mid = Math.floor(ratios.length / 2);
+  const bdcPriceToNav = !ratios.length
+    ? null
+    : ratios.length % 2
+      ? ratios[mid]
+      : (ratios[mid - 1] + ratios[mid]) / 2;
 
   if (!tenders.ok) errors.push(`SEC tender offers: ${tenders.error}`);
 

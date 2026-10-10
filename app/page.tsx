@@ -190,7 +190,7 @@ export default async function Page() {
           <div className="card">
             <h3>Price / NAV</h3>
             <p className="sub">
-              Average {d.bdcPriceToNav != null ? `${d.bdcPriceToNav.toFixed(2)}x` : "—"} · below 1.0x means the market doubts
+              Median {d.bdcPriceToNav != null ? `${d.bdcPriceToNav.toFixed(2)}x` : "—"} · below 1.0x means the market doubts
               the marks
             </p>
             {d.bdcs.some((b) => b.priceToNav != null) ? (

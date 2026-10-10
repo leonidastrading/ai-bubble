@@ -128,7 +128,7 @@ export function computeSignals(input: {
   if (bdcPriceToNav != null)
     out.push({
       id: "bdc",
-      label: "BDC price / NAV",
+      label: "BDC price / NAV (median)",
       stage: "4 · Credit transmits",
       value: `${f2(bdcPriceToNav)}x`,
       score: scale(bdcPriceToNav, 1.05, 0.8),
