@@ -66,7 +66,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       // One group at a time: Trends throttles bursts.
       mapLimit(TRENDS_GROUPS, 1, (g) => settle(fetchTrends(g.keywords, g.time, TRENDS_GEO))),
       readSavedTrends<TrendsData>(),
-      mapLimit(CAPEX_COMPANIES, 2, (c) => settle(fetchCapex(c.symbol, c.name))),
+      mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchCapex(c.symbol, c.name))),
       settle(fetchNvidiaHealth()),
     ]);
 

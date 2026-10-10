@@ -79,6 +79,25 @@ export function yearAgo(series: Quarter[], end: string): number | null {
   return hit?.val ?? null;
 }
 
+/**
+ * Quarterly series merged across alternative tags: companies switch tags over
+ * the years (Alphabet moved between `Revenues` and the ASC 606 tag), so for
+ * each quarter take the first tag, in preference order, that reports it.
+ */
+async function mergedQuarters(symbol: string, concepts: string[]): Promise<Quarter[]> {
+  const lists = await Promise.all(
+    concepts.map((c) =>
+      fetchConcept(symbol, [c])
+        .then((r) => toQuarters(r.facts))
+        .catch(() => [] as Quarter[]),
+    ),
+  );
+  const merged = new Map<string, number>();
+  for (const list of lists) for (const q of list) if (!merged.has(q.end)) merged.set(q.end, q.val);
+  if (!merged.size) throw new Error(`${symbol}: none of ${concepts.join(", ")} reported`);
+  return [...merged.entries()].map(([end, val]) => ({ end, val })).sort((a, b) => a.end.localeCompare(b.end));
+}
+
 const REVENUE = ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet"];
 const CAPEX = [
   "PaymentsToAcquirePropertyPlantAndEquipment",
@@ -99,9 +118,9 @@ export type CapexRow = {
 };
 
 export async function fetchCapex(symbol: string, name: string): Promise<CapexRow> {
-  const [rev, cap] = await Promise.all([fetchConcept(symbol, REVENUE), fetchConcept(symbol, CAPEX)]);
-  const revT = ttm(toQuarters(rev.facts));
-  const capT = ttm(toQuarters(cap.facts));
+  const [revQ, capQ] = await Promise.all([mergedQuarters(symbol, REVENUE), mergedQuarters(symbol, CAPEX)]);
+  const revT = ttm(revQ);
+  const capT = ttm(capQ);
   const capByEnd = new Map(capT.map((q) => [q.end, q.val]));
   const series = revT
     .filter((r) => capByEnd.has(r.end))
@@ -119,7 +138,7 @@ export async function fetchCapex(symbol: string, name: string): Promise<CapexRow
     capexToRevenue: last.capexTtm / last.revenueTtm,
     capexYoY: capPrev ? (last.capexTtm / capPrev - 1) * 100 : null,
     revenueYoY: revPrev ? (last.revenueTtm / revPrev - 1) * 100 : null,
-    series: series.slice(-16),
+    series: series.filter((p) => days(p.end, last.end) <= 5 * 366),
   };
 }
 
@@ -137,8 +156,8 @@ export type NvidiaHealth = {
  * private companies that buy the chips.
  */
 export async function fetchNvidiaHealth(): Promise<NvidiaHealth> {
-  const [rev, cogs, ar, inv, stakes] = await Promise.all([
-    fetchConcept("NVDA", REVENUE),
+  const [revQ, cogs, ar, inv, stakes] = await Promise.all([
+    mergedQuarters("NVDA", REVENUE),
     fetchConcept("NVDA", ["CostOfRevenue", "CostOfGoodsAndServicesSold"]).catch(() => null),
     fetchConcept("NVDA", ["AccountsReceivableNetCurrent"]),
     fetchConcept("NVDA", ["InventoryNet"]).catch(() => null),
@@ -147,7 +166,6 @@ export async function fetchNvidiaHealth(): Promise<NvidiaHealth> {
       "NonMarketableEquitySecurities",
     ]).catch(() => null),
   ]);
-  const revQ = toQuarters(rev.facts);
   const cogsQ = new Map(cogs ? toQuarters(cogs.facts).map((q) => [q.end, q.val]) : []);
   const arI = new Map(toInstants(ar.facts).map((q) => [q.end, q.val]));
   const invI = new Map(inv ? toInstants(inv.facts).map((q) => [q.end, q.val]) : []);
