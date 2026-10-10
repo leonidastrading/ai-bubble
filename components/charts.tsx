@@ -51,7 +51,7 @@ function RangePicker({ value, onChange, options }: { value: RangeKey; onChange: 
 }
 
 /** Calendar-day cutoff so daily and weekly/monthly series share one picker. */
-function sliceByRange(points: Point[], range: RangeKey): Point[] {
+function sliceByRange<T extends { t: string }>(points: T[], range: RangeKey): T[] {
   if (!points.length) return points;
   const days = Math.round((RANGES[range] / 252) * 365);
   const end = new Date(points[points.length - 1].t);
@@ -326,6 +326,97 @@ export function HistoryChart({
           ))}
         </LineChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+/** Google Trends interest (0–100, relative within the group), toggleable lines. */
+export function TrendsChart({
+  keywords,
+  points,
+  ranges,
+}: {
+  keywords: string[];
+  points: { t: string; values: number[] }[];
+  ranges: RangeKey[];
+}) {
+  const [range, setRange] = useState<RangeKey>(ranges[ranges.length - 1]);
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+
+  const data = useMemo(
+    () =>
+      sliceByRange(points, range).map((p) => {
+        const row: Record<string, number | string> = { t: p.t };
+        keywords.forEach((k, i) => (row[k] = p.values[i] ?? 0));
+        return row;
+      }),
+    [points, keywords, range],
+  );
+
+  return (
+    <div>
+      <div className="card-head">
+        <span className="sub">Search interest, 100 = peak for any term in this chart</span>
+        <RangePicker value={range} onChange={setRange} options={ranges} />
+      </div>
+      <div style={{ height: 260 }}>
+        <ResponsiveContainer>
+          <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke="var(--grid)" vertical={false} />
+            <XAxis dataKey="t" tickFormatter={fmtDate} minTickGap={40} {...axisProps} />
+            <YAxis domain={[0, 100]} width={36} {...axisProps} />
+            <Tooltip
+              content={({ active, payload, label }) =>
+                active && payload?.length ? (
+                  <div className="tt">
+                    <div className="tt-date">Week of {label}</div>
+                    {[...payload]
+                      .sort((a, b) => Number(b.value) - Number(a.value))
+                      .map((p) => (
+                        <div className="tt-row" key={String(p.dataKey)}>
+                          <span style={{ color: p.color }}>{String(p.dataKey)}</span>
+                          <span>{Number(p.value)}</span>
+                        </div>
+                      ))}
+                  </div>
+                ) : null
+              }
+            />
+            {keywords.map((k, i) =>
+              hidden.has(k) ? null : (
+                <Line
+                  key={k}
+                  type="monotone"
+                  dataKey={k}
+                  stroke={PALETTE[i % PALETTE.length]}
+                  strokeWidth={1.8}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              ),
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="legend">
+        {keywords.map((k, i) => (
+          <button
+            key={k}
+            aria-pressed={!hidden.has(k)}
+            onClick={() =>
+              setHidden((h) => {
+                const n = new Set(h);
+                if (n.has(k)) n.delete(k);
+                else n.add(k);
+                return n;
+              })
+            }
+          >
+            <i style={{ background: PALETTE[i % PALETTE.length] }} />
+            {k}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

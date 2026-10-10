@@ -162,3 +162,39 @@ export const SEC_WATCH = [
 // SEC requires a descriptive User-Agent with a contact address.
 export const SEC_USER_AGENT =
   process.env.SEC_USER_AGENT ?? "AI Bubble Monitor ai-bubble-monitor@users.noreply.github.com";
+
+// Google Trends: up to 5 terms per group. Values are 0–100 relative to the
+// peak of any term in the same group, so only compare lines within a chart.
+export const TRENDS_GROUPS = [
+  {
+    id: "assistants",
+    title: "AI assistants",
+    blurb: "Consumer attention on the big chatbots. Adoption can keep rising through a bust, as internet use did in 2000.",
+    keywords: ["ChatGPT", "Claude", "Gemini", "Copilot", "DeepSeek"],
+    time: "today 5-y",
+  },
+  {
+    id: "ai",
+    title: "Interest in \"AI\"",
+    blurb: "The broadest read on public attention. A plateau or rollover would mirror internet searches after 2000.",
+    keywords: ["AI"],
+    time: "today 5-y",
+  },
+  {
+    id: "fear",
+    title: "Bubble fear",
+    blurb: "Spikes in these searches tend to coincide with selloffs. Kept apart from \"AI\" so its volume doesn't flatten them.",
+    keywords: ["AI bubble", "AI stocks", "AI crash", "AI layoffs"],
+    time: "today 5-y",
+  },
+  {
+    id: "claude",
+    title: "Claude vs. peers, last 12 months",
+    blurb: "A tighter window to see share-of-attention shifts between labs.",
+    keywords: ["Claude", "ChatGPT", "Gemini", "Grok", "Perplexity"],
+    time: "today 12-m",
+  },
+];
+
+// Empty string = worldwide; use e.g. "US" for one country.
+export const TRENDS_GEO = "";

@@ -16,6 +16,7 @@ It refreshes once a day on Vercel and needs no API keys.
 | Credit spreads & stress | HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
 | Labor | Information and professional-services unemployment, claims, job openings | FRED |
 | Adoption & compute | Gen-AI adoption share, hosting PPI, semiconductor production | FRED |
+| Google Trends | Search interest for AI assistants (ChatGPT, Claude, Gemini, ...), "AI", bubble-fear terms, and Claude vs. peers. The last good copy is saved to Blob in case Trends rate-limits a refresh | Google Trends (unofficial endpoints) |
 | News | Seven Google News searches over the last 7 days | Google News RSS |
 
 All tickers, FRED series, news queries and scoring thresholds live in `lib/config.ts` and `lib/signals.ts`.

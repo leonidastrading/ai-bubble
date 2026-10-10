@@ -1,11 +1,12 @@
-import { BDCS, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS } from "./config";
+import { BDCS, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
 import { fetchFred, type FredData } from "./fred";
 import { fetchGpuPrice, type GpuPrice } from "./gpu";
-import { readHistory, type Snapshot } from "./history";
+import { readHistory, readSavedTrends, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
 import { fetchNews, type NewsItem } from "./news";
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
+import { fetchTrends, type TrendsData } from "./trends";
 import { fetchQuote, type Quote } from "./yahoo";
 
 export type BdcRow = {
@@ -15,6 +16,14 @@ export type BdcRow = {
   nav: number | null;
   navAsOf: string | null;
   priceToNav: number | null;
+};
+
+export type TrendsGroup = {
+  id: string;
+  title: string;
+  blurb: string;
+  data: TrendsData | null;
+  live: boolean; // false = served from the last saved copy
 };
 
 export type DashboardData = {
@@ -29,6 +38,7 @@ export type DashboardData = {
   gpuChange30d: number | null;
   news: { id: string; title: string; items: NewsItem[] }[];
   tenderOffers: Filing[] | null;
+  trends: TrendsGroup[];
   history: Snapshot[];
   errors: string[];
 };
@@ -40,7 +50,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   for (const g of TICKER_GROUPS) for (const t of g.tickers) symbols.set(t.symbol, t.name);
   for (const b of BDCS) symbols.set(b.symbol, b.name);
 
-  const [quoteResults, fredResults, gpuResults, newsResults, navResults, tenders, history] =
+  const [quoteResults, fredResults, gpuResults, newsResults, navResults, tenders, history, trendResults, savedTrends] =
     await Promise.all([
       mapLimit([...symbols], 4, ([s, n]) => settle(fetchQuote(s, n))),
       mapLimit(FRED_SERIES, 4, (f) => settle(fetchFred(f.id))),
@@ -49,6 +59,9 @@ export async function getDashboardData(): Promise<DashboardData> {
       mapLimit(BDCS, 2, (b) => settle(fetchNav(b.symbol))),
       settle(fetchTenderOffers(SEC_WATCH)),
       readHistory(),
+      // One group at a time: Trends throttles bursts.
+      mapLimit(TRENDS_GROUPS, 1, (g) => settle(fetchTrends(g.keywords, g.time, TRENDS_GEO))),
+      readSavedTrends<TrendsData>(),
     ]);
 
   const quotes = new Map<string, Quote>();
@@ -102,6 +115,16 @@ export async function getDashboardData(): Promise<DashboardData> {
       ? ratios[mid]
       : (ratios[mid - 1] + ratios[mid]) / 2;
 
+  const trends: TrendsGroup[] = TRENDS_GROUPS.map((g, i) => {
+    const r = trendResults[i];
+    const meta = { id: g.id, title: g.title, blurb: g.blurb };
+    if (r.ok) return { ...meta, data: r.data, live: true };
+    const saved = savedTrends[g.id];
+    const sameTerms = saved && saved.keywords.join() === g.keywords.join() && saved.time === g.time;
+    errors.push(`Google Trends ${g.title}: ${r.error}${sameTerms ? " (showing last saved copy)" : ""}`);
+    return { ...meta, data: sameTerms ? saved : null, live: false };
+  });
+
   if (!tenders.ok) errors.push(`SEC tender offers: ${tenders.error}`);
 
   // 30-day H100 change from stored snapshots, if we have them.
@@ -127,6 +150,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     gpuChange30d,
     news,
     tenderOffers: tenders.ok ? tenders.data : null,
+    trends,
     history,
     errors,
   };

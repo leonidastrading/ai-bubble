@@ -1,5 +1,5 @@
 import { FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
-import { HBarChart, HistoryChart, RelativeChart, SeriesChart } from "@/components/charts";
+import { HBarChart, HistoryChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
@@ -25,6 +25,7 @@ const SECTIONS = [
   { id: "credit", label: "Credit spreads" },
   { id: "labor", label: "Labor" },
   { id: "economy", label: "Adoption & compute" },
+  { id: "trends", label: "Google Trends" },
   { id: "news", label: "News" },
   { id: "playbook", label: "Playbook" },
 ];
@@ -344,6 +345,47 @@ export default async function Page() {
         </div>
       </section>
 
+      <section id="trends">
+        <h2>Google Trends</h2>
+        <p className="blurb">
+          Worldwide search interest, weekly. Each chart is scaled on its own, so compare lines within a chart, not across
+          charts.
+        </p>
+        <div className="grid g2">
+          {d.trends.map((g) => (
+            <div className="card" key={g.id}>
+              <div className="card-head">
+                <h3>{g.title}</h3>
+                {g.data && !g.live && (
+                  <span className="pill tone-watch" title="Google Trends rate-limited today's fetch">
+                    saved {g.data.fetchedAt.slice(0, 10)}
+                  </span>
+                )}
+              </div>
+              <p className="sub">{g.blurb}</p>
+              {g.data ? (
+                <TrendsChart
+                  keywords={g.data.keywords}
+                  points={g.data.points}
+                  ranges={g.data.time === "today 12-m" ? ["3M", "6M", "1Y"] : ["1Y", "2Y", "5Y"]}
+                />
+              ) : (
+                <div className="empty">Google Trends is rate-limiting requests today. The chart returns on the next successful refresh.</div>
+              )}
+              <p className="note">
+                <a
+                  href={`https://trends.google.com/trends/explore?date=${encodeURIComponent(g.data?.time ?? "today 5-y")}&q=${encodeURIComponent((g.data?.keywords ?? []).join(","))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open in Google Trends ↗
+                </a>
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section id="news">
         <h2>News, last 7 days</h2>
         <p className="blurb">Google News searches, refreshed daily.</p>
@@ -383,7 +425,7 @@ export default async function Page() {
         </div>
         <p className="note">
           Data: Yahoo Finance (prices), FRED (spreads, labor, macro), SEC EDGAR (BDC NAV via XBRL; tender offers via
-          full-text search), Vast.ai (GPU marketplace), Google News (headlines). Not investment advice.
+          full-text search), Vast.ai (GPU marketplace), Google News (headlines), Google Trends (search interest). Not investment advice.
         </p>
       </section>
 
