@@ -9,15 +9,18 @@ It refreshes once a day on Vercel and needs no API keys.
 
 | Section | What it shows | Source |
 | --- | --- | --- |
-| Composite stress gauge | 14 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
+| Composite stress gauge | 17 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
 | AI chips, hyperscalers, neoclouds, private credit, DC REITs & power, broad market | Relative-performance charts vs. S&P 500 and a scoreboard (1D/1M/3M/YTD/off 52-week high) | Yahoo Finance |
+| Hyperscaler capex vs. revenue | Trailing-twelve-month capex, revenue, capex/revenue and YoY growth for MSFT, GOOGL, AMZN, META, ORCL | SEC EDGAR (XBRL) |
+| Circular financing | Nvidia days sales outstanding, days of inventory, and non-marketable stakes in private companies | SEC EDGAR (XBRL) |
 | BDCs & redemptions | Price / NAV for public BDCs; SC TO-I tender-offer filings from non-traded private-credit funds | Yahoo, SEC EDGAR |
 | GPU rental market | Median and interquartile $/GPU-hour for B200, H200, H100, A100 | Vast.ai marketplace |
 | Credit spreads & stress | HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
+| Concentration & Fed | Equal-weight ÷ cap-weight S&P 500, Fed funds rate, 10y−3m curve, recession probability | Yahoo, FRED |
 | Labor | Information and professional-services unemployment, claims, job openings | FRED |
 | Adoption & compute | Gen-AI adoption share, hosting PPI, semiconductor production | FRED |
 | Google Trends | Search interest for AI assistants (ChatGPT, Claude, Gemini, ...), "AI", bubble-fear terms, and Claude vs. peers. The last good copy is saved to Blob in case Trends rate-limits a refresh | Google Trends (unofficial endpoints) |
-| News | Seven Google News searches over the last 7 days | Google News RSS |
+| News | Nine Google News searches over the last 7 days | Google News RSS |
 
 All tickers, FRED series, news queries and scoring thresholds live in `lib/config.ts` and `lib/signals.ts`.
 

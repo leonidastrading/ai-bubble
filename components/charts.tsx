@@ -420,3 +420,80 @@ export function TrendsChart({
     </div>
   );
 }
+
+/** Several series on shared dates (quarterly fundamentals), toggleable legend. */
+export function MultiSeriesChart({
+  rows,
+  keys,
+  format,
+}: {
+  rows: Record<string, number | string | null>[];
+  keys: string[];
+  format: "pct" | "days";
+}) {
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const fmt = (v: number) => (format === "pct" ? `${v.toFixed(0)}%` : `${v.toFixed(0)}d`);
+  return (
+    <div>
+      <div style={{ height: 240 }}>
+        <ResponsiveContainer>
+          <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke="var(--grid)" vertical={false} />
+            <XAxis dataKey="t" tickFormatter={fmtDate} minTickGap={30} {...axisProps} />
+            <YAxis domain={[0, "auto"]} width={44} tickFormatter={fmt} {...axisProps} />
+            <Tooltip
+              content={({ active, payload, label }) =>
+                active && payload?.length ? (
+                  <div className="tt">
+                    <div className="tt-date">Quarter ending {label}</div>
+                    {[...payload]
+                      .sort((a, b) => Number(b.value) - Number(a.value))
+                      .map((p) => (
+                        <div className="tt-row" key={String(p.dataKey)}>
+                          <span style={{ color: p.color }}>{String(p.dataKey)}</span>
+                          <span>{format === "pct" ? `${Number(p.value).toFixed(1)}%` : `${Number(p.value).toFixed(0)} days`}</span>
+                        </div>
+                      ))}
+                  </div>
+                ) : null
+              }
+            />
+            {keys.map((k, i) =>
+              hidden.has(k) ? null : (
+                <Line
+                  key={k}
+                  type="monotone"
+                  dataKey={k}
+                  stroke={PALETTE[i % PALETTE.length]}
+                  strokeWidth={1.8}
+                  dot={{ r: 2 }}
+                  connectNulls
+                  isAnimationActive={false}
+                />
+              ),
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="legend">
+        {keys.map((k, i) => (
+          <button
+            key={k}
+            aria-pressed={!hidden.has(k)}
+            onClick={() =>
+              setHidden((h) => {
+                const n = new Set(h);
+                if (n.has(k)) n.delete(k);
+                else n.add(k);
+                return n;
+              })
+            }
+          >
+            <i style={{ background: PALETTE[i % PALETTE.length] }} />
+            {k}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

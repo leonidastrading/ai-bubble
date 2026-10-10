@@ -1,5 +1,6 @@
-import { BDCS, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
+import { BDCS, CAPEX_COMPANIES, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
 import { fetchFred, type FredData } from "./fred";
+import { fetchCapex, fetchNvidiaHealth, type CapexRow, type NvidiaHealth } from "./fundamentals";
 import { fetchGpuPrice, type GpuPrice } from "./gpu";
 import { readHistory, readSavedTrends, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
@@ -39,6 +40,9 @@ export type DashboardData = {
   news: { id: string; title: string; items: NewsItem[] }[];
   tenderOffers: Filing[] | null;
   trends: TrendsGroup[];
+  capex: CapexRow[];
+  capexAggregate: { capexYoY: number; revenueYoY: number; capexToRevenue: number } | null;
+  nvidia: NvidiaHealth | null;
   history: Snapshot[];
   errors: string[];
 };
@@ -50,7 +54,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   for (const g of TICKER_GROUPS) for (const t of g.tickers) symbols.set(t.symbol, t.name);
   for (const b of BDCS) symbols.set(b.symbol, b.name);
 
-  const [quoteResults, fredResults, gpuResults, newsResults, navResults, tenders, history, trendResults, savedTrends] =
+  const [quoteResults, fredResults, gpuResults, newsResults, navResults, tenders, history, trendResults, savedTrends, capexResults, nvidiaResult] =
     await Promise.all([
       mapLimit([...symbols], 4, ([s, n]) => settle(fetchQuote(s, n))),
       mapLimit(FRED_SERIES, 4, (f) => settle(fetchFred(f.id))),
@@ -62,6 +66,8 @@ export async function getDashboardData(): Promise<DashboardData> {
       // One group at a time: Trends throttles bursts.
       mapLimit(TRENDS_GROUPS, 1, (g) => settle(fetchTrends(g.keywords, g.time, TRENDS_GEO))),
       readSavedTrends<TrendsData>(),
+      mapLimit(CAPEX_COMPANIES, 2, (c) => settle(fetchCapex(c.symbol, c.name))),
+      settle(fetchNvidiaHealth()),
     ]);
 
   const quotes = new Map<string, Quote>();
@@ -125,6 +131,24 @@ export async function getDashboardData(): Promise<DashboardData> {
     return { ...meta, data: sameTerms ? saved : null, live: false };
   });
 
+  const capex: CapexRow[] = [];
+  capexResults.forEach((r, i) => {
+    if (r.ok) capex.push(r.data);
+    else errors.push(`Capex ${CAPEX_COMPANIES[i].symbol}: ${r.error}`);
+  });
+  // Dollar-weighted: sum TTM capex and revenue across companies, now vs. a year ago.
+  const withYoY = capex.filter((c) => c.capexYoY != null && c.revenueYoY != null);
+  const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+  const capexAggregate = withYoY.length
+    ? {
+        capexYoY: (sum(withYoY.map((c) => c.capexTtm)) / sum(withYoY.map((c) => c.capexTtm / (1 + c.capexYoY! / 100))) - 1) * 100,
+        revenueYoY: (sum(withYoY.map((c) => c.revenueTtm)) / sum(withYoY.map((c) => c.revenueTtm / (1 + c.revenueYoY! / 100))) - 1) * 100,
+        capexToRevenue: sum(withYoY.map((c) => c.capexTtm)) / sum(withYoY.map((c) => c.revenueTtm)),
+      }
+    : null;
+  if (!nvidiaResult.ok) errors.push(`Nvidia filings: ${nvidiaResult.error}`);
+  const nvidia = nvidiaResult.ok ? nvidiaResult.data : null;
+
   if (!tenders.ok) errors.push(`SEC tender offers: ${tenders.error}`);
 
   // 30-day H100 change from stored snapshots, if we have them.
@@ -136,7 +160,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d });
+  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -151,6 +175,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     news,
     tenderOffers: tenders.ok ? tenders.data : null,
     trends,
+    capex,
+    capexAggregate,
+    nvidia,
     history,
     errors,
   };

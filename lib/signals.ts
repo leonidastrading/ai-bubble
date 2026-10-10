@@ -1,4 +1,5 @@
 import type { FredData } from "./fred";
+import type { NvidiaHealth } from "./fundamentals";
 import type { GpuPrice } from "./gpu";
 import type { Quote } from "./yahoo";
 
@@ -43,9 +44,37 @@ export function computeSignals(input: {
   bdcPriceToNav: number | null;
   gpu: GpuPrice[];
   gpuChange30d: number | null;
+  capexAggregate: { capexYoY: number; revenueYoY: number; capexToRevenue: number } | null;
+  nvidia: NvidiaHealth | null;
 }): Signal[] {
-  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d } = input;
+  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia } = input;
   const out: Signal[] = [];
+
+  if (capexAggregate) {
+    const gap = capexAggregate.capexYoY - capexAggregate.revenueYoY;
+    out.push({
+      id: "capexgap",
+      label: "Capex growth minus revenue growth",
+      stage: "1 · Monetization stalls",
+      value: `${gap >= 0 ? "+" : ""}${f1(gap)} pts`,
+      score: scale(gap, 10, 60),
+      calm: "< +10",
+      stress: "> +60",
+      detail: `Hyperscaler TTM capex ${capexAggregate.capexYoY >= 0 ? "+" : ""}${f1(capexAggregate.capexYoY)}% YoY vs revenue ${capexAggregate.revenueYoY >= 0 ? "+" : ""}${f1(capexAggregate.revenueYoY)}%. Capex is ${(capexAggregate.capexToRevenue * 100).toFixed(0)}% of revenue.`,
+    });
+  }
+
+  if (nvidia)
+    out.push({
+      id: "nvdadso",
+      label: "Nvidia days sales outstanding",
+      stage: "5 · Circular deals",
+      value: `${nvidia.dso.toFixed(0)} days`,
+      score: scale(nvidia.dso, 55, 85),
+      calm: "< 55",
+      stress: "> 85",
+      detail: `Receivables ÷ quarterly revenue × 91, quarter ending ${nvidia.periodEnd}. Customers paying slower is the classic vendor-financing tell.`,
+    });
 
   const chips = basketDrawdown(quotes, ["NVDA", "AVGO", "AMD", "MU", "TSM", "ANET"]);
   if (chips != null)

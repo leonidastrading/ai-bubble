@@ -115,7 +115,7 @@ export type FredSeries = {
   id: string;
   title: string;
   unit: string;
-  group: "credit" | "stress" | "labor" | "economy";
+  group: "credit" | "stress" | "fed" | "labor" | "economy";
   note?: string;
 };
 
@@ -127,6 +127,9 @@ export const FRED_SERIES: FredSeries[] = [
   { id: "VIXCLS", title: "VIX", unit: "", group: "stress" },
   { id: "NFCI", title: "Chicago Fed financial conditions (NFCI)", unit: "", group: "stress", note: "Above 0 = tighter than average." },
   { id: "STLFSI4", title: "St. Louis Fed financial stress", unit: "", group: "stress", note: "Above 0 = above-average stress." },
+  { id: "DFF", title: "Fed funds rate", unit: "%", group: "fed", note: "Step 6: the Fed cuts, but that can't restore earnings that were never going to arrive." },
+  { id: "T10Y3M", title: "Yield curve (10y − 3m)", unit: "%", group: "fed", note: "Re-steepening out of inversion has preceded past recessions." },
+  { id: "RECPROUSM156N", title: "Recession probability (smoothed)", unit: "%", group: "fed", note: "Chauvet–Piger model, monthly." },
   { id: "LNU04032237", title: "Unemployment: information industry", unit: "%", group: "labor", note: "White-collar displacement fingerprint." },
   { id: "LNU04032239", title: "Unemployment: professional & business services", unit: "%", group: "labor" },
   { id: "UNRATE", title: "Unemployment rate (all)", unit: "%", group: "labor" },
@@ -146,6 +149,8 @@ export const NEWS_FEEDS = [
   { id: "spv", title: "Data center financing & SPVs", query: '"data center" (SPV OR "off-balance" OR financing OR bonds OR ABS)' },
   { id: "gpu", title: "GPU prices & neoclouds", query: '"GPU rental" OR "GPU prices" OR CoreWeave OR Nebius debt' },
   { id: "oracle", title: "Oracle & OpenAI financing", query: 'Oracle (debt OR "credit default swaps" OR bonds) OR OpenAI funding' },
+  { id: "circular", title: "Circular & vendor financing", query: '"circular financing" OR "vendor financing" OR "circular deals" (Nvidia OR OpenAI OR AMD OR CoreWeave)' },
+  { id: "open-weight", title: "Open-weight models & price cuts", query: '"open-weight" OR "open source model" OR "inference price" OR "price cut" (LLM OR model) (DeepSeek OR Qwen OR Llama OR Mistral OR Kimi)' },
   { id: "layoffs", title: "AI layoffs & enterprise ROI", query: '"AI layoffs" OR "AI ROI" OR "AI pilots" enterprise' },
 ];
 
@@ -198,3 +203,12 @@ export const TRENDS_GROUPS = [
 
 // Empty string = worldwide; use e.g. "US" for one country.
 export const TRENDS_GEO = "";
+
+// Quarterly fundamentals from SEC XBRL filings.
+export const CAPEX_COMPANIES = [
+  { symbol: "MSFT", name: "Microsoft" },
+  { symbol: "GOOGL", name: "Alphabet" },
+  { symbol: "AMZN", name: "Amazon" },
+  { symbol: "META", name: "Meta" },
+  { symbol: "ORCL", name: "Oracle" },
+];

@@ -1,5 +1,5 @@
 import { FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
-import { HBarChart, HistoryChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
+import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
@@ -20,9 +20,12 @@ const REFS: Record<string, { y: number; label: string; tone: "calm" | "stress" |
 const SECTIONS = [
   { id: "signals", label: "Signals" },
   ...TICKER_GROUPS.map((g) => ({ id: g.id, label: g.title.split(" (")[0] })),
+  { id: "capex", label: "Capex vs revenue" },
+  { id: "circular", label: "Circular financing" },
   { id: "bdcs", label: "BDCs & redemptions" },
   { id: "gpu", label: "GPU rental" },
   { id: "credit", label: "Credit spreads" },
+  { id: "fed", label: "Concentration & Fed" },
   { id: "labor", label: "Labor" },
   { id: "economy", label: "Adoption & compute" },
   { id: "trends", label: "Google Trends" },
@@ -41,6 +44,8 @@ function thin<T>(points: T[], recent = 260, older = 260): T[] {
 function trim(q: Quote) {
   return { symbol: q.symbol, name: q.name, points: q.points.slice(-504) };
 }
+
+const usdB = (v: number) => `$${(v / 1e9).toLocaleString("en-US", { maximumFractionDigits: 0 })}B`;
 
 function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof getDashboardData>>["fred"][string] | undefined }) {
   return (
@@ -89,6 +94,26 @@ export default async function Page() {
     h100: h.gpu["H100 SXM"] ?? null,
     pnav: h.bdcPriceToNav,
   }));
+
+  // Capex as % of revenue per company, aligned on quarter-end dates.
+  const capexRows = (() => {
+    const byEnd = new Map<string, Record<string, number | string | null>>();
+    for (const c of d.capex)
+      for (const p of c.series) {
+        const row = byEnd.get(p.end) ?? { t: p.end };
+        row[c.symbol] = +((p.capexTtm / p.revenueTtm) * 100).toFixed(1);
+        byEnd.set(p.end, row);
+      }
+    return [...byEnd.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
+  })();
+
+  // Equal-weight ÷ cap-weight S&P: falling = the index leans harder on a few (AI) giants.
+  const breadth = (() => {
+    const rsp = d.quotes.RSP?.points;
+    const spy = new Map((d.quotes.SPY?.points ?? []).map((p) => [p.t, p.v]));
+    if (!rsp || !spy.size) return [];
+    return rsp.filter((p) => spy.has(p.t)).map((p) => ({ t: p.t, v: +((p.v / spy.get(p.t)!) * 100).toFixed(3) }));
+  })();
 
   const updated = new Date(d.generatedAt).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -180,6 +205,114 @@ export default async function Page() {
           </section>
         );
       })}
+
+      <section id="capex">
+        <h2>Hyperscaler capex vs. revenue</h2>
+        <p className="blurb">
+          Step 1 of the scenario: revenue has to grow into the buildout. If trailing capex keeps growing much faster than
+          revenue, the bet is being extended, not paid off. From 10-Q/10-K filings (SEC XBRL), trailing twelve months.
+        </p>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Capex as % of revenue</h3>
+            <p className="sub">
+              {d.capexAggregate
+                ? `Combined: ${(d.capexAggregate.capexToRevenue * 100).toFixed(0)}% · capex ${d.capexAggregate.capexYoY >= 0 ? "+" : ""}${d.capexAggregate.capexYoY.toFixed(0)}% YoY vs revenue ${d.capexAggregate.revenueYoY >= 0 ? "+" : ""}${d.capexAggregate.revenueYoY.toFixed(0)}%`
+                : "Trailing twelve months"}
+            </p>
+            {capexRows.length ? (
+              <MultiSeriesChart rows={capexRows} keys={d.capex.map((c) => c.symbol)} format="pct" />
+            ) : (
+              <div className="empty">SEC filings data is unavailable today.</div>
+            )}
+          </div>
+          <div className="card">
+            <h3>Latest trailing twelve months</h3>
+            <p className="sub">Capex = purchases of property and equipment; excludes finance leases and SPV-funded builds</p>
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Capex</th>
+                    <th>Revenue</th>
+                    <th>Capex/Rev</th>
+                    <th>Capex YoY</th>
+                    <th>Rev YoY</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {d.capex.map((c) => (
+                    <tr key={c.symbol} title={`Quarter ending ${c.periodEnd}`}>
+                      <td>
+                        <span className="sym">{c.symbol}</span>
+                        <span className="name">{c.periodEnd}</span>
+                      </td>
+                      <td>{usdB(c.capexTtm)}</td>
+                      <td>{usdB(c.revenueTtm)}</td>
+                      <td>{(c.capexToRevenue * 100).toFixed(0)}%</td>
+                      <td><Pct v={c.capexYoY} digits={0} /></td>
+                      <td><Pct v={c.revenueYoY} digits={0} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="note">
+              Off-balance-sheet SPV and lease commitments (about $1.65T by one count) are not in these numbers, so the real
+              buildout is larger. Guidance revisions arrive on earnings calls; watch the &ldquo;Hyperscaler capex&rdquo; news
+              feed.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="circular">
+        <h2>Circular financing</h2>
+        <p className="blurb">
+          Step 5: chipmakers invest in customers who then buy their chips. If reported revenue is partly self-funded, the
+          supplier&apos;s balance sheet shows it first: customers pay slower, inventory builds, and stakes in private AI
+          companies grow. From Nvidia&apos;s 10-Q/10-K filings.
+        </p>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Nvidia: days to collect and days of inventory</h3>
+            {d.nvidia ? (
+              <>
+                <p className="sub">
+                  Quarter ending {d.nvidia.periodEnd}: DSO {d.nvidia.dso.toFixed(0)} days
+                  {d.nvidia.dio != null ? ` · DIO ${d.nvidia.dio.toFixed(0)} days` : ""}
+                </p>
+                <MultiSeriesChart
+                  rows={d.nvidia.series.map((q) => ({ t: q.end, "Days sales outstanding": q.dso, "Days inventory": q.dio }))}
+                  keys={["Days sales outstanding", "Days inventory"]}
+                  format="days"
+                />
+              </>
+            ) : (
+              <div className="empty">SEC filings data is unavailable today.</div>
+            )}
+          </div>
+          <div className="card">
+            <h3>What to read into it</h3>
+            {d.nvidia?.privateStakes != null && (
+              <>
+                <div className="big">{usdB(d.nvidia.privateStakes)}</div>
+                <p className="sub">Nvidia&apos;s non-marketable equity stakes (mostly private AI companies), latest filing</p>
+              </>
+            )}
+            <ul className="muted" style={{ paddingLeft: 18, margin: "8px 0 0" }}>
+              <li>Rising DSO: customers are taking longer to pay, or getting extended terms.</li>
+              <li>Rising inventory days alongside: product is shipping slower than it&apos;s made.</li>
+              <li>Growing private stakes: more of the customer base is funded by the supplier.</li>
+              <li>
+                Not automated: the share of revenue tied to these deals. It appears only in 10-K footnotes and deal
+                announcements, so it&apos;s tracked through the &ldquo;Circular &amp; vendor financing&rdquo; news feed.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
       <section id="bdcs">
         <h2>BDCs & private-credit redemptions</h2>
@@ -314,6 +447,27 @@ export default async function Page() {
         </p>
         <div className="grid g3">
           {[...fredGroup("credit"), ...fredGroup("stress")].map((s) => (
+            <FredCard key={s.id} s={s} data={d.fred[s.id]} />
+          ))}
+        </div>
+      </section>
+
+      <section id="fed">
+        <h2>Concentration & the Fed</h2>
+        <p className="blurb">
+          Step 6: AI names are a large share of S&amp;P 500 weight, so their fall drags the index. The Fed can cut, but that
+          can&apos;t restore earnings that were never going to arrive.
+        </p>
+        <div className="grid g3">
+          <div className="card">
+            <h3>Equal-weight ÷ cap-weight S&amp;P 500</h3>
+            <p className="sub">
+              RSP ÷ SPY × 100. Falling = the index depends more on a few giants; a sharp reversal often marks a mega-cap
+              unwind.
+            </p>
+            {breadth.length ? <SeriesChart points={breadth} decimals={3} /> : <div className="empty">Unavailable today.</div>}
+          </div>
+          {fredGroup("fed").map((s) => (
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />
           ))}
         </div>
