@@ -5,6 +5,7 @@ import { fetchGpuPrice, type GpuPrice } from "./gpu";
 import { readHistory, readSavedTrends, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
 import { fetchNews, type NewsItem } from "./news";
+import { getNetwork, type Network } from "./network";
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
@@ -43,6 +44,7 @@ export type DashboardData = {
   capex: CapexRow[];
   capexAggregate: { capexYoY: number; revenueYoY: number; capexToRevenue: number } | null;
   nvidia: NvidiaHealth | null;
+  network: Network | null;
   history: Snapshot[];
   errors: string[];
 };
@@ -160,6 +162,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
+  const networkResult = await settle(getNetwork(quotes, errors));
+  if (!networkResult.ok) errors.push(`Deal network: ${networkResult.error}`);
+
   const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia });
 
   return {
@@ -178,6 +183,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     capex,
     capexAggregate,
     nvidia,
+    network: networkResult.ok ? networkResult.data : null,
     history,
     errors,
   };

@@ -13,6 +13,7 @@ It refreshes once a day on Vercel and needs no API keys.
 | AI chips, hyperscalers, neoclouds, private credit, DC REITs & power, broad market | Relative-performance charts vs. S&P 500 and a scoreboard (1D/1M/3M/YTD/off 52-week high) | Yahoo Finance |
 | Hyperscaler capex vs. revenue | Trailing-twelve-month capex, revenue, capex/revenue and YoY growth for MSFT, GOOGL, AMZN, META, ORCL | SEC EDGAR (XBRL) |
 | Circular financing | Nvidia days sales outstanding, days of inventory, and non-marketable stakes in private companies | SEC EDGAR (XBRL) |
+| AI money web | Live recreation of Bloomberg's Nvidia/OpenAI deal web: companies sized by market value (price × SEC share count) or last private round, arrows for each deal by type, round-trip pairs, full deal list with sources | `data/ai-deals.json` (curated, reviewed weekly), Yahoo, SEC |
 | BDCs & redemptions | Price / NAV for public BDCs; SC TO-I tender-offer filings from non-traded private-credit funds | Yahoo, SEC EDGAR |
 | GPU rental market | Median and interquartile $/GPU-hour for B200, H200, H100, A100 | Vast.ai marketplace |
 | Credit spreads & stress | HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
@@ -23,6 +24,10 @@ It refreshes once a day on Vercel and needs no API keys.
 | News | Nine Google News searches over the last 7 days | Google News RSS |
 
 All tickers, FRED series, news queries and scoring thresholds live in `lib/config.ts` and `lib/signals.ts`.
+
+## Updating the deal web
+
+The deals live in `data/ai-deals.json`. Arrows point the way money flows (payer → recipient). Each deal needs a `source` URL and a `status`: `announced` (company statement, drawn solid), `reported` (press reports) or `loi` (letter of intent), both drawn dashed. A weekly scheduled Claude Code session reviews the news, edits this file and pushes; Vercel redeploys on push. Market values update daily without any edits.
 
 ## How the daily refresh works
 

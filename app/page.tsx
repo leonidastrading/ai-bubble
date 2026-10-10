@@ -1,4 +1,6 @@
 import { FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
+import { NetworkGraph } from "@/components/network";
+import { DEAL_TYPES } from "@/lib/deal-types";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import { getDashboardData } from "@/lib/data";
@@ -22,6 +24,7 @@ const SECTIONS = [
   ...TICKER_GROUPS.map((g) => ({ id: g.id, label: g.title.split(" (")[0] })),
   { id: "capex", label: "Capex vs revenue" },
   { id: "circular", label: "Circular financing" },
+  { id: "web", label: "AI money web" },
   { id: "bdcs", label: "BDCs & redemptions" },
   { id: "gpu", label: "GPU rental" },
   { id: "credit", label: "Credit spreads" },
@@ -312,6 +315,161 @@ export default async function Page() {
             </ul>
           </div>
         </div>
+      </section>
+
+      <section id="web">
+        <h2>The AI money web</h2>
+        <p className="blurb">
+          A live version of Bloomberg&apos;s &ldquo;How Nvidia and OpenAI fuel the AI money machine&rdquo;. Public companies are
+          sized by today&apos;s market value; private labs by their latest priced round. Deals are curated from announcements
+          and press reports and reviewed weekly.
+        </p>
+        {d.network ? (
+          <>
+            <div className="card">
+              <div className="card-head">
+                <h3>Who pays whom</h3>
+                <span className="faint" style={{ fontSize: 12 }}>
+                  {d.network.edges.length} deals · deal list reviewed {d.network.updated}
+                </span>
+              </div>
+              <NetworkGraph nodes={d.network.nodes} edges={d.network.edges} width={d.network.width} height={d.network.height} />
+            </div>
+            <div className="grid g2" style={{ marginTop: 14 }}>
+              <div className="card">
+                <h3>Round trips: money flowing both ways</h3>
+                <p className="sub">
+                  Pairs where one side funds the other and gets paid back for chips or compute. Known headline amounts
+                  only; many deals don&apos;t disclose a figure.
+                </p>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Pair</th>
+                        <th style={{ textAlign: "left" }}>One way</th>
+                        <th style={{ textAlign: "left" }}>Back</th>
+                        <th>Known $</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {d.network.roundTrips.map((rt) => {
+                        const name = (id: string) => d.network!.nodes.find((n) => n.id === id)?.name ?? id;
+                        const kinds = (es: { type: string }[]) =>
+                          [...new Set(es.map((e) => DEAL_TYPES.find((t) => t.type === e.type)?.label.split(" ")[0]))].join(", ");
+                        return (
+                          <tr key={`${rt.a}-${rt.b}`}>
+                            <td className="sym">
+                              {name(rt.a)} ⇄ {name(rt.b)}
+                            </td>
+                            <td style={{ textAlign: "left" }} className="muted">
+                              {kinds(rt.aToB)}
+                            </td>
+                            <td style={{ textAlign: "left" }} className="muted">
+                              {kinds(rt.bToA)}
+                            </td>
+                            <td>{rt.knownB ? `$${rt.knownB.toFixed(0)}B` : "—"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="card">
+                <h3>Market values used</h3>
+                <p className="sub">Price × shares outstanding (SEC filings); private labs at last round</p>
+                <div className="table-scroll" style={{ maxHeight: 360, overflowY: "auto" }}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Company</th>
+                        <th>Value</th>
+                        <th>Basis</th>
+                        <th>As of</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...d.network.nodes]
+                        .sort((a, b) => (b.valueB ?? 0) - (a.valueB ?? 0))
+                        .map((n) => (
+                          <tr key={n.id}>
+                            <td className="sym">{n.name}</td>
+                            <td>
+                              {n.valueB == null
+                                ? "—"
+                                : n.valueB >= 1000
+                                  ? `$${(n.valueB / 1000).toFixed(2)}T`
+                                  : `$${n.valueB.toFixed(0)}B`}
+                            </td>
+                            <td className="muted">
+                              {n.source ? (
+                                <a href={n.source} target="_blank" rel="noopener noreferrer">
+                                  {n.basis === "market" ? "market" : n.basis === "private" ? "private round" : "n/a"}
+                                </a>
+                              ) : n.basis === "unknown" ? (
+                                "undisclosed"
+                              ) : (
+                                n.basis
+                              )}
+                            </td>
+                            <td className="faint">{n.asOf ?? "—"}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <details className="card" style={{ marginTop: 14 }}>
+              <summary style={{ cursor: "pointer", fontWeight: 600 }}>All {d.network.edges.length} deals, newest first</summary>
+              <div className="table-scroll" style={{ marginTop: 10 }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th style={{ textAlign: "left" }}>Payer → recipient</th>
+                      <th style={{ textAlign: "left" }}>Type</th>
+                      <th>Amount</th>
+                      <th style={{ textAlign: "left" }}>Deal</th>
+                      <th style={{ textAlign: "left" }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...d.network.edges]
+                      .sort((a, b) => b.date.localeCompare(a.date))
+                      .map((e, i) => {
+                        const name = (id: string) => d.network!.nodes.find((n) => n.id === id)?.name ?? id;
+                        return (
+                          <tr key={i}>
+                            <td className="faint">{e.date}</td>
+                            <td style={{ textAlign: "left" }} className="sym">
+                              {name(e.from)} → {name(e.to)}
+                            </td>
+                            <td style={{ textAlign: "left" }} className="muted">
+                              {DEAL_TYPES.find((t) => t.type === e.type)?.label}
+                            </td>
+                            <td>{e.amountB != null ? `$${e.amountB}B` : "—"}</td>
+                            <td className="wrap-cell" style={{ textAlign: "left" }}>
+                              {e.label}{" "}
+                              <a href={e.source} target="_blank" rel="noopener noreferrer">
+                                ↗
+                              </a>
+                            </td>
+                            <td style={{ textAlign: "left" }} className="muted">
+                              {e.status === "loi" ? "LOI" : e.status}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </>
+        ) : (
+          <div className="empty">The deal network couldn&apos;t be built on this refresh.</div>
+        )}
       </section>
 
       <section id="bdcs">

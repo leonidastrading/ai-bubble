@@ -112,3 +112,21 @@ export async function fetchConcept(
   }
   throw new Error(`${ticker} ${errors.join("; ")}`);
 }
+
+/**
+ * Latest cover-page share count (dei:EntityCommonStockSharesOutstanding).
+ * Companies with several share classes report it per class, which this API
+ * omits (404), so callers keep a fallback count.
+ */
+export async function fetchSharesOutstanding(ticker: string): Promise<{ shares: number; asOf: string }> {
+  const cik = (await loadTickerMap()).get(ticker);
+  if (!cik) throw new Error(`No CIK for ${ticker}`);
+  const url = `https://data.sec.gov/api/xbrl/companyconcept/CIK${String(cik).padStart(10, "0")}/dei/EntityCommonStockSharesOutstanding.json`;
+  const json = (await (await cachedFetch(url, { headers: secHeaders, retries: 1 })).json()) as {
+    units: { shares?: Fact[] };
+  };
+  const facts = [...(json.units.shares ?? [])].sort((a, b) => a.end.localeCompare(b.end) || a.filed.localeCompare(b.filed));
+  const last = facts[facts.length - 1];
+  if (!last) throw new Error(`No share count for ${ticker}`);
+  return { shares: last.val, asOf: last.end };
+}
