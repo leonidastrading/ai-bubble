@@ -109,7 +109,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const h100 = gpu.find((g) => g.model === "H100 SXM");
   if (h100 && history.length) {
     const cutoff = new Date(Date.now() - 30 * 86400_000).toISOString().slice(0, 10);
-    const base = [...history].reverse().find((s) => s.date <= cutoff)?.gpu["H100 SXM"] ?? history[0].gpu["H100 SXM"];
+    const base = [...history].reverse().find((s) => s.date <= cutoff)?.gpu["H100 SXM"];
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
