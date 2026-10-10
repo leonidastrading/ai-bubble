@@ -2,7 +2,7 @@ import type { Filing } from "@/lib/sec";
 import type { NewsItem } from "@/lib/news";
 import { scoreLabel, type Signal } from "@/lib/signals";
 import { EXPLAIN } from "@/lib/explain";
-import { stressColor, toScore } from "@/lib/stress-color";
+import { stressColor, stressColorDim, toScore } from "@/lib/stress-color";
 import type { Quote } from "@/lib/yahoo";
 
 export function Pct({ v, digits = 1 }: { v: number | null | undefined; digits?: number }) {
@@ -43,8 +43,8 @@ export function Gauge({ score }: { score: number | null }) {
             <path
               key={a}
               d={arc(a, Math.min(100, a + STEP + 0.4))}
-              // Opaque dim tint (mixed with the card colour) so overlapping segments leave no seams.
-              stroke={filled ? stressColor(a + STEP / 2) : `color-mix(in oklch, ${stressColor(a + STEP / 2)} 22%, var(--panel))`}
+              // Opaque muted tint of the same hue, so overlapping segments leave no seams.
+              stroke={filled ? stressColor(a + STEP / 2) : stressColorDim(a + STEP / 2)}
               strokeWidth={14}
               fill="none"
             />

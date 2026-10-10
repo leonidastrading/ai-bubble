@@ -21,3 +21,15 @@ export function stressColor(score: number, alpha = 1): string {
 export function toScore(v: number, calm: number, crisis: number): number {
   return Math.max(0, Math.min(100, ((v - calm) / (crisis - calm)) * 100));
 }
+
+/**
+ * A muted, opaque version of the same hue for the unfilled part of the gauge.
+ * Computed directly (no color-mix with the background): mixing in a polar
+ * space rotates the hue towards the bluish card colour, which Safari renders
+ * as purple.
+ */
+export function stressColorDim(score: number): string {
+  const t = Math.max(0, Math.min(1, score / 100));
+  const hue = GREEN.h + (RED.h - GREEN.h) * t;
+  return `oklch(var(--ramp-l-dim) 0.055 ${hue.toFixed(1)})`;
+}
