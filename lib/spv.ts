@@ -144,7 +144,10 @@ export async function fetchOffBalance(symbol: string): Promise<OffBalanceRow> {
   ]);
   const last = (xs: Quarter[]) => (xs.length ? xs[xs.length - 1] : null);
   const b = (q: Quarter | null) => (q ? q.val / 1e9 : null);
-  const anchor = last(op) ?? last(purchase);
+  // Label the row with the newest figure's date (leases are often only updated annually).
+  const anchor = [last(op), last(fin), last(purchase)]
+    .filter((q): q is Quarter => q != null)
+    .sort((x, y) => y.end.localeCompare(x.end))[0];
   if (!anchor) throw new Error(`${symbol}: no lease or purchase-obligation data`);
 
   // Quarterly total of leases + purchase obligations. Some items are only
