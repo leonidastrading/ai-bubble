@@ -1,4 +1,4 @@
-import { FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
+import { Explain, FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
 import { NetworkGraph } from "@/components/network";
 import { ResetSettings } from "@/components/reset-settings";
 import { DEAL_TYPES } from "@/lib/deal-types";
@@ -6,6 +6,7 @@ import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, 
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
+import { quarterRows } from "@/lib/quarters";
 import type { Quote } from "@/lib/yahoo";
 
 // Rebuilt at most once a day, plus on demand by the daily cron (/api/refresh).
@@ -83,7 +84,7 @@ function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof 
         </a>
       </div>
       {data && <SeriesChart points={thin(data.points)} unit={s.unit === "%" ? "%" : ""} refs={REFS[s.id]} storageKey={`fred:${s.id}`} />}
-      {s.note && <p className="note">{s.note}</p>}
+      <Explain id={s.id} />
     </div>
   );
 }
@@ -99,17 +100,13 @@ export default async function Page() {
     pnav: h.bdcPriceToNav,
   }));
 
-  // Capex as % of revenue per company, aligned on quarter-end dates.
-  const capexRows = (() => {
-    const byEnd = new Map<string, Record<string, number | string | null>>();
-    for (const c of d.capex)
-      for (const p of c.series) {
-        const row = byEnd.get(p.end) ?? { t: p.end };
-        row[c.symbol] = +((p.capexTtm / p.revenueTtm) * 100).toFixed(1);
-        byEnd.set(p.end, row);
-      }
-    return [...byEnd.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
-  })();
+  // Capex as % of revenue per company, one slot per calendar quarter.
+  const capexRows = quarterRows(
+    d.capex.map((c) => ({
+      key: c.symbol,
+      points: c.series.map((p) => ({ end: p.end, value: +((p.capexTtm / p.revenueTtm) * 100).toFixed(1) })),
+    })),
+  );
 
   // Equal-weight ÷ cap-weight S&P: falling = the index leans harder on a few (AI) giants.
   const breadth = (() => {
@@ -186,6 +183,7 @@ export default async function Page() {
                 : "Connect a Vercel Blob store to this project to record the score, GPU prices and BDC price/NAV every day and chart them here."}
             </p>
           )}
+          <Explain id="history" />
         </div>
       </section>
 
@@ -201,11 +199,13 @@ export default async function Page() {
               <div className="card">
                 <h3>Relative performance{bench ? " vs S&P 500 (dashed)" : ""}</h3>
                 {series.length ? <RelativeChart series={series} storageKey={`rel:${g.id}`} /> : <div className="empty">Unavailable today.</div>}
+                <Explain id={g.id} />
               </div>
               <div className="card">
                 <h3>Scoreboard</h3>
                 <p className="sub">Adjusted closes</p>
                 <QuoteTable quotes={qs} />
+                <Explain id="scoreboard" />
               </div>
             </div>
           </section>
@@ -231,6 +231,7 @@ export default async function Page() {
             ) : (
               <div className="empty">SEC filings data is unavailable today.</div>
             )}
+            <Explain id="capex" />
           </div>
           <div className="card">
             <h3>Latest trailing twelve months</h3>
@@ -290,7 +291,10 @@ export default async function Page() {
                   {d.nvidia.dio != null ? ` · DIO ${d.nvidia.dio.toFixed(0)} days` : ""}
                 </p>
                 <MultiSeriesChart
-                  rows={d.nvidia.series.map((q) => ({ t: q.end, "Days sales outstanding": q.dso, "Days inventory": q.dio }))}
+                  rows={quarterRows([
+                    { key: "Days sales outstanding", points: d.nvidia.series.map((q) => ({ end: q.end, value: q.dso })) },
+                    { key: "Days inventory", points: d.nvidia.series.map((q) => ({ end: q.end, value: q.dio })) },
+                  ])}
                   keys={["Days sales outstanding", "Days inventory"]}
                   format="days"
                   storageKey="multi:nvidia"
@@ -299,6 +303,7 @@ export default async function Page() {
             ) : (
               <div className="empty">SEC filings data is unavailable today.</div>
             )}
+            <Explain id="nvidia" />
           </div>
           <div className="card">
             <h3>What to read into it</h3>
@@ -339,6 +344,7 @@ export default async function Page() {
                 </span>
               </div>
               <NetworkGraph nodes={d.network.nodes} edges={d.network.edges} width={d.network.width} height={d.network.height} />
+              <Explain id="web" />
             </div>
             <div className="grid g2" style={{ marginTop: 14 }}>
               <div className="card">
@@ -504,6 +510,7 @@ export default async function Page() {
             ) : (
               <div className="empty">NAV data from SEC EDGAR is unavailable today.</div>
             )}
+            <Explain id="bdcPnav" />
             <div className="table-scroll" style={{ marginTop: 8 }}>
               <table>
                 <thead>
@@ -544,6 +551,7 @@ export default async function Page() {
             ) : (
               <div className="empty">SEC full-text search is unavailable today.</div>
             )}
+            <Explain id="tenders" />
           </div>
         </div>
         <div className="card" style={{ marginTop: 14 }}>
@@ -552,6 +560,7 @@ export default async function Page() {
             series={[...d.bdcs.map((b) => d.quotes[b.symbol]), d.quotes.SPY].filter(Boolean).map(trim)}
             storageKey="rel:bdcs"
           />
+          <Explain id="bdcPrices" />
         </div>
       </section>
 
@@ -605,6 +614,7 @@ export default async function Page() {
             <p className="note">
               For institutional-grade indices see Silicon Data&apos;s H100 rental index and Ornn. Both are paid.
             </p>
+            <Explain id="gpu" />
           </div>
         </div>
       </section>
@@ -631,11 +641,8 @@ export default async function Page() {
         <div className="grid g3">
           <div className="card">
             <h3>Equal-weight ÷ cap-weight S&amp;P 500</h3>
-            <p className="sub">
-              RSP ÷ SPY × 100. Falling = the index depends more on a few giants; a sharp reversal often marks a mega-cap
-              unwind.
-            </p>
             {breadth.length ? <SeriesChart points={breadth} decimals={3} storageKey="series:breadth" /> : <div className="empty">Unavailable today.</div>}
+            <Explain id="breadth" />
           </div>
           {fredGroup("fed").map((s) => (
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />
@@ -686,7 +693,6 @@ export default async function Page() {
                   </span>
                 )}
               </div>
-              <p className="sub">{g.blurb}</p>
               {g.data ? (
                 <TrendsChart
                   keywords={g.data.keywords}
@@ -706,6 +712,7 @@ export default async function Page() {
                   Open in Google Trends ↗
                 </a>
               </p>
+              <Explain id={`trends:${g.id}`} />
             </div>
           ))}
         </div>

@@ -116,27 +116,26 @@ export type FredSeries = {
   title: string;
   unit: string;
   group: "credit" | "stress" | "fed" | "labor" | "economy";
-  note?: string;
 };
 
 export const FRED_SERIES: FredSeries[] = [
-  { id: "BAMLH0A0HYM2", title: "High-yield OAS", unit: "%", group: "credit", note: "Credit transmits the shock. Above ~5% means a credit squeeze." },
-  { id: "BAMLH0A3HYC", title: "CCC & lower OAS", unit: "%", group: "credit", note: "The weakest borrowers crack first." },
-  { id: "BAMLC0A4CBBB", title: "BBB corporate OAS", unit: "%", group: "credit", note: "Where Oracle and most hyperscaler-adjacent IG debt sits." },
+  { id: "BAMLH0A0HYM2", title: "High-yield OAS", unit: "%", group: "credit" },
+  { id: "BAMLH0A3HYC", title: "CCC & lower OAS", unit: "%", group: "credit" },
+  { id: "BAMLC0A4CBBB", title: "BBB corporate OAS", unit: "%", group: "credit" },
   { id: "DGS10", title: "10-year Treasury yield", unit: "%", group: "credit" },
   { id: "VIXCLS", title: "VIX", unit: "", group: "stress" },
-  { id: "NFCI", title: "Chicago Fed financial conditions (NFCI)", unit: "", group: "stress", note: "Above 0 = tighter than average." },
-  { id: "STLFSI4", title: "St. Louis Fed financial stress", unit: "", group: "stress", note: "Above 0 = above-average stress." },
-  { id: "DFF", title: "Fed funds rate", unit: "%", group: "fed", note: "Step 6: the Fed cuts, but that can't restore earnings that were never going to arrive." },
-  { id: "T10Y3M", title: "Yield curve (10y − 3m)", unit: "%", group: "fed", note: "Re-steepening out of inversion has preceded past recessions." },
-  { id: "RECPROUSM156N", title: "Recession probability (smoothed)", unit: "%", group: "fed", note: "Chauvet–Piger model, monthly." },
-  { id: "LNU04032237", title: "Unemployment: information industry", unit: "%", group: "labor", note: "White-collar displacement fingerprint." },
+  { id: "NFCI", title: "Chicago Fed financial conditions (NFCI)", unit: "", group: "stress" },
+  { id: "STLFSI4", title: "St. Louis Fed financial stress", unit: "", group: "stress" },
+  { id: "DFF", title: "Fed funds rate", unit: "%", group: "fed" },
+  { id: "T10Y3M", title: "Yield curve (10y − 3m)", unit: "%", group: "fed" },
+  { id: "RECPROUSM156N", title: "Recession probability (smoothed)", unit: "%", group: "fed" },
+  { id: "LNU04032237", title: "Unemployment: information industry", unit: "%", group: "labor" },
   { id: "LNU04032239", title: "Unemployment: professional & business services", unit: "%", group: "labor" },
   { id: "UNRATE", title: "Unemployment rate (all)", unit: "%", group: "labor" },
   { id: "ICSA", title: "Initial jobless claims", unit: "", group: "labor" },
   { id: "JTU5100JOL", title: "Job openings: information", unit: "k", group: "labor" },
-  { id: "RPSGENAIUSAGESHAREALL", title: "US adults using generative AI", unit: "%", group: "economy", note: "Adoption is not the problem; monetization is." },
-  { id: "PCU518210518210", title: "PPI: data processing & hosting", unit: "", group: "economy", note: "Falling prices = compute deflation." },
+  { id: "RPSGENAIUSAGESHAREALL", title: "US adults using generative AI", unit: "%", group: "economy" },
+  { id: "PCU518210518210", title: "PPI: data processing & hosting", unit: "", group: "economy" },
   { id: "IPG3344S", title: "Industrial production: semiconductors", unit: "", group: "economy" },
 ];
 

@@ -1,6 +1,7 @@
 import type { Filing } from "@/lib/sec";
 import type { NewsItem } from "@/lib/news";
 import { scoreLabel, type Signal } from "@/lib/signals";
+import { EXPLAIN } from "@/lib/explain";
 import { stressColor, toScore } from "@/lib/stress-color";
 import type { Quote } from "@/lib/yahoo";
 
@@ -215,5 +216,21 @@ export function FilingsTable({ filings }: { filings: Filing[] }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+/** What / why / watch notes under a chart (text lives in lib/explain.ts). */
+export function Explain({ id }: { id: string }) {
+  const e = EXPLAIN[id];
+  if (!e) return null;
+  return (
+    <dl className="explain">
+      <dt>What it is</dt>
+      <dd>{e.what}</dd>
+      <dt>Why it matters</dt>
+      <dd>{e.why}</dd>
+      <dt>Watch for</dt>
+      <dd>{e.watch}</dd>
+    </dl>
   );
 }

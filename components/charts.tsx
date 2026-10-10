@@ -457,6 +457,7 @@ export function TrendsChart({
 }
 
 /** Several series on shared dates (quarterly fundamentals), toggleable legend. */
+/** Quarterly series aligned on calendar quarters (see lib/quarters.ts), toggleable legend. */
 export function MultiSeriesChart({
   rows,
   keys,
@@ -474,26 +475,32 @@ export function MultiSeriesChart({
     <div>
       <div style={{ height: 240 }}>
         <ResponsiveContainer>
-          <LineChart data={withTs(rows)} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis {...timeAxis} minTickGap={30} {...axisProps} />
+            {/* One evenly spaced slot per calendar quarter; labels sit on the points. */}
+            <XAxis dataKey="q" interval="preserveStartEnd" minTickGap={24} {...axisProps} />
             <YAxis domain={[0, "auto"]} width={44} tickFormatter={fmt} {...axisProps} />
             <Tooltip
-              content={({ active, payload, label }) =>
-                active && payload?.length ? (
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const row = payload[0].payload as Record<string, string | number | null>;
+                return (
                   <div className="tt">
-                    <div className="tt-date">Quarter ending {isoDay(Number(label))}</div>
+                    <div className="tt-date">{row.qFull}</div>
                     {[...payload]
                       .sort((a, b) => Number(b.value) - Number(a.value))
                       .map((p) => (
                         <div className="tt-row" key={String(p.dataKey)}>
-                          <span style={{ color: p.color }}>{String(p.dataKey)}</span>
+                          <span style={{ color: p.color }}>
+                            {String(p.dataKey)}
+                            <span className="faint"> · to {String(row[`${String(p.dataKey)}__end`] ?? "")}</span>
+                          </span>
                           <span>{format === "pct" ? `${Number(p.value).toFixed(1)}%` : `${Number(p.value).toFixed(0)} days`}</span>
                         </div>
                       ))}
                   </div>
-                ) : null
-              }
+                );
+              }}
             />
             {keys.map((k, i) =>
               hidden.has(k) ? null : (

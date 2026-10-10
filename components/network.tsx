@@ -29,7 +29,17 @@ function fmtMetric(n: NetworkNode, mode: SizeMode) {
   return n.exposure != null ? `${n.exposure >= 1 ? n.exposure.toFixed(1) : n.exposure.toFixed(2)}× value` : "n/a";
 }
 
-function edgePath(a: Placement, b: Placement) {
+/** Line width proportional to the disclosed amount; undisclosed deals are hairlines. */
+function edgeWidth(e: DealEdge, maxAmount: number) {
+  return e.amountB ? Math.max(1.4, (e.amountB / maxAmount) * 18) : 1;
+}
+
+/**
+ * Curved edge between circle rims. The bend keeps A→B and B→A apart. The
+ * arrowhead is drawn as its own triangle, sized to the line, and the curve
+ * stops at its base so thick lines don't poke through the tip.
+ */
+function edgePath(a: Placement, b: Placement, width: number) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
@@ -38,7 +48,6 @@ function edgePath(a: Placement, b: Placement) {
   const bend = Math.min(60, len * 0.18);
   const mx = (a.x + b.x) / 2 - uy * bend;
   const my = (a.y + b.y) / 2 + ux * bend;
-  // Start and end where the curve meets each circle, plus a little air for the arrowhead.
   const toward = (n: Placement, tx: number, ty: number, pad: number) => {
     const vx = tx - n.x;
     const vy = ty - n.y;
@@ -46,8 +55,21 @@ function edgePath(a: Placement, b: Placement) {
     return [n.x + (vx / l) * (n.r + pad), n.y + (vy / l) * (n.r + pad)];
   };
   const [sx, sy] = toward(a, mx, my, 2);
-  const [ex, ey] = toward(b, mx, my, 7);
-  return { d: `M${sx},${sy} Q${mx},${my} ${ex},${ey}`, mx, my };
+  const [tx, ty] = toward(b, mx, my, 3); // arrow tip
+  // Direction at the end of a quadratic curve runs from the control point to the end.
+  const vx = tx - mx;
+  const vy = ty - my;
+  const vl = Math.hypot(vx, vy) || 1;
+  const dirx = vx / vl;
+  const diry = vy / vl;
+  const head = Math.min(24, Math.max(10, width * 2.2));
+  const half = Math.min(15, Math.max(5, width * 1.3));
+  const bx = tx - dirx * head;
+  const by = ty - diry * head;
+  return {
+    d: `M${sx},${sy} Q${mx},${my} ${bx + dirx},${by + diry}`,
+    arrow: `M${tx},${ty} L${bx - diry * half},${by + dirx * half} L${bx + diry * half},${by - dirx * half} Z`,
+  };
 }
 
 type Hover = { kind: "node"; id: string } | { kind: "edge"; i: number } | null;
@@ -70,6 +92,7 @@ export function NetworkGraph({
   const at = (n: NetworkNode) => n.layouts[mode];
   const active = pinned ?? hover;
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
+  const maxAmount = useMemo(() => Math.max(1, ...edges.map((e) => e.amountB ?? 0)), [edges]);
 
   const visible = edges.map((e, i) => ({ e, i })).filter(({ e }) => !off.has(e.type) && byId.has(e.from) && byId.has(e.to));
   const lit = (e: DealEdge, i: number) =>
@@ -136,7 +159,7 @@ export function NetworkGraph({
             {t.label}
           </button>
         ))}
-        <span className="faint">· arrows point the way money flows · click to pin</span>
+        <span className="faint">· arrows point the way money flows · line width = disclosed amount (hairline = undisclosed) · click to pin</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
         <svg
@@ -147,45 +170,29 @@ export function NetworkGraph({
           style={{ display: "block", touchAction: "manipulation" }}
           onClick={() => setPinned(null)}
         >
-          <defs>
-            {DEAL_TYPES.map((t) => (
-              <marker
-                key={t.type}
-                id={`arrow-${t.type}`}
-                viewBox="0 0 10 10"
-                refX="8"
-                refY="5"
-                markerWidth="11"
-                markerHeight="11"
-                markerUnits="userSpaceOnUse"
-                orient="auto-start-reverse"
-              >
-                <path d="M0,0 L10,5 L0,10 z" fill={t.color} />
-              </marker>
-            ))}
-          </defs>
           {visible.map(({ e, i }) => {
             const a = byId.get(e.from)!;
             const b = byId.get(e.to)!;
-            const { d } = edgePath(at(a), at(b));
+            const w = edgeWidth(e, maxAmount);
+            const { d, arrow } = edgePath(at(a), at(b), w);
             const on = lit(e, i);
             return (
-              <g key={i}>
+              <g key={i} opacity={on ? 0.85 : 0.08}>
                 <path
                   d={d}
                   fill="none"
                   stroke={colorOf(e.type)}
-                  strokeWidth={e.amountB ? Math.min(6, 1.4 + Math.sqrt(e.amountB) / 4) : 1.4}
-                  strokeDasharray={e.status === "announced" ? undefined : "5 4"}
-                  markerEnd={`url(#arrow-${e.type})`}
-                  opacity={on ? 0.9 : 0.08}
+                  strokeWidth={w}
+                  // Dashes scale with the line so thick unconfirmed deals stay readable.
+                  strokeDasharray={e.status === "announced" ? undefined : `${Math.max(5, w * 1.8)} ${Math.max(4, w * 1.1)}`}
                 />
+                <path d={arrow} fill={colorOf(e.type)} />
                 {/* Wide invisible stroke so thin curves are easy to hover. */}
                 <path
                   d={d}
                   fill="none"
                   stroke="transparent"
-                  strokeWidth={14}
+                  strokeWidth={Math.max(14, w + 6)}
                   style={{ cursor: "pointer" }}
                   onMouseEnter={() => setHover({ kind: "edge", i })}
                   onMouseLeave={() => setHover(null)}
