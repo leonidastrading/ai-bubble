@@ -269,10 +269,11 @@ export function HBarChart({
 }: {
   rows: { label: string; value: number }[];
   reference?: number;
-  format: "ratio" | "usd";
+  format: "ratio" | "usd" | "usdB";
   toneFor?: "pnav";
 }) {
-  const fmt = (v: number) => (format === "ratio" ? `${v.toFixed(2)}x` : `$${v.toFixed(2)}`);
+  const fmt = (v: number) =>
+    format === "ratio" ? `${v.toFixed(2)}x` : format === "usdB" ? `$${v.toFixed(v < 10 ? 1 : 0)}B` : `$${v.toFixed(2)}`;
   const tone = (v: number) =>
     toneFor === "pnav" ? stressColor(toScore(v, 1.05, 0.8)) : "var(--s1)";
   const max = Math.max(...rows.map((r) => r.value), reference ?? 0);
@@ -467,10 +468,10 @@ export function MultiSeriesChart({
   storageKey?: string;
   rows: Record<string, number | string | null>[];
   keys: string[];
-  format: "pct" | "days";
+  format: "pct" | "days" | "usdB";
 }) {
   const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
-  const fmt = (v: number) => (format === "pct" ? `${v.toFixed(0)}%` : `${v.toFixed(0)}d`);
+  const fmt = (v: number) => (format === "pct" ? `${v.toFixed(0)}%` : format === "usdB" ? `$${v.toFixed(0)}B` : `${v.toFixed(0)}d`);
   return (
     <div>
       <div style={{ height: 240 }}>
@@ -495,7 +496,13 @@ export function MultiSeriesChart({
                             {String(p.dataKey)}
                             <span className="faint"> · to {String(row[`${String(p.dataKey)}__end`] ?? "")}</span>
                           </span>
-                          <span>{format === "pct" ? `${Number(p.value).toFixed(1)}%` : `${Number(p.value).toFixed(0)} days`}</span>
+                          <span>
+                            {format === "pct"
+                              ? `${Number(p.value).toFixed(1)}%`
+                              : format === "usdB"
+                                ? `$${Number(p.value).toFixed(1)}B`
+                                : `${Number(p.value).toFixed(0)} days`}
+                          </span>
                         </div>
                       ))}
                   </div>

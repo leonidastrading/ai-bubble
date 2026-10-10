@@ -6,6 +6,7 @@ import { readHistory, readSavedTrends, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
 import { fetchNews, type NewsItem } from "./news";
 import { getNetwork, type Network } from "./network";
+import { fetchOffBalance, getSpvSummary, type OffBalanceRow, type SpvSummary } from "./spv";
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
@@ -45,6 +46,8 @@ export type DashboardData = {
   capexAggregate: { capexYoY: number; revenueYoY: number; capexToRevenue: number } | null;
   nvidia: NvidiaHealth | null;
   network: Network | null;
+  spv: SpvSummary;
+  offBalance: OffBalanceRow[];
   history: Snapshot[];
   errors: string[];
 };
@@ -162,10 +165,19 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const networkResult = await settle(getNetwork(quotes, errors));
+  const [networkResult, offBalanceResults] = await Promise.all([
+    settle(getNetwork(quotes, errors)),
+    mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
+  ]);
+  const offBalance: OffBalanceRow[] = [];
+  offBalanceResults.forEach((r, i) => {
+    if (r.ok) offBalance.push(r.data);
+    else errors.push(`Off-balance-sheet ${CAPEX_COMPANIES[i].symbol}: ${r.error}`);
+  });
+  const spv = getSpvSummary(Object.fromEntries(quotes));
   if (!networkResult.ok) errors.push(`Deal network: ${networkResult.error}`);
 
-  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia });
+  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -184,6 +196,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     capexAggregate,
     nvidia,
     network: networkResult.ok ? networkResult.data : null,
+    spv,
+    offBalance,
     history,
     errors,
   };

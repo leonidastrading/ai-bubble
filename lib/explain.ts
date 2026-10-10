@@ -213,4 +213,31 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Shows shifts in attention between labs, which matter for their next funding rounds and valuations.",
     watch: "A fast-rising challenger, or the leader losing share.",
   },
+
+  // ── SPV tracker ──
+  spvDebt: {
+    what: "Total debt in the SPVs tracked here, split by type and by the tenant that pays the lease (the first-named tenant signs it).",
+    why: "This is debt that supports the AI buildout but doesn't appear on the tenants' balance sheets. If a tenant walks away, it falls to the SPV's lenders.",
+    watch: "New vehicles for the same tenant in quick succession, and tenants whose stock or credit is already weak (Oracle) carrying the most.",
+  },
+  spvProviders: {
+    what: "Every lender and equity investor named in the tracked SPVs, with how many vehicles they're in and the debt in those vehicles. Public firms show their stock's distance from its 52-week high.",
+    why: "SPV losses land here. Concentration in one provider (Blue Owl appears in several) means one bad project can hit its funds' redemptions and its stock.",
+    watch: "A provider's stock falling while its SPV loans trade below par, and providers appearing in more and more vehicles.",
+  },
+  spvTable: {
+    what: "Each tracked vehicle: what it owns, who leases it, how it's funded, its rating, and the latest reported trading price of its loans.",
+    why: "Loan prices are the first market verdict on a single project. A loan below par means lenders doubt the tenant will keep paying or that the asset covers the debt.",
+    watch: "Any loan below about 95 cents, force-majeure or delay notices, and GPU vehicles whose customers are below investment grade.",
+  },
+  offBalance: {
+    what: "Each hyperscaler's future lease payments and unrecorded purchase obligations (signed contracts not yet on the balance sheet), compared with its reported long-term debt.",
+    why: "SPV deals appear in the tenant's filings as commitments, not debt. A ratio well above 1× means most of what it owes for the buildout sits off the balance sheet.",
+    watch: "Fast quarter-to-quarter jumps in purchase obligations. Leases that haven't started yet are disclosed only in text, so the real total is higher.",
+  },
+  offBalanceTrend: {
+    what: "Leases plus purchase obligations per company over time, in billions, aligned to calendar quarters.",
+    why: "Shows how quickly off-balance-sheet commitments are piling up relative to each other.",
+    watch: "A line steepening after capex guidance is cut: that would mean spending moved off the balance sheet rather than stopping.",
+  },
 };

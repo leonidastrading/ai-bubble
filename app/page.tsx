@@ -3,6 +3,7 @@ import { NetworkGraph } from "@/components/network";
 import { ResetSettings } from "@/components/reset-settings";
 import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
+import { stressColor, toScore } from "@/lib/stress-color";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import { getDashboardData } from "@/lib/data";
@@ -28,6 +29,7 @@ const SECTIONS = [
   { id: "capex", label: "Capex vs revenue" },
   { id: "circular", label: "Circular financing" },
   { id: "web", label: "AI money web" },
+  { id: "spv", label: "SPV tracker" },
   { id: "bdcs", label: "BDCs & redemptions" },
   { id: "gpu", label: "GPU rental" },
   { id: "credit", label: "Credit spreads" },
@@ -463,6 +465,237 @@ export default async function Page() {
         ) : (
           <div className="empty">The deal network couldn&apos;t be built on this refresh.</div>
         )}
+      </section>
+
+      <section id="spv">
+        <h2>SPV tracker</h2>
+        <p className="blurb">
+          Special purpose vehicles hold data centers or GPUs and carry the debt that paid for them, so it stays off the
+          tenant&apos;s balance sheet. Losses land on the lenders, not Big Tech. Vehicles are curated from filings and press
+          reports and reviewed weekly (last {d.spv.updated}); tenant obligations come from SEC filings automatically.
+        </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>Key terms</h3>
+          <dl className="explain glossary">
+            <dt>SPV</dt>
+            <dd>
+              Special purpose vehicle: a separate company set up to own one asset (a data center campus or a pool of GPUs)
+              and borrow against it. The tech company leases the asset instead of owning it, so the debt sits in the SPV.
+            </dd>
+            <dt>Residual value guarantee</dt>
+            <dd>
+              A promise by the tenant to pay the SPV if the asset is worth less than the debt when a lease ends or
+              isn&apos;t renewed. It&apos;s what lets the SPV borrow at the tenant&apos;s credit rating, and it caps what the
+              tenant owes if it walks away.
+            </dd>
+            <dt>DDTL</dt>
+            <dd>
+              Delayed-draw term loan: a loan drawn in stages as GPUs are bought, secured by the GPUs and the customer
+              contracts they serve. CoreWeave numbers its vehicles (DDTL 4.0, 5.0, …).
+            </dd>
+            <dt>Cents on the dollar</dt>
+            <dd>
+              The price of a loan or bond in secondary trading. 100 is par (full value); 90 means buyers want a 10%
+              discount because they doubt full repayment.
+            </dd>
+            <dt>Purchase obligations</dt>
+            <dd>
+              Contracts a company has signed but not yet recorded as liabilities, such as future lease payments and
+              capacity commitments. This is where SPV deals show up in the tenant&apos;s own filings.
+            </dd>
+          </dl>
+        </div>
+
+        <div className="grid g2">
+          <div className="card">
+            <h3>Debt in tracked vehicles</h3>
+            <div style={{ display: "flex", gap: 28, flexWrap: "wrap", margin: "4px 0 10px" }}>
+              <div>
+                <div className="big">${d.spv.totalDebtB.toFixed(0)}B</div>
+                <p className="sub" style={{ margin: 0 }}>{d.spv.spvs.length} vehicles</p>
+              </div>
+              {d.spv.byType.map((t) => (
+                <div key={t.type}>
+                  <div className="big" style={{ fontSize: 20 }}>${t.debtB.toFixed(0)}B</div>
+                  <p className="sub" style={{ margin: 0 }}>
+                    {t.type} · {t.count}
+                  </p>
+                </div>
+              ))}
+              {d.spv.worstPrice && (
+                <div>
+                  <div className="big" style={{ fontSize: 20, color: stressColor(toScore(d.spv.worstPrice.price, 98, 80)) }}>
+                    {d.spv.worstPrice.price}¢
+                  </div>
+                  <p className="sub" style={{ margin: 0 }}>weakest loan price · {d.spv.worstPrice.spv}</p>
+                </div>
+              )}
+            </div>
+            <h3 style={{ marginTop: 6 }}>By tenant (who pays the lease)</h3>
+            <HBarChart rows={d.spv.byTenant.map((t) => ({ label: t.tenant, value: +t.debtB.toFixed(1) }))} format="usdB" />
+            <Explain id="spvDebt" />
+          </div>
+          <div className="card">
+            <h3>Who funds them</h3>
+            <p className="sub">Lenders and equity holders, with the debt in vehicles they&apos;re part of</p>
+            <SortableTable
+              storageKey="table:spv-providers"
+              columns={[
+                { label: "Provider" },
+                { label: "Role", align: "left" },
+                { label: "Vehicles", firstDir: "desc" },
+                { label: "Debt in vehicles", title: "Total debt of the vehicles this provider is part of (not its own share)", firstDir: "desc" },
+                { label: "Off high", title: "Stock distance below its 52-week high, for public providers", firstDir: "asc" },
+              ]}
+              rows={d.spv.providers.map((p) => ({
+                key: p.name,
+                sort: [p.name, p.role, p.vehicles, p.debtInVehiclesB, p.drawdown],
+                cells: [
+                  <>
+                    <span className="sym">{p.name}</span>
+                    {p.ticker && <span className="name">{p.ticker}</span>}
+                  </>,
+                  <span className="muted">{p.role}</span>,
+                  p.vehicles,
+                  `$${p.debtInVehiclesB.toFixed(1)}B`,
+                  p.drawdown != null ? (
+                    <span style={{ color: p.drawdown > -3 ? "var(--muted)" : stressColor(toScore(p.drawdown, -3, -40)) }}>
+                      {p.drawdown.toFixed(1)}%
+                    </span>
+                  ) : (
+                    <span className="faint">—</span>
+                  ),
+                ],
+              }))}
+            />
+            <Explain id="spvProviders" />
+          </div>
+        </div>
+
+        <div className="card" style={{ marginTop: 14 }}>
+          <h3>Vehicles</h3>
+          <SortableTable
+            storageKey="table:spvs"
+            columns={[
+              { label: "Vehicle", className: "wrap-cell" },
+              { label: "Type", align: "left" },
+              { label: "Tenant", align: "left" },
+              { label: "Debt", firstDir: "desc" },
+              { label: "Equity", firstDir: "desc" },
+              { label: "Funded by", align: "left", className: "wrap-cell" },
+              { label: "Rating", align: "left" },
+              { label: "Loan price", title: "Latest reported secondary price, cents on the dollar", firstDir: "asc" },
+              { label: "Status", align: "left" },
+              { label: "Date", firstDir: "desc" },
+            ]}
+            rows={d.spv.spvs.map((v) => ({
+              key: v.id,
+              title: v.terms,
+              sort: [v.name, v.type, v.tenants.join(", "), v.debtB, v.equityB, [...v.equity.map((e) => e.name), ...v.lenders].join(", "), v.rating, v.stress?.price ?? null, v.status, v.date],
+              cells: [
+                <>
+                  <a href={v.source} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600 }}>
+                    {v.name}
+                  </a>
+                  <div className="faint" style={{ fontSize: 11 }}>{v.project}</div>
+                  <div className="faint" style={{ fontSize: 11 }}>{v.terms}</div>
+                </>,
+                <span className="muted">{v.type === "gpu" ? "GPU-backed" : "Data center"}</span>,
+                v.tenants.join(", "),
+                v.debtB != null ? `$${v.debtB}B` : "—",
+                v.equityB != null ? `$${v.equityB}B` : "—",
+                <span className="muted">
+                  {v.equity.length > 0 && <>Equity: {v.equity.map((e) => (e.share ? `${e.name} ${Math.round(e.share * 100)}%` : e.name)).join(", ")}<br /></>}
+                  {v.lenders.length > 0 && <>Debt: {v.lenders.join(", ")}</>}
+                </span>,
+                <span className="muted">{v.rating ?? "—"}</span>,
+                v.stress ? (
+                  <a href={v.stress.source} target="_blank" rel="noopener noreferrer" title={`${v.stress.note} (${v.stress.asOf})`}>
+                    <strong style={{ color: stressColor(toScore(v.stress.price, 98, 80)) }}>{v.stress.price}¢</strong>
+                  </a>
+                ) : (
+                  <span className="faint">—</span>
+                ),
+                <span className="muted">{v.status}</span>,
+                <span className="faint">{v.date ?? "—"}</span>,
+              ],
+            }))}
+          />
+          <Explain id="spvTable" />
+          <details style={{ marginTop: 10 }}>
+            <summary style={{ cursor: "pointer", fontWeight: 600 }}>Timeline of SPV events</summary>
+            <ul className="news" style={{ marginTop: 6 }}>
+              {d.spv.spvs
+                .flatMap((v) => v.events.map((e) => ({ ...e, spv: v.name })))
+                .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
+                .map((e, i) => (
+                  <li key={i}>
+                    <strong>{e.spv}</strong> · {e.text}{" "}
+                    <a href={e.source} target="_blank" rel="noopener noreferrer">
+                      ↗
+                    </a>
+                    <div className="meta">{e.date ?? "date not reported"}</div>
+                  </li>
+                ))}
+            </ul>
+          </details>
+        </div>
+
+        <div className="grid g2" style={{ marginTop: 14 }}>
+          <div className="card">
+            <h3>Tenant commitments vs. reported debt</h3>
+            <p className="sub">Future lease payments + unrecorded purchase obligations, from 10-Q/10-K filings</p>
+            {d.offBalance.length ? (
+              <SortableTable
+                storageKey="table:offbalance"
+                columns={[
+                  { label: "Company" },
+                  { label: "Op. leases", firstDir: "desc" },
+                  { label: "Fin. leases", firstDir: "desc" },
+                  { label: "Purchase oblig.", firstDir: "desc" },
+                  { label: "Debt", firstDir: "desc" },
+                  { label: "Commit ÷ debt", firstDir: "desc" },
+                ]}
+                rows={d.offBalance.map((o) => {
+                  const f = (v: number | null) => (v != null ? `$${v.toFixed(0)}B` : "—");
+                  return {
+                    key: o.symbol,
+                    sort: [o.symbol, o.operatingLeasesB, o.financeLeasesB, o.purchaseObligationsB, o.debtB, o.ratio],
+                    cells: [
+                      <>
+                        <span className="sym">{o.symbol}</span>
+                        <span className="name">{o.periodEnd}</span>
+                      </>,
+                      f(o.operatingLeasesB),
+                      f(o.financeLeasesB),
+                      f(o.purchaseObligationsB),
+                      f(o.debtB),
+                      <strong>{o.ratio != null ? `${o.ratio.toFixed(1)}×` : "—"}</strong>,
+                    ],
+                  };
+                })}
+              />
+            ) : (
+              <div className="empty">SEC filings data is unavailable today.</div>
+            )}
+            <Explain id="offBalance" />
+          </div>
+          <div className="card">
+            <h3>Commitments over time</h3>
+            <p className="sub">Leases + purchase obligations, $B, by calendar quarter</p>
+            {d.offBalance.length ? (
+              <MultiSeriesChart
+                rows={quarterRows(d.offBalance.map((o) => ({ key: o.symbol, points: o.series.map((p) => ({ end: p.end, value: +p.totalB.toFixed(1) })) })))}
+                keys={d.offBalance.map((o) => o.symbol)}
+                format="usdB"
+                storageKey="multi:offbalance"
+              />
+            ) : (
+              <div className="empty">SEC filings data is unavailable today.</div>
+            )}
+            <Explain id="offBalanceTrend" />
+          </div>
+        </div>
       </section>
 
       <section id="bdcs">

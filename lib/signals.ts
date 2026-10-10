@@ -46,9 +46,22 @@ export function computeSignals(input: {
   gpuChange30d: number | null;
   capexAggregate: { capexYoY: number; revenueYoY: number; capexToRevenue: number } | null;
   nvidia: NvidiaHealth | null;
+  spvWorst: { price: number; asOf: string; spv: string } | null;
 }): Signal[] {
-  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia } = input;
+  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst } = input;
   const out: Signal[] = [];
+
+  if (spvWorst)
+    out.push({
+      id: "spvprice",
+      label: "Weakest SPV loan price",
+      stage: "4 · Credit transmits",
+      value: `${spvWorst.price}¢`,
+      score: scale(spvWorst.price, 98, 80),
+      calm: "> 98¢",
+      stress: "< 80¢",
+      detail: `${spvWorst.spv}, as of ${spvWorst.asOf}. Cents on the dollar in secondary trading; reported prices only.`,
+    });
 
   if (capexAggregate) {
     const gap = capexAggregate.capexYoY - capexAggregate.revenueYoY;

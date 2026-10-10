@@ -1,0 +1,295 @@
+{
+  "updated": "2026-10-10",
+  "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
+  "spvs": [
+    {
+      "id": "beignet",
+      "name": "Beignet Investor LLC",
+      "project": "Hyperion campus, Richland Parish, Louisiana",
+      "type": "data-center",
+      "tenants": [
+        "Meta"
+      ],
+      "equity": [
+        {
+          "name": "Blue Owl",
+          "share": 0.8
+        },
+        {
+          "name": "Meta",
+          "share": 0.2
+        }
+      ],
+      "lenders": [
+        "PIMCO",
+        "Blue Owl"
+      ],
+      "debtB": 27,
+      "equityB": 7,
+      "rating": "A+ (S&P)",
+      "terms": "Meta leases all facilities on an initial four-year term with extension options; Meta's residual value guarantee covers the first 16 years if a lease isn't renewed or is terminated",
+      "date": "2025-10-22",
+      "status": "closed",
+      "stress": null,
+      "source": "https://www.bisnow.com/national/news/data-center-capital-markets/meta-pushes-its-largest-data-center-project-off-its-books-with-27b-joint-venture-131490",
+      "events": [
+        {
+          "date": "2025-10-22",
+          "text": "PIMCO-issued investment-grade bonds ($27B) backed by project assets; Blue Owl ~$7B equity for 80% of the JV",
+          "source": "https://www.bisnow.com/national/news/data-center-capital-markets/meta-pushes-its-largest-data-center-project-off-its-books-with-27b-joint-venture-131490"
+        }
+      ]
+    },
+    {
+      "id": "meta-texas",
+      "name": "Meta El Paso SPV",
+      "project": "El Paso, Texas",
+      "type": "data-center",
+      "tenants": [
+        "Meta"
+      ],
+      "equity": [],
+      "lenders": [
+        "Morgan Stanley",
+        "JPMorgan"
+      ],
+      "debtB": 13,
+      "equityB": null,
+      "rating": null,
+      "terms": "Hyperion-style structure; banks plan to syndicate the debt, no anchor lender yet",
+      "date": null,
+      "status": "raising",
+      "stress": null,
+      "source": "https://www.zerohedge.com/markets/meta-raising-13-billion-spv-texas-data-center-its-cds-hits-record",
+      "events": [
+        {
+          "date": null,
+          "text": "Over $13B package led by Morgan Stanley and JPMorgan, reported as Meta's CDS hit a record",
+          "source": "https://www.zerohedge.com/markets/meta-raising-13-billion-spv-texas-data-center-its-cds-hits-record"
+        }
+      ]
+    },
+    {
+      "id": "jupiter",
+      "name": "Project Jupiter",
+      "project": "Doña Ana County, New Mexico (2.45 GW)",
+      "type": "data-center",
+      "tenants": [
+        "Oracle",
+        "OpenAI"
+      ],
+      "equity": [
+        {
+          "name": "Blue Owl",
+          "share": null
+        },
+        {
+          "name": "STACK Infrastructure",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "SMBC",
+        "MUFG",
+        "BNP Paribas",
+        "Goldman Sachs"
+      ],
+      "debtB": 18,
+      "equityB": 3,
+      "rating": null,
+      "terms": "STACK Infrastructure-developed campus leased by Oracle to host OpenAI capacity; Oracle served a force majeure notice in Sept 2026",
+      "date": "2025-11-11",
+      "status": "closed",
+      "stress": {
+        "price": 90,
+        "asOf": "2026-09-25",
+        "note": "Loan quoted at 89–91 cents after Oracle's force majeure notice",
+        "source": "https://www.roic.ai/news/oracle-invokes-force-majeure-on-project-jupiter-as-ai-data-center-financing-stumbles-09-24-2026"
+      },
+      "source": "https://www.datacenterdynamics.com/en/news/oracle-revealed-as-tenant-of-project-jupiter-data-center-campus-in-new-mexico/",
+      "events": [
+        {
+          "date": "2025-11-11",
+          "text": "$18B of loans and bonds led by SMBC, MUFG, BNP Paribas and Goldman Sachs",
+          "source": "https://octus.com/resources/articles/banks-prep-series-of-multibillion-dollar-debt-offerings-for-oracle/"
+        },
+        {
+          "date": "2026-09-24",
+          "text": "Oracle invokes force majeure to shield itself from payments if delays push the facility beyond 2028; Oracle says the project remains on schedule",
+          "source": "https://www.krwg.org/krwg-news/2026-09-25/oracle-cites-force-majeure-on-project-jupiter-seeking-protection-from-loan-debt"
+        }
+      ]
+    },
+    {
+      "id": "vantage-frontier",
+      "name": "Vantage Data Centers (Texas & Wisconsin)",
+      "project": "Two Stargate campuses developed by Vantage for Oracle",
+      "type": "data-center",
+      "tenants": [
+        "Oracle",
+        "OpenAI"
+      ],
+      "equity": [
+        {
+          "name": "Vantage Data Centers",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "JPMorgan-led bank group"
+      ],
+      "debtB": 38,
+      "equityB": null,
+      "rating": null,
+      "terms": "Two term loans ($23B and $15B), four-year maturities with two one-year extensions",
+      "date": "2025-11-11",
+      "status": "closed",
+      "stress": null,
+      "source": "https://octus.com/resources/articles/banks-prep-series-of-multibillion-dollar-debt-offerings-for-oracle/",
+      "events": []
+    },
+    {
+      "id": "xai-colossus2",
+      "name": "xAI Colossus 2 GPU vehicle",
+      "project": "Memphis, Tennessee",
+      "type": "gpu",
+      "tenants": [
+        "xAI"
+      ],
+      "equity": [
+        {
+          "name": "Valor Capital",
+          "share": null
+        },
+        {
+          "name": "Nvidia",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "Apollo",
+        "Diameter Capital"
+      ],
+      "debtB": 12.5,
+      "equityB": 7.5,
+      "rating": null,
+      "terms": "SPV buys Nvidia GPUs and leases them to xAI for five years; GPUs are the collateral; Nvidia up to $2B of the equity",
+      "date": "2025-10-08",
+      "status": "reported",
+      "stress": null,
+      "source": "https://convergedigest.com/nvidia-reportedly-invests-up-to-2b-in-xai-to-power-colossus-2/",
+      "events": []
+    },
+    {
+      "id": "crwv-ddtl-85",
+      "name": "CoreWeave DDTL 4.0",
+      "project": "GPU-backed delayed-draw term loan",
+      "type": "gpu",
+      "tenants": [
+        "CoreWeave"
+      ],
+      "equity": [
+        {
+          "name": "CoreWeave",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "MUFG",
+        "Morgan Stanley"
+      ],
+      "debtB": 8.5,
+      "equityB": null,
+      "rating": "A3 / A (low)",
+      "terms": "SOFR+225 (5.9% fixed tranche); secured by GPUs and customer contracts",
+      "date": "2026-03-01",
+      "status": "closed",
+      "stress": null,
+      "source": "https://www.wing.vc/content/how-the-gpu-became-collateral",
+      "events": []
+    },
+    {
+      "id": "crwv-ddtl5",
+      "name": "CoreWeave DDTL 5.0",
+      "project": "CoreWeave Financing DDTL V, LLC",
+      "type": "gpu",
+      "tenants": [
+        "CoreWeave"
+      ],
+      "equity": [
+        {
+          "name": "CoreWeave",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "Morgan Stanley",
+        "MUFG"
+      ],
+      "debtB": 3.1,
+      "equityB": null,
+      "rating": "Ba2 (Moody's) / BB+ (Fitch)",
+      "terms": "First publicly syndicated HPC infrastructure-backed financing; funds capacity for two large non-investment-grade customers",
+      "date": "2026-05-18",
+      "status": "closed",
+      "stress": null,
+      "source": "https://investors.coreweave.com/news/news-details/2026/CoreWeave-Closes-3-1-Billion-Loan-Facility-Expanding-Access-to-Public-Markets-for-GPU-Backed-Financing/default.aspx",
+      "events": []
+    },
+    {
+      "id": "crwv-ddtl-vv",
+      "name": "CoreWeave Financing DDTL V-V",
+      "project": "GPU-backed delayed-draw term loan",
+      "type": "gpu",
+      "tenants": [
+        "CoreWeave"
+      ],
+      "equity": [
+        {
+          "name": "CoreWeave",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "JPMorgan",
+        "MUFG"
+      ],
+      "debtB": 2.6,
+      "equityB": null,
+      "rating": null,
+      "terms": "Delayed-draw term loan, ~5-year maturity; no draw schedule or parent recourse disclosed",
+      "date": "2026-08-11",
+      "status": "closed",
+      "stress": null,
+      "source": "https://finance.yahoo.com/technology/ai/articles/coreweave-closes-2-6-billion-132706704.html",
+      "events": []
+    },
+    {
+      "id": "lambda-tlb",
+      "name": "Lambda term loan B vehicle",
+      "project": "GPU deployment for an investment-grade customer",
+      "type": "gpu",
+      "tenants": [
+        "Lambda"
+      ],
+      "equity": [
+        {
+          "name": "Lambda",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "Term loan B investors"
+      ],
+      "debtB": 0.926,
+      "equityB": null,
+      "rating": null,
+      "terms": "Asset-backed SPV funding GPUs for an investment-grade customer; amortises with contracted cash flows and hardware life",
+      "date": "2026-09-22",
+      "status": "closed",
+      "stress": null,
+      "source": "https://www.storagenewsletter.com/2026/09/22/lambda-closes-926-million-senior-secured-term-loan-b-facility-backing-gpu-deployment-for-an-investment-grade-customer/",
+      "events": []
+    }
+  ]
+}
