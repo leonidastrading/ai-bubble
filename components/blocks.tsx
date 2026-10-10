@@ -2,6 +2,7 @@ import type { Filing } from "@/lib/sec";
 import type { NewsItem } from "@/lib/news";
 import { scoreLabel, type Signal } from "@/lib/signals";
 import { EXPLAIN } from "@/lib/explain";
+import { SortableTable } from "./sortable-table";
 import { stressColor, stressColorDim, toScore } from "@/lib/stress-color";
 import type { Quote } from "@/lib/yahoo";
 
@@ -73,46 +74,40 @@ export function Gauge({ score }: { score: number | null }) {
 export function SignalTable({ signals }: { signals: Signal[] }) {
   const sorted = [...signals].sort((a, b) => b.score - a.score);
   return (
-    <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Signal</th>
-            <th style={{ textAlign: "left" }}>Scenario step</th>
-            <th>Now</th>
-            <th style={{ textAlign: "left" }}>Stress</th>
-            <th>Calm → Crisis</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((s) => (
-            <tr key={s.id} title={s.detail}>
-              <td>
-                <div style={{ fontWeight: 600 }}>{s.label}</div>
-                <div className="faint" style={{ fontSize: 11, whiteSpace: "normal", maxWidth: 320 }}>
-                  {s.detail}
-                </div>
-              </td>
-              <td style={{ textAlign: "left" }} className="muted">
-                {s.stage}
-              </td>
-              <td>{s.value}</td>
-              <td style={{ textAlign: "left", width: 140 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div className="bar" style={{ flex: 1 }}>
-                    <span style={{ width: `${Math.max(3, s.score)}%`, background: toneVar(s.score) }} />
-                  </div>
-                  <span style={{ color: toneVar(s.score), width: 24 }}>{s.score}</span>
-                </div>
-              </td>
-              <td className="faint" style={{ fontSize: 11 }}>
-                {s.calm} → {s.stress}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <SortableTable
+      storageKey="table:signals"
+      columns={[
+        { label: "Signal" },
+        { label: "Scenario step", align: "left" },
+        { label: "Now", title: "Values have different units, so this sorts within like signals only" },
+        { label: "Stress", align: "left", firstDir: "desc" },
+        { label: "Calm → Crisis" },
+      ]}
+      rows={sorted.map((s) => ({
+        key: s.id,
+        title: s.detail,
+        sort: [s.label, s.stage, parseFloat(s.value.replace(/[^0-9.-]/g, "")), s.score, s.calm],
+        cells: [
+          <>
+            <div style={{ fontWeight: 600 }}>{s.label}</div>
+            <div className="faint" style={{ fontSize: 11, whiteSpace: "normal", maxWidth: 320 }}>
+              {s.detail}
+            </div>
+          </>,
+          <span className="muted">{s.stage}</span>,
+          s.value,
+          <div style={{ display: "flex", alignItems: "center", gap: 8, width: 140 }}>
+            <div className="bar" style={{ flex: 1 }}>
+              <span style={{ width: `${Math.max(3, s.score)}%`, background: toneVar(s.score) }} />
+            </div>
+            <span style={{ color: toneVar(s.score), width: 24 }}>{s.score}</span>
+          </div>,
+          <span className="faint" style={{ fontSize: 11 }}>
+            {s.calm} → {s.stress}
+          </span>,
+        ],
+      }))}
+    />
   );
 }
 
@@ -120,44 +115,39 @@ function fmtPrice(v: number) {
   return v >= 1000 ? v.toLocaleString("en-US", { maximumFractionDigits: 0 }) : v.toFixed(2);
 }
 
-export function QuoteTable({ quotes }: { quotes: Quote[] }) {
+export function QuoteTable({ quotes, storageKey }: { quotes: Quote[]; storageKey?: string }) {
   if (!quotes.length) return <div className="empty">Price data unavailable today.</div>;
   return (
-    <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Ticker</th>
-            <th>Last</th>
-            <th>1D</th>
-            <th>1M</th>
-            <th>3M</th>
-            <th>YTD</th>
-            <th title="Distance below 52-week high">Off high</th>
-          </tr>
-        </thead>
-        <tbody>
-          {quotes.map((q) => (
-            <tr key={q.symbol}>
-              <td>
-                <span className="sym">{q.symbol}</span>
-                <span className="name">{q.name}</span>
-              </td>
-              <td>{fmtPrice(q.last)}</td>
-              <td><Pct v={q.chg1d} /></td>
-              <td><Pct v={q.chg1m} /></td>
-              <td><Pct v={q.chg3m} /></td>
-              <td><Pct v={q.chgYtd} /></td>
-              <td>
-                <span style={{ color: q.drawdown > -3 ? "var(--muted)" : stressColor(toScore(q.drawdown, -3, -40)) }}>
-                  {q.drawdown.toFixed(1)}%
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <SortableTable
+      storageKey={storageKey}
+      columns={[
+        { label: "Ticker" },
+        { label: "Last", firstDir: "desc" },
+        { label: "1D", firstDir: "desc" },
+        { label: "1M", firstDir: "desc" },
+        { label: "3M", firstDir: "desc" },
+        { label: "YTD", firstDir: "desc" },
+        { label: "Off high", title: "Distance below 52-week high", firstDir: "asc" },
+      ]}
+      rows={quotes.map((q) => ({
+        key: q.symbol,
+        sort: [q.symbol, q.last, q.chg1d, q.chg1m, q.chg3m, q.chgYtd, q.drawdown],
+        cells: [
+          <>
+            <span className="sym">{q.symbol}</span>
+            <span className="name">{q.name}</span>
+          </>,
+          fmtPrice(q.last),
+          <Pct v={q.chg1d} />,
+          <Pct v={q.chg1m} />,
+          <Pct v={q.chg3m} />,
+          <Pct v={q.chgYtd} />,
+          <span style={{ color: q.drawdown > -3 ? "var(--muted)" : stressColor(toScore(q.drawdown, -3, -40)) }}>
+            {q.drawdown.toFixed(1)}%
+          </span>,
+        ],
+      }))}
+    />
   );
 }
 
@@ -192,30 +182,22 @@ export function NewsList({ items }: { items: NewsItem[] }) {
 export function FilingsTable({ filings }: { filings: Filing[] }) {
   if (!filings.length) return <div className="empty">No matching tender-offer filings in the window.</div>;
   return (
-    <div className="table-scroll" style={{ maxHeight: 360, overflowY: "auto" }}>
-      <table>
-        <thead>
-          <tr>
-            <th>Fund</th>
-            <th>Form</th>
-            <th>Filed</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filings.slice(0, 40).map((f) => (
-            <tr key={f.link}>
-              <td className="wrap-cell">
-                <a href={f.link} target="_blank" rel="noopener noreferrer">
-                  {f.company}
-                </a>
-              </td>
-              <td>{f.form}</td>
-              <td>{f.filed}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <SortableTable
+      storageKey="table:filings"
+      scrollStyle={{ maxHeight: 360, overflowY: "auto" }}
+      columns={[{ label: "Fund", className: "wrap-cell" }, { label: "Form" }, { label: "Filed", firstDir: "desc" }]}
+      rows={filings.slice(0, 40).map((f) => ({
+        key: f.link,
+        sort: [f.company, f.form, f.filed],
+        cells: [
+          <a href={f.link} target="_blank" rel="noopener noreferrer">
+            {f.company}
+          </a>,
+          f.form,
+          f.filed,
+        ],
+      }))}
+    />
   );
 }
 

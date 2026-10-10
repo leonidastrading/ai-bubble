@@ -1,6 +1,7 @@
 import { Explain, FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
 import { NetworkGraph } from "@/components/network";
 import { ResetSettings } from "@/components/reset-settings";
+import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
@@ -204,7 +205,7 @@ export default async function Page() {
               <div className="card">
                 <h3>Scoreboard</h3>
                 <p className="sub">Adjusted closes</p>
-                <QuoteTable quotes={qs} />
+                <QuoteTable quotes={qs} storageKey={`table:score:${g.id}`} />
                 <Explain id="scoreboard" />
               </div>
             </div>
@@ -236,35 +237,33 @@ export default async function Page() {
           <div className="card">
             <h3>Latest trailing twelve months</h3>
             <p className="sub">Capex = purchases of property and equipment; excludes finance leases and SPV-funded builds</p>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Company</th>
-                    <th>Capex</th>
-                    <th>Revenue</th>
-                    <th>Capex/Rev</th>
-                    <th>Capex YoY</th>
-                    <th>Rev YoY</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {d.capex.map((c) => (
-                    <tr key={c.symbol} title={`Quarter ending ${c.periodEnd}`}>
-                      <td>
-                        <span className="sym">{c.symbol}</span>
-                        <span className="name">{c.periodEnd}</span>
-                      </td>
-                      <td>{usdB(c.capexTtm)}</td>
-                      <td>{usdB(c.revenueTtm)}</td>
-                      <td>{(c.capexToRevenue * 100).toFixed(0)}%</td>
-                      <td><Pct v={c.capexYoY} digits={0} /></td>
-                      <td><Pct v={c.revenueYoY} digits={0} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SortableTable
+              storageKey="table:capex"
+              columns={[
+                { label: "Company" },
+                { label: "Capex", firstDir: "desc" },
+                { label: "Revenue", firstDir: "desc" },
+                { label: "Capex/Rev", firstDir: "desc" },
+                { label: "Capex YoY", firstDir: "desc" },
+                { label: "Rev YoY", firstDir: "desc" },
+              ]}
+              rows={d.capex.map((c) => ({
+                key: c.symbol,
+                title: `Quarter ending ${c.periodEnd}`,
+                sort: [c.symbol, c.capexTtm, c.revenueTtm, c.capexToRevenue, c.capexYoY, c.revenueYoY],
+                cells: [
+                  <>
+                    <span className="sym">{c.symbol}</span>
+                    <span className="name">{c.periodEnd}</span>
+                  </>,
+                  usdB(c.capexTtm),
+                  usdB(c.revenueTtm),
+                  `${(c.capexToRevenue * 100).toFixed(0)}%`,
+                  <Pct v={c.capexYoY} digits={0} />,
+                  <Pct v={c.revenueYoY} digits={0} />,
+                ],
+              }))}
+            />
             <p className="note">
               Off-balance-sheet SPV and lease commitments (about $1.65T by one count) are not in these numbers, so the real
               buildout is larger. Guidance revisions arrive on earnings calls; watch the &ldquo;Hyperscaler capex&rdquo; news
@@ -353,133 +352,112 @@ export default async function Page() {
                   Pairs where one side funds the other and gets paid back for chips or compute. Known headline amounts
                   only; many deals don&apos;t disclose a figure.
                 </p>
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Pair</th>
-                        <th style={{ textAlign: "left" }}>One way</th>
-                        <th style={{ textAlign: "left" }}>Back</th>
-                        <th>Known $</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {d.network.roundTrips.map((rt) => {
-                        const name = (id: string) => d.network!.nodes.find((n) => n.id === id)?.name ?? id;
-                        const kinds = (es: { type: string }[]) =>
-                          [...new Set(es.map((e) => DEAL_TYPES.find((t) => t.type === e.type)?.label.split(" ")[0]))].join(", ");
-                        return (
-                          <tr key={`${rt.a}-${rt.b}`}>
-                            <td className="sym">
-                              {name(rt.a)} ⇄ {name(rt.b)}
-                            </td>
-                            <td style={{ textAlign: "left" }} className="muted">
-                              {kinds(rt.aToB)}
-                            </td>
-                            <td style={{ textAlign: "left" }} className="muted">
-                              {kinds(rt.bToA)}
-                            </td>
-                            <td>{rt.knownB ? `$${rt.knownB.toFixed(0)}B` : "—"}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <SortableTable
+                  storageKey="table:roundtrips"
+                  columns={[
+                    { label: "Pair" },
+                    { label: "One way", align: "left" },
+                    { label: "Back", align: "left" },
+                    { label: "Known $", firstDir: "desc" },
+                  ]}
+                  rows={d.network.roundTrips.map((rt) => {
+                    const name = (id: string) => d.network!.nodes.find((n) => n.id === id)?.name ?? id;
+                    const kinds = (es: { type: string }[]) =>
+                      [...new Set(es.map((e) => DEAL_TYPES.find((t) => t.type === e.type)?.label.split(" ")[0]))].join(", ");
+                    return {
+                      key: `${rt.a}-${rt.b}`,
+                      sort: [`${name(rt.a)} ⇄ ${name(rt.b)}`, kinds(rt.aToB), kinds(rt.bToA), rt.knownB || null],
+                      cells: [
+                        <span className="sym">
+                          {name(rt.a)} ⇄ {name(rt.b)}
+                        </span>,
+                        <span className="muted">{kinds(rt.aToB)}</span>,
+                        <span className="muted">{kinds(rt.bToA)}</span>,
+                        rt.knownB ? `$${rt.knownB.toFixed(0)}B` : "—",
+                      ],
+                    };
+                  })}
+                />
               </div>
               <div className="card">
                 <h3>Values and exposure</h3>
                 <p className="sub">Value = price × shares outstanding (SEC filings), or last private round. Exposure = disclosed deal dollars ÷ value.</p>
-                <div className="table-scroll" style={{ maxHeight: 360, overflowY: "auto" }}>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Company</th>
-                        <th>Value</th>
-                        <th>Basis</th>
-                        <th>As of</th>
-                        <th title="Disclosed deal dollars in and out">Deals</th>
-                        <th title="Deal dollars ÷ value">Exposure</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[...d.network.nodes]
-                        .sort((a, b) => (b.exposure ?? -1) - (a.exposure ?? -1))
-                        .map((n) => (
-                          <tr key={n.id}>
-                            <td className="sym">{n.name}</td>
-                            <td>
-                              {n.valueB == null
-                                ? "—"
-                                : n.valueB >= 1000
-                                  ? `$${(n.valueB / 1000).toFixed(2)}T`
-                                  : `$${n.valueB.toFixed(0)}B`}
-                            </td>
-                            <td className="muted">
-                              {n.source ? (
-                                <a href={n.source} target="_blank" rel="noopener noreferrer">
-                                  {n.basis === "market" ? "market" : n.basis === "private" ? "private round" : "n/a"}
-                                </a>
-                              ) : n.basis === "unknown" ? (
-                                "undisclosed"
-                              ) : (
-                                n.basis
-                              )}
-                            </td>
-                            <td className="faint">{n.asOf ?? "—"}</td>
-                            <td>{n.dealsB ? `$${n.dealsB.toFixed(0)}B` : "—"}</td>
-                            <td style={{ fontWeight: 600 }}>{n.exposure != null ? `${n.exposure.toFixed(2)}×` : "—"}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
+                <SortableTable
+                  storageKey="table:values"
+                  columns={[
+                    { label: "Company" },
+                    { label: "Value", firstDir: "desc" },
+                    { label: "Basis" },
+                    { label: "As of", firstDir: "desc" },
+                    { label: "Deals", title: "Disclosed deal dollars in and out", firstDir: "desc" },
+                    { label: "Exposure", title: "Deal dollars ÷ value", firstDir: "desc" },
+                  ]}
+                  rows={[...d.network.nodes]
+                    .sort((a, b) => (b.exposure ?? -1) - (a.exposure ?? -1))
+                    .map((n) => ({
+                      key: n.id,
+                      sort: [n.name, n.valueB, n.basis, n.asOf, n.dealsB || null, n.exposure],
+                      cells: [
+                        <span className="sym">{n.name}</span>,
+                        n.valueB == null ? "—" : n.valueB >= 1000 ? `$${(n.valueB / 1000).toFixed(2)}T` : `$${n.valueB.toFixed(0)}B`,
+                        <span className="muted">
+                          {n.source ? (
+                            <a href={n.source} target="_blank" rel="noopener noreferrer">
+                              {n.basis === "market" ? "market" : n.basis === "private" ? "private round" : "n/a"}
+                            </a>
+                          ) : n.basis === "unknown" ? (
+                            "undisclosed"
+                          ) : (
+                            n.basis
+                          )}
+                        </span>,
+                        <span className="faint">{n.asOf ?? "—"}</span>,
+                        n.dealsB ? `$${n.dealsB.toFixed(0)}B` : "—",
+                        <strong>{n.exposure != null ? `${n.exposure.toFixed(2)}×` : "—"}</strong>,
+                      ],
+                    }))}
+                />
               </div>
             </div>
             <details className="card" style={{ marginTop: 14 }}>
               <summary style={{ cursor: "pointer", fontWeight: 600 }}>All {d.network.edges.length} deals, newest first</summary>
-              <div className="table-scroll" style={{ marginTop: 10 }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th style={{ textAlign: "left" }}>Payer → recipient</th>
-                      <th style={{ textAlign: "left" }}>Type</th>
-                      <th>Amount</th>
-                      <th style={{ textAlign: "left" }}>Deal</th>
-                      <th style={{ textAlign: "left" }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...d.network.edges]
-                      .sort((a, b) => b.date.localeCompare(a.date))
-                      .map((e, i) => {
-                        const name = (id: string) => d.network!.nodes.find((n) => n.id === id)?.name ?? id;
-                        return (
-                          <tr key={i}>
-                            <td className="faint">{e.date}</td>
-                            <td style={{ textAlign: "left" }} className="sym">
-                              {name(e.from)} → {name(e.to)}
-                            </td>
-                            <td style={{ textAlign: "left" }} className="muted">
-                              {DEAL_TYPES.find((t) => t.type === e.type)?.label}
-                            </td>
-                            <td>{e.amountB != null ? `$${e.amountB}B` : "—"}</td>
-                            <td className="wrap-cell" style={{ textAlign: "left" }}>
-                              {e.label}{" "}
-                              <a href={e.source} target="_blank" rel="noopener noreferrer">
-                                ↗
-                              </a>
-                            </td>
-                            <td style={{ textAlign: "left" }} className="muted">
-                              {e.status === "loi" ? "LOI" : e.status}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
+              <SortableTable
+                storageKey="table:deals"
+                scrollStyle={{ marginTop: 10 }}
+                columns={[
+                  { label: "Date", firstDir: "desc" },
+                  { label: "Payer → recipient", align: "left" },
+                  { label: "Type", align: "left" },
+                  { label: "Amount", firstDir: "desc" },
+                  { label: "Deal", align: "left", className: "wrap-cell" },
+                  { label: "Status", align: "left" },
+                ]}
+                rows={[...d.network.edges]
+                  .sort((a, b) => b.date.localeCompare(a.date))
+                  .map((e) => {
+                    const name = (id: string) => d.network!.nodes.find((n) => n.id === id)?.name ?? id;
+                    const type = DEAL_TYPES.find((t) => t.type === e.type)?.label ?? e.type;
+                    return {
+                      key: `${e.from}-${e.to}-${e.type}-${e.date}`,
+                      sort: [e.date, `${name(e.from)} → ${name(e.to)}`, type, e.amountB, e.label, e.status],
+                      cells: [
+                        <span className="faint">{e.date}</span>,
+                        <span className="sym">
+                          {name(e.from)} → {name(e.to)}
+                        </span>,
+                        <span className="muted">{type}</span>,
+                        e.amountB != null ? `$${e.amountB}B` : "—",
+                        <>
+                          {e.label}{" "}
+                          <a href={e.source} target="_blank" rel="noopener noreferrer">
+                            ↗
+                          </a>
+                        </>,
+                        <span className="muted">{e.status === "loi" ? "LOI" : e.status}</span>,
+                      ],
+                    };
+                  })}
+              />
             </details>
           </>
         ) : (
@@ -493,6 +471,43 @@ export default async function Page() {
           Private-credit marks are self-reported and lag. Public BDCs trading at a widening discount to NAV, and non-traded
           funds facing tender requests above their 5% quarterly cap, are where the market forces a real price.
         </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>Key terms</h3>
+          <dl className="explain glossary">
+            <dt>BDC</dt>
+            <dd>
+              Business development company: a US fund that lends to mid-sized private companies and trades on the stock
+              exchange like a stock (Ares Capital, Blue Owl Capital Corp). It must pay out most of its income as dividends.
+              Public BDCs are the only private-credit funds with a market price every day.
+            </dd>
+            <dt>NAV</dt>
+            <dd>
+              Net asset value per share: what the fund says its loans and other assets are worth, minus its debts, divided
+              by its shares. Reported each quarter in its 10-Q/10-K. The fund values its own loans, so NAV can lag reality.
+            </dd>
+            <dt>Price / NAV</dt>
+            <dd>
+              Share price ÷ NAV. 1.0x means the market agrees with the fund&apos;s valuation; 0.85x means investors think the
+              loans are worth about 15% less than the fund says. Main Street (MAIN) and Hercules (HTGC) usually trade above
+              1.0x because they&apos;re internally managed with long track records, which is why the dashboard uses the median.
+            </dd>
+            <dt>Non-traded fund</dt>
+            <dd>
+              The same kind of lending fund sold to wealthy individuals without a stock listing (e.g. Blackstone Private
+              Credit Fund, Blue Owl Credit Income). There&apos;s no market price; investors can only exit through the
+              fund&apos;s periodic buybacks.
+            </dd>
+            <dt>Tender offer</dt>
+            <dd>
+              The SEC filing (SC TO-I) a non-traded fund makes when it offers to buy back shares: its redemption window.
+            </dd>
+            <dt>Gate</dt>
+            <dd>
+              When redemption requests exceed the cap (usually 5% of shares per quarter) and the fund pays out only part,
+              pro rata. Repeated gating is the classic sign of private-credit stress.
+            </dd>
+          </dl>
+        </div>
         <div className="grid g2">
           <div className="card">
             <h3>Price / NAV</h3>
@@ -510,34 +525,34 @@ export default async function Page() {
             ) : (
               <div className="empty">NAV data from SEC EDGAR is unavailable today.</div>
             )}
+            <SortableTable
+              storageKey="table:bdcs"
+              scrollStyle={{ marginTop: 8 }}
+              columns={[
+                { label: "BDC" },
+                { label: "Price", firstDir: "desc" },
+                { label: "NAV", title: "Net asset value per share, from the latest 10-Q/10-K", firstDir: "desc" },
+                { label: "P/NAV", title: "Price ÷ NAV", firstDir: "asc" },
+                { label: "NAV as of", firstDir: "desc" },
+                { label: "3M", firstDir: "desc" },
+              ]}
+              rows={d.bdcs.map((b) => ({
+                key: b.symbol,
+                sort: [b.symbol, b.price, b.nav, b.priceToNav, b.navAsOf, d.quotes[b.symbol]?.chg3m ?? null],
+                cells: [
+                  <>
+                    <span className="sym">{b.symbol}</span>
+                    <span className="name">{b.name}</span>
+                  </>,
+                  b.price?.toFixed(2) ?? "—",
+                  b.nav?.toFixed(2) ?? "—",
+                  <strong>{b.priceToNav != null ? `${b.priceToNav.toFixed(2)}x` : "—"}</strong>,
+                  <span className="faint">{b.navAsOf ?? "—"}</span>,
+                  <Pct v={d.quotes[b.symbol]?.chg3m} />,
+                ],
+              }))}
+            />
             <Explain id="bdcPnav" />
-            <div className="table-scroll" style={{ marginTop: 8 }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>BDC</th>
-                    <th>Price</th>
-                    <th>NAV</th>
-                    <th>NAV as of</th>
-                    <th>3M</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {d.bdcs.map((b) => (
-                    <tr key={b.symbol}>
-                      <td>
-                        <span className="sym">{b.symbol}</span>
-                        <span className="name">{b.name}</span>
-                      </td>
-                      <td>{b.price?.toFixed(2) ?? "—"}</td>
-                      <td>{b.nav?.toFixed(2) ?? "—"}</td>
-                      <td className="faint">{b.navAsOf ?? "—"}</td>
-                      <td><Pct v={d.quotes[b.symbol]?.chg3m} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
           <div className="card">
             <h3>Tender offers (redemptions) on EDGAR, last 120 days</h3>
@@ -581,30 +596,27 @@ export default async function Page() {
           </div>
           <div className="card">
             <h3>Distribution</h3>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>GPU</th>
-                    <th>25th pct</th>
-                    <th>Median</th>
-                    <th>75th pct</th>
-                    <th>Offers</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {d.gpu.map((g) => (
-                    <tr key={g.model}>
-                      <td className="sym">{g.model}</td>
-                      <td>${g.p25.toFixed(2)}</td>
-                      <td style={{ fontWeight: 600 }}>${g.median.toFixed(2)}</td>
-                      <td>${g.p75.toFixed(2)}</td>
-                      <td className="muted">{g.offers}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SortableTable
+              storageKey="table:gpu"
+              columns={[
+                { label: "GPU" },
+                { label: "25th pct", firstDir: "desc" },
+                { label: "Median", firstDir: "desc" },
+                { label: "75th pct", firstDir: "desc" },
+                { label: "Offers", firstDir: "desc" },
+              ]}
+              rows={d.gpu.map((g) => ({
+                key: g.model,
+                sort: [g.model, g.p25, g.median, g.p75, g.offers],
+                cells: [
+                  <span className="sym">{g.model}</span>,
+                  `$${g.p25.toFixed(2)}`,
+                  <strong>${g.median.toFixed(2)}</strong>,
+                  `$${g.p75.toFixed(2)}`,
+                  <span className="muted">{g.offers}</span>,
+                ],
+              }))}
+            />
             {historyRows.length >= 2 && (
               <>
                 <h3 style={{ marginTop: 16 }}>H100 history</h3>
