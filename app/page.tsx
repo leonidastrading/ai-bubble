@@ -34,6 +34,7 @@ const SECTIONS = [
   { id: "gpu", label: "GPU rental" },
   { id: "credit", label: "Credit spreads" },
   { id: "fed", label: "Concentration & Fed" },
+  { id: "gdp", label: "AI in GDP" },
   { id: "labor", label: "Labor" },
   { id: "economy", label: "Adoption & compute" },
   { id: "trends", label: "Google Trends" },
@@ -63,6 +64,12 @@ const GPU_ROWS: { model: string; label: string; slug: string | null }[] = [
   { model: "A100 SXM4", label: "A100 80GB", slug: "nvidia-a100" },
 ];
 
+function fmtFred(s: FredSeries, v: number) {
+  if (s.unit === "$B") return `$${v.toLocaleString("en-US", { maximumFractionDigits: 0 })}B`;
+  if (s.unit === "$M") return `$${(v / 1000).toLocaleString("en-US", { maximumFractionDigits: 0 })}B`;
+  return `${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}${s.unit === "%" ? "%" : s.unit === "k" ? "k" : ""}`;
+}
+
 function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof getDashboardData>>["fred"][string] | undefined }) {
   return (
     <div className="card">
@@ -73,15 +80,16 @@ function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof 
             {data ? (
               <>
                 <span style={{ color: "var(--text)", fontWeight: 600 }}>
-                  {data.last.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-                  {s.unit === "%" ? "%" : s.unit === "k" ? "k" : ""}
+                  {fmtFred(s, data.last)}
                 </span>{" "}
                 · {data.lastDate}
                 {data.changeYoY != null && (
                   <>
                     {" "}
                     · YoY {data.changeYoY >= 0 ? "+" : ""}
-                    {data.changeYoY.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    {s.unit.startsWith("$")
+                      ? `${((data.changeYoY / (data.last - data.changeYoY)) * 100).toFixed(1)}%`
+                      : data.changeYoY.toLocaleString("en-US", { maximumFractionDigits: 2 })}
                   </>
                 )}
               </>
@@ -94,7 +102,17 @@ function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof 
           FRED {s.id} ↗
         </a>
       </div>
-      {data && <SeriesChart points={thin(data.points)} unit={s.unit === "%" ? "%" : ""} refs={REFS[s.id]} storageKey={`fred:${s.id}`} />}
+      {data && (
+        <SeriesChart
+          points={thin(s.unit === "$M" ? data.points.map((p) => ({ t: p.t, v: p.v / 1000 })) : data.points)}
+          unit={s.unit === "%" ? "%" : ""}
+          refs={REFS[s.id]}
+          storageKey={`fred:${s.id}`}
+          ranges={(s.years ?? 5) > 5 ? ["5Y", "10Y", "25Y", "All"] : undefined}
+          defaultRange={(s.years ?? 5) > 5 ? "All" : undefined}
+          decimals={1}
+        />
+      )}
       <Explain id={s.id} />
     </div>
   );
@@ -102,7 +120,7 @@ function FredCard({ s, data }: { s: FredSeries; data: Awaited<ReturnType<typeof 
 
 export default async function Page() {
   const d = await getDashboardData();
-  const fredGroup = (g: FredSeries["group"]) => FRED_SERIES.filter((s) => s.group === g);
+  const fredGroup = (g: FredSeries["group"]) => FRED_SERIES.filter((s) => s.group === g && !s.hidden);
 
   const historyRows = d.history.map((h) => ({
     date: h.date,
@@ -158,6 +176,14 @@ export default async function Page() {
   const h100Rows = d.gpuHistory
     .filter((w) => w.slug === "nvidia-h100")
     .map((w) => ({ t: w.date, "On-demand": w.onDemand, "12-month reserved": w.reserved12, Spot: w.spot }));
+
+  // IT equipment & software investment as a share of GDP (both quarterly, $B SAAR).
+  const itShare = (() => {
+    const gdp = new Map((d.fred.GDP?.points ?? []).map((p) => [p.t, p.v]));
+    return (d.fred.A679RC1Q027SBEA?.points ?? [])
+      .filter((p) => gdp.get(p.t))
+      .map((p) => ({ t: p.t, v: +((p.v / gdp.get(p.t)!) * 100).toFixed(2) }));
+  })();
 
   const updated = new Date(d.generatedAt).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -1002,6 +1028,62 @@ export default async function Page() {
             <Explain id="breadth" />
           </div>
           {fredGroup("fed").map((s) => (
+            <FredCard key={s.id} s={s} data={d.fred[s.id]} />
+          ))}
+        </div>
+      </section>
+
+      <section id="gdp">
+        <h2>The AI buildout in GDP</h2>
+        <p className="blurb">
+          Step 6 of the scenario says data-center construction has carried a large share of recent GDP growth. These are the
+          national-accounts lines that would show the buildout and its reversal, with history back to the dot-com era for
+          comparison.
+        </p>
+        <div className="grid g3">
+          <div className="card">
+            <h3>IT investment as a share of GDP</h3>
+            <p className="sub">
+              {itShare.length ? (
+                <>
+                  <span style={{ color: "var(--text)", fontWeight: 600 }}>{itShare[itShare.length - 1].v.toFixed(2)}%</span> ·{" "}
+                  {itShare[itShare.length - 1].t} · dot-com peak{" "}
+                  {Math.max(...itShare.filter((p) => p.t >= "1998" && p.t <= "2002").map((p) => p.v)).toFixed(2)}%
+                </>
+              ) : (
+                "Unavailable today"
+              )}
+            </p>
+            {itShare.length > 0 && (
+              <SeriesChart points={itShare} unit="%" storageKey="series:itshare" ranges={["5Y", "10Y", "25Y", "All"]} defaultRange="All" />
+            )}
+            <Explain id="itShare" />
+          </div>
+          <div className="card">
+            <h3>Data center construction (monthly)</h3>
+            <p className="sub">
+              {d.dcConstruction ? (
+                <>
+                  <span style={{ color: "var(--text)", fontWeight: 600 }}>
+                    ${d.dcConstruction[d.dcConstruction.length - 1].v.toFixed(2)}B
+                  </span>{" "}
+                  · {d.dcConstruction[d.dcConstruction.length - 1].t.slice(0, 7)} · inflation-adjusted
+                </>
+              ) : (
+                "Unavailable today"
+              )}
+            </p>
+            {d.dcConstruction && (
+              <SeriesChart points={d.dcConstruction} storageKey="series:dc" ranges={["2Y", "5Y", "10Y", "All"]} defaultRange="All" />
+            )}
+            <p className="note">
+              <a href="https://ourworldindata.org/grapher/monthly-spending-data-center-us" target="_blank" rel="noopener noreferrer">
+                Census via Our World in Data ↗
+              </a>
+            </p>
+            <Explain id="dcConstruction" />
+          </div>
+          {fredGroup("gdp").map((s) => (
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />
           ))}
         </div>

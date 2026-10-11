@@ -271,6 +271,27 @@ export function computeSignals(input: {
       detail: `Chicago Fed index, as of ${nfci.lastDate}. Positive = tighter than average.`,
     });
 
+  // IT equipment & software investment as a share of GDP, against the dot-com peak.
+  const it = fred.get("A679RC1Q027SBEA");
+  const gdp = fred.get("GDP");
+  if (it && gdp) {
+    const gdpAt = new Map(gdp.points.map((p) => [p.t, p.v]));
+    const share = it.points.filter((p) => gdpAt.get(p.t)).map((p) => ({ t: p.t, v: (p.v / gdpAt.get(p.t)!) * 100 }));
+    const last = share[share.length - 1];
+    const peak = Math.max(...share.filter((p) => p.t >= "1998" && p.t <= "2002").map((p) => p.v));
+    if (last && Number.isFinite(peak))
+      out.push({
+        id: "itshare",
+        label: "IT investment share of GDP",
+        stage: "6 · Macro spillover",
+        value: `${f2(last.v)}% (dot-com peak ${f2(peak)}%)`,
+        score: scale(last.v / peak, 0.8, 1.25),
+        calm: "< 0.8× peak",
+        stress: "> 1.25× peak",
+        detail: `Business investment in IT equipment and software ÷ GDP, ${last.t}. Above the 2000 peak means the economy leans on the buildout more than it did then.`,
+      });
+  }
+
   const spy = quotes.get("SPY");
   if (spy)
     out.push({

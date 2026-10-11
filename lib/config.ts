@@ -115,10 +115,20 @@ export type FredSeries = {
   id: string;
   title: string;
   unit: string;
-  group: "credit" | "stress" | "fed" | "labor" | "economy";
+  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp";
+  /** Years of history to fetch (default 5); long series get longer range options. */
+  years?: number;
+  /** Fetched only as an input to a derived chart, not shown as its own card. */
+  hidden?: boolean;
 };
 
 export const FRED_SERIES: FredSeries[] = [
+  { id: "BB01RC1Q027SBEA", title: "GDP: final sales of computers", unit: "$B", group: "gdp", years: 50 },
+  { id: "B935RC1Q027SBEA", title: "Business investment: computers & peripherals", unit: "$B", group: "gdp", years: 50 },
+  { id: "B985RC1Q027SBEA", title: "Business investment: software", unit: "$B", group: "gdp", years: 50 },
+  { id: "TLPWRCONS", title: "Construction spending: power", unit: "$M", group: "gdp", years: 20 },
+  { id: "A679RC1Q027SBEA", title: "Investment in IT equipment & software", unit: "$B", group: "gdp", years: 50, hidden: true },
+  { id: "GDP", title: "GDP", unit: "$B", group: "gdp", years: 50, hidden: true },
   { id: "BAMLH0A0HYM2", title: "High-yield OAS", unit: "%", group: "credit" },
   { id: "BAMLH0A3HYC", title: "CCC & lower OAS", unit: "%", group: "credit" },
   { id: "BAMLC0A4CBBB", title: "BBB corporate OAS", unit: "%", group: "credit" },

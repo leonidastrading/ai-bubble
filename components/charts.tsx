@@ -22,7 +22,7 @@ import {
 type Point = { t: string; v: number };
 
 const PALETTE = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--s7", "--s8"].map((v) => `var(${v})`);
-const RANGES = { "3M": 63, "6M": 126, "1Y": 252, "2Y": 504, "5Y": 1300 } as const;
+const RANGES = { "3M": 63, "6M": 126, "1Y": 252, "2Y": 504, "5Y": 1300, "10Y": 2520, "25Y": 6300, "All": 30000 } as const;
 type RangeKey = keyof typeof RANGES;
 
 const axisProps = {
@@ -58,6 +58,8 @@ const timeAxis = {
 function withTs<T extends Record<string, unknown>>(rows: T[], key = "t"): (T & { ts: number })[] {
   return rows.map((r) => ({ ...r, ts: Date.parse(`${String(r[key])}T00:00:00Z`) }));
 }
+
+export type { RangeKey };
 
 function RangePicker({ value, onChange, options }: { value: RangeKey; onChange: (r: RangeKey) => void; options: RangeKey[] }) {
   return (
@@ -192,8 +194,10 @@ export function SeriesChart({
   refs = [],
   decimals = 2,
   storageKey,
+  ranges = ["6M", "1Y", "2Y", "5Y"],
 }: {
   storageKey?: string;
+  ranges?: RangeKey[];
   points: Point[];
   unit?: string;
   color?: string;
@@ -201,14 +205,14 @@ export function SeriesChart({
   refs?: { y: number; label: string; tone: "calm" | "stress" | "watch" }[];
   decimals?: number;
 }) {
-  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange, ["6M", "1Y", "2Y", "5Y"]);
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange, ranges);
   const data = useMemo(() => withTs(sliceByRange(points, range)), [points, range]);
   const id = `g${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
     <div>
       <div className="card-head" style={{ justifyContent: "flex-end" }}>
-        <RangePicker value={range} onChange={setRange} options={["6M", "1Y", "2Y", "5Y"]} />
+        <RangePicker value={range} onChange={setRange} options={ranges} />
       </div>
       <div style={{ height: 170 }}>
         <ResponsiveContainer>

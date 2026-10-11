@@ -6,11 +6,12 @@ import { readGpuArchive, readHistory, readSavedTrends, type Snapshot } from "./h
 import { mapLimit, settle } from "./http";
 import { fetchNews, type NewsItem } from "./news";
 import { getNetwork, type Network } from "./network";
+import { fetchDataCenterConstruction } from "./owid";
 import { fetchOffBalance, getSpvSummary, type OffBalanceRow, type SpvSummary } from "./spv";
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
-import { fetchQuote, type Quote } from "./yahoo";
+import { fetchQuote, type Point, type Quote } from "./yahoo";
 
 export type BdcRow = {
   symbol: string;
@@ -42,6 +43,7 @@ export type DashboardData = {
   runpod: ListPrices | null;
   lambda: ListPrices | null;
   gpuHistory: GpuWeek[];
+  dcConstruction: Point[] | null;
   news: { id: string; title: string; items: NewsItem[] }[];
   tenderOffers: Filing[] | null;
   trends: TrendsGroup[];
@@ -65,7 +67,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const [quoteResults, fredResults, gpuResults, newsResults, navResults, tenders, history, trendResults, savedTrends, capexResults, nvidiaResult] =
     await Promise.all([
       mapLimit([...symbols], 4, ([s, n]) => settle(fetchQuote(s, n))),
-      mapLimit(FRED_SERIES, 4, (f) => settle(fetchFred(f.id))),
+      mapLimit(FRED_SERIES, 4, (f) => settle(fetchFred(f.id, f.years))),
       mapLimit(GPU_MODELS, 2, (m) => settle(fetchGpuPrice(m))),
       mapLimit(NEWS_FEEDS, 3, (f) => settle(fetchNews(f.query))),
       mapLimit(BDCS, 2, (b) => settle(fetchNav(b.symbol))),
@@ -168,14 +170,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
     settle(fetchLambdaPrices()),
     settle(fetchGpuHistory()),
     readGpuArchive<GpuWeek>(),
+    settle(fetchDataCenterConstruction()),
   ]);
+  if (!dcR.ok) errors.push(`Data center construction: ${dcR.error}`);
   if (!runpodR.ok) errors.push(`GPU RunPod: ${runpodR.error}`);
   if (!lambdaR.ok) errors.push(`GPU Lambda: ${lambdaR.error}`);
   if (!gpuHistR.ok) errors.push(`GPU market history: ${gpuHistR.error}`);
@@ -214,6 +218,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     runpod: runpodR.ok ? runpodR.data : null,
     lambda: lambdaR.ok ? lambdaR.data : null,
     gpuHistory,
+    dcConstruction: dcR.ok ? dcR.data : null,
     history,
     errors,
   };

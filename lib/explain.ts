@@ -256,4 +256,36 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Reserved prices show what buyers will commit to for a year, the closest free proxy for the term contracts behind neocloud debt. Spot shows idle capacity.",
     watch: "Spot falling well below on-demand (excess capacity), or reserved prices dropping (buyers expect cheaper compute ahead).",
   },
+
+  // ── AI buildout in GDP ──
+  itShare: {
+    what: "Business investment in information-processing equipment and software, as a share of GDP (BEA, quarterly).",
+    why: "The cleanest comparison with the dot-com bubble: in 2000 this share peaked and then fell for years. A share well above that peak means the economy leans on the buildout more than it did then.",
+    watch: "The share rolling over from a peak. In 2000–02 the decline came before the recession was obvious elsewhere.",
+  },
+  dcConstruction: {
+    what: "Monthly US spending on data center construction, adjusted for inflation (Census value put in place, via Our World in Data).",
+    why: "The physical buildout itself. It's the part of GDP growth the scenario says would reverse when capex is cut.",
+    watch: "Two or three months of decline after a long rise, especially alongside hyperscaler capex guidance cuts.",
+  },
+  BB01RC1Q027SBEA: {
+    what: "The computers component of GDP: final sales of computers to businesses, consumers, government and exports, in billions at an annual rate.",
+    why: "Computer sales dipped in the dot-com bust and the financial crisis but never crashed outright. This line nets out imports, so when AI servers are mostly built abroad it can fall while business investment in computers (next card) soars: the buildout adds less to US output than its headline spending suggests.",
+    watch: "A widening gap between this and computer investment (more of the buildout imported), or both falling together, which would mean the hardware cycle itself is turning.",
+  },
+  B935RC1Q027SBEA: {
+    what: "Business investment in computers and peripheral equipment, in billions at an annual rate (includes servers and AI accelerators bought by companies).",
+    why: "This is where GPU and server purchases for data centers land in GDP. In 2000–02 it fell about a quarter.",
+    watch: "Quarter-over-quarter declines after the long climb, or a gap opening between this and hyperscaler capex guidance.",
+  },
+  B985RC1Q027SBEA: {
+    what: "Business investment in software, in billions at an annual rate.",
+    why: "Enterprise AI adoption should show up here. If AI spending is shifting from pilots to production, software investment should keep accelerating.",
+    watch: "Software investment flattening while hardware investment keeps rising: buildout without the use that pays for it.",
+  },
+  TLPWRCONS: {
+    what: "Construction spending on power projects (generation, transmission), billions at an annual rate.",
+    why: "AI data centers need new power; utilities and generators are building for that demand.",
+    watch: "A slowdown after AI demand forecasts are cut, leaving utilities with stranded investment.",
+  },
 };
