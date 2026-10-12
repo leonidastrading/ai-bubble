@@ -9,12 +9,13 @@ It refreshes once a day on Vercel and needs no API keys.
 
 | Section | What it shows | Source |
 | --- | --- | --- |
-| Composite stress gauge | 20 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
+| Composite stress gauge | 21 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
 | AI chips, hyperscalers, neoclouds, private credit, DC REITs & power, on-prem AI infrastructure, broad market | Relative-performance charts vs. S&P 500 and a scoreboard (1D/1M/3M/YTD/off 52-week high) | Yahoo Finance |
 | Hyperscaler capex vs. revenue | Trailing-twelve-month capex, revenue, capex/revenue and YoY growth for MSFT, GOOGL, AMZN, META, ORCL | SEC EDGAR (XBRL) |
 | Circular financing | Nvidia days sales outstanding, days of inventory, and non-marketable stakes in private companies | SEC EDGAR (XBRL) |
 | AI money web | Live recreation of Bloomberg's Nvidia/OpenAI deal web: companies sized by market value (price × SEC share count) or last private round, arrows for each deal by type, round-trip pairs, full deal list with sources | `data/ai-deals.json` (curated, reviewed weekly), Yahoo, SEC |
 | SPV tracker | Data-center and GPU-backed SPVs: tenant, equity holders, lenders, debt, rating, terms, reported loan prices and events; lender rollup with stock drawdowns; hyperscaler lease and purchase obligations vs. reported debt | `data/ai-spvs.json` (curated, reviewed weekly), SEC EDGAR (XBRL) |
+| Software & private credit | Public SaaS stocks and the IGV ETF vs. the S&P 500; sector facts on private-credit lending to software; each public BDC's software share next to its price / NAV | Yahoo, `data/bdc-software.json` (curated from 10-Qs, reviewed weekly), BIS, Octus, Kamakura |
 | BDCs & redemptions | Price / NAV for public BDCs; SC TO-I tender-offer filings from non-traded private-credit funds | Yahoo, SEC EDGAR |
 | GPU rental market | $/GPU-hour by source (weekly market median across ~90 providers with spot and 12-month reserved, Vast.ai marketplace, RunPod and Lambda list prices); weekly history charts, archived to Blob so they grow past the 53 free weeks | GetDeploying open dataset (CC BY 4.0), Vast.ai, RunPod API, Lambda pricing page |
 | Cost of intelligence | Best open-weight vs. best closed model on Epoch's Capabilities Index over time (gap and lag), API price vs. capability for the top models, cheapest near-frontier price, automatic detection of API price changes, share of US businesses using AI, electricity prices | Epoch AI benchmark data, OpenRouter API, Census BTOS, FRED |
@@ -24,13 +25,13 @@ It refreshes once a day on Vercel and needs no API keys.
 | Labor | Information and professional-services unemployment, claims, job openings | FRED |
 | Adoption & compute | Gen-AI adoption share, hosting PPI, semiconductor production | FRED |
 | Google Trends | Search interest for AI assistants (ChatGPT, Claude, Gemini, ...), "AI", bubble-fear terms, and Claude vs. peers. The last good copy is saved to Blob in case Trends rate-limits a refresh | Google Trends (unofficial endpoints) |
-| News | Nine Google News searches over the last 7 days | Google News RSS |
+| News | Ten Google News searches over the last 7 days | Google News RSS |
 
 All tickers, FRED series, news queries and scoring thresholds live in `lib/config.ts` and `lib/signals.ts`.
 
 ## Updating the deal web
 
-The deals live in `data/ai-deals.json`. Arrows point the way money flows (payer → recipient). Each deal needs a `source` URL and a `status`: `announced` (company statement, drawn solid), `reported` (press reports) or `loi` (letter of intent), both drawn dashed. `data/ai-spvs.json` holds the SPV tracker in the same way; each vehicle can carry a `stress` price (cents on the dollar) from a dated report. A weekly scheduled Claude Code session reviews the news, edits both files and pushes; Vercel redeploys on push. Market values update daily without any edits.
+The deals live in `data/ai-deals.json`. Arrows point the way money flows (payer → recipient). Each deal needs a `source` URL and a `status`: `announced` (company statement, drawn solid), `reported` (press reports) or `loi` (letter of intent), both drawn dashed. `data/ai-spvs.json` holds the SPV tracker in the same way; each vehicle can carry a `stress` price (cents on the dollar) from a dated report. `data/bdc-software.json` holds each BDC's software share with the filing it came from. A weekly scheduled Claude Code session reviews the news, edits these files and pushes; Vercel redeploys on push. Market values update daily without any edits.
 
 ## How the daily refresh works
 

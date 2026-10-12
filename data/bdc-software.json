@@ -1,0 +1,69 @@
+{
+  "updated": "2026-10-12",
+  "notes": "Software share of each public BDC's portfolio at fair value, from its latest 10-Q or earnings presentation. pct is the sum of all software rows when the company splits them; label names the rows used. priorPct is from the same table's comparison column (the last fiscal year-end), not a year earlier.",
+  "bdcs": [
+    {
+      "symbol": "ARCC",
+      "pct": 22.0,
+      "label": "Software and Services",
+      "asOf": "2026-06-30",
+      "priorPct": 23.8,
+      "source": "https://www.sec.gov/Archives/edgar/data/0001287750/000162828026050307/arcc-20260630.htm",
+      "note": "GICS row. IHAM and SDLP are listed as Financial Services and Investment Funds and not looked through. Prior = Dec 31, 2025."
+    },
+    {
+      "symbol": "OBDC",
+      "pct": 11.6,
+      "label": "Internet software and services",
+      "asOf": "2026-06-30",
+      "priorPct": 11.1,
+      "source": "https://www.sec.gov/Archives/edgar/data/1655888/000165588826000056/obdc-20260630.htm",
+      "note": "A separate Healthcare technology row (5.8%) is not included. Prior = Dec 31, 2025."
+    },
+    {
+      "symbol": "BXSL",
+      "pct": 18.9,
+      "label": "Software",
+      "asOf": "2026-06-30",
+      "priorPct": 20.5,
+      "source": "https://www.sec.gov/Archives/edgar/data/1736035/000173603526000016/bxsl-20260630.htm",
+      "note": "IT Services (4.7%) and Health Care Technology (4.5%) are separate rows, not included. Prior = Dec 31, 2025."
+    },
+    {
+      "symbol": "FSK",
+      "pct": 17.7,
+      "label": "Software & Services",
+      "asOf": "2026-06-30",
+      "priorPct": 16.4,
+      "source": "https://www.sec.gov/Archives/edgar/data/1422183/000162828026053783/fsk-20260630.htm",
+      "note": "The Credit Opportunities Partners JV (14.4%) is a separate row and not looked through. Prior = Dec 31, 2025."
+    },
+    {
+      "symbol": "GBDC",
+      "pct": 26.0,
+      "label": "Software",
+      "asOf": "2026-06-30",
+      "priorPct": 27.2,
+      "source": "https://www.sec.gov/Archives/edgar/data/0001476765/000147676526000048/gbdc-20260630.htm",
+      "note": "Fiscal Q3 2026. Prior = Sep 30, 2025 fiscal year-end."
+    },
+    {
+      "symbol": "MAIN",
+      "pct": 5.1,
+      "label": "Internet Software & Services + Software",
+      "asOf": "2026-06-30",
+      "priorPct": 5.6,
+      "source": "https://www.sec.gov/Archives/edgar/data/1396440/000139644026000094/main-20260630.htm",
+      "note": "3.0% + 2.1%, summed. Covers the LMM, private loan and middle-market portfolio. IT Services (2.4%) not included. Prior = Dec 31, 2025."
+    },
+    {
+      "symbol": "HTGC",
+      "pct": 32.8,
+      "label": "Application Software + System Software",
+      "asOf": "2026-06-30",
+      "priorPct": 34.9,
+      "source": "https://www.sec.gov/Archives/edgar/data/1280784/000128078426000042/htgc-20260630.htm",
+      "note": "24.6% + 8.2%, summed. Venture lender to growth-stage tech. Prior = Dec 31, 2025."
+    }
+  ]
+}

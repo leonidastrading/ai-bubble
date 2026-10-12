@@ -113,6 +113,27 @@ export const TICKER_GROUPS: TickerGroup[] = [
   },
 ];
 
+// Public software (SaaS) companies: AI agents threaten seat-based software, and
+// private software borrowers are the largest single exposure in private credit.
+// Rendered inside the "Software & private credit" section, not as its own group.
+export const SOFTWARE_GROUP: TickerGroup = {
+  id: "software",
+  title: "Public software (SaaS)",
+  blurb: "",
+  benchmark: "SPY",
+  tickers: [
+    { symbol: "IGV", name: "iShares Expanded Tech-Software ETF" },
+    { symbol: "CRM", name: "Salesforce" },
+    { symbol: "ADBE", name: "Adobe" },
+    { symbol: "NOW", name: "ServiceNow" },
+    { symbol: "WDAY", name: "Workday" },
+    { symbol: "TEAM", name: "Atlassian" },
+    { symbol: "HUBS", name: "HubSpot" },
+    { symbol: "MNDY", name: "Monday.com" },
+    { symbol: "ZM", name: "Zoom" },
+  ],
+};
+
 // Public BDCs: price vs reported NAV is the market's verdict on private marks.
 export const BDCS = [
   { symbol: "OBDC", name: "Blue Owl Capital Corp" },
@@ -175,6 +196,7 @@ export const NEWS_FEEDS = [
   { id: "oracle", title: "Oracle & OpenAI financing", query: 'Oracle (debt OR "credit default swaps" OR bonds) OR OpenAI funding' },
   { id: "circular", title: "Circular & vendor financing", query: '"circular financing" OR "vendor financing" OR "circular deals" (Nvidia OR OpenAI OR AMD OR CoreWeave)' },
   { id: "open-weight", title: "Open-weight models & price cuts", query: '"open-weight" OR "open source model" OR "inference price" OR "price cut" (LLM OR model) (DeepSeek OR Qwen OR Llama OR Mistral OR Kimi)' },
+  { id: "software", title: "Software & private credit", query: '(software OR SaaS OR SaaSpocalypse) ("private credit" OR BDC OR "direct lending" OR "software loans")' },
   { id: "layoffs", title: "AI layoffs & enterprise ROI", query: '"AI layoffs" OR "AI ROI" OR "AI pilots" enterprise' },
 ];
 

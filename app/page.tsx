@@ -5,7 +5,8 @@ import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { stressColor, toScore } from "@/lib/stress-color";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
-import { FRED_SERIES, SEC_WATCH, TICKER_GROUPS, type FredSeries } from "@/lib/config";
+import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
+import softwareData from "@/data/bdc-software.json";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
 import { quarterRows } from "@/lib/quarters";
@@ -30,6 +31,7 @@ const SECTIONS = [
   { id: "circular", label: "Circular financing" },
   { id: "web", label: "AI money web" },
   { id: "spv", label: "SPV tracker" },
+  { id: "software", label: "Software & credit" },
   { id: "bdcs", label: "BDCs & redemptions" },
   { id: "gpu", label: "GPU rental" },
   { id: "intel", label: "Cost of intelligence" },
@@ -186,6 +188,27 @@ export default async function Page() {
       .filter((p) => gdp.get(p.t))
       .map((p) => ({ t: p.t, v: +((p.v / gdp.get(p.t)!) * 100).toFixed(2) }));
   })();
+
+  // Software & private credit: curated exposure joined with live price / NAV.
+  type BdcSoftware = { symbol: string; pct: number; label: string; asOf: string; priorPct: number | null; source: string; note: string | null };
+  const softwareRows = (softwareData.bdcs as BdcSoftware[]).map((b) => {
+    const live = d.bdcs.find((x) => x.symbol === b.symbol);
+    return { ...b, name: live?.name ?? b.symbol, pnav: live?.priceToNav ?? null };
+  });
+  const softwareCompare = (() => {
+    const xs = softwareRows.filter((r) => r.pnav != null);
+    if (xs.length < 4) return null;
+    const med = (v: number[]) => {
+      const s = [...v].sort((a, b) => a - b);
+      return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+    };
+    const cut = med(xs.map((r) => r.pct));
+    const heavy = xs.filter((r) => r.pct >= cut).map((r) => r.pnav!);
+    const light = xs.filter((r) => r.pct < cut).map((r) => r.pnav!);
+    return heavy.length && light.length ? { heavy: med(heavy), light: med(light) } : null;
+  })();
+  const softwareBench = d.quotes[SOFTWARE_GROUP.benchmark!];
+  const softwareSeries = [...SOFTWARE_GROUP.tickers.map((t) => d.quotes[t.symbol]).filter(Boolean), ...(softwareBench ? [softwareBench] : [])].map(trim);
 
   // Cost of intelligence.
   const gapRows = (d.intel.gap?.series ?? [])
@@ -784,6 +807,156 @@ export default async function Page() {
               <div className="empty">SEC filings data is unavailable today.</div>
             )}
             <Explain id="offBalanceTrend" />
+          </div>
+        </div>
+      </section>
+
+      <section id="software">
+        <h2>Software &amp; private credit</h2>
+        <p className="blurb">
+          The bridge between the AI trade and the credit trade. AI agents threaten seat-based software; private-equity
+          firms bought hundreds of software companies with private-credit loans, mostly in 2021–2023; those loans sit
+          inside BDCs and non-traded funds. The chain to watch: AI hits SaaS → software loans get marked down → fund
+          investors redeem → less private credit for AI data centers.
+        </p>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Key facts</h3>
+            <div style={{ display: "flex", gap: 28, flexWrap: "wrap", margin: "4px 0 10px" }}>
+              <div>
+                <div className="big">$500B+</div>
+                <p className="sub" style={{ margin: 0 }}>private-credit loans to SaaS, end-2025 (≈$8B in 2015)</p>
+              </div>
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>19%</div>
+                <p className="sub" style={{ margin: 0 }}>of all direct loans</p>
+              </div>
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>~32%</div>
+                <p className="sub" style={{ margin: 0 }}>of BDC investments, Q1 2026</p>
+              </div>
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>35%</div>
+                <p className="sub" style={{ margin: 0 }}>of BDC software principal matures 2028–29</p>
+              </div>
+            </div>
+            <ul className="explain" style={{ paddingLeft: 18, margin: "6px 0" }}>
+              <li>
+                Software stocks fell almost 30% from October 2025 to February 2026 (the &ldquo;SaaSpocalypse&rdquo;); BDC
+                stocks fell about 10%, and BDCs with more software lagged peers by about 5 points.{" "}
+                <a href="https://www.bis.org/publ/qtrpdf/r_qt2603v.htm" target="_blank" rel="noreferrer">BIS, Mar 2026</a>
+              </li>
+              <li>
+                BDCs have lent about $115B to software firms: about a fifth of their lending and over 80% of their tech
+                book.{" "}
+                <a href="https://www.bis.org/publications/bulletin-128-ai-disruption-private-credit-exposure-software-firms-bdcs" target="_blank" rel="noreferrer">
+                  BIS Bulletin 128, Jul 2026
+                </a>
+              </li>
+              <li>
+                Across 175 BDC portfolios, software was about 32% of investments at March 31, 2026, and 35% of software
+                principal comes due in 2028–29: a refinancing wall if lenders pull back.{" "}
+                <a href="https://octus.com/resources/articles/private-credit-software-exposure-hits-32-q126-bdc-analysis/" target="_blank" rel="noreferrer">
+                  Octus, Jul 2026
+                </a>
+              </li>
+              <li>
+                Default risk on listed software companies roughly doubled between December 2025 and June 2026.{" "}
+                <a href="https://www.kamakuraco.com/?p=19255" target="_blank" rel="noreferrer">Kamakura, Jul 2026</a>
+              </li>
+            </ul>
+            <p className="sub" style={{ marginTop: 8 }}>
+              Estimates differ by method: BIS counts SaaS firms (15–20% of BDC loans), Octus a broader software
+              definition (32%).
+            </p>
+            <h3 style={{ marginTop: 12 }}>Most exposed vs. more resilient</h3>
+            <dl className="explain glossary">
+              <dt>Exposed</dt>
+              <dd>
+                Per-seat pricing (AI-driven layoffs mean fewer seats); commoditized dashboard-style tools AI can replace;
+                labor-heavy services revenue; weak pricing power; stretched balance sheets from 2021–23 buyouts.
+              </dd>
+              <dt>Resilient</dt>
+              <dd>
+                Systems of record that are data-rich and deeply embedded: payroll, compliance, core finance, and regulated
+                verticals like healthcare and financial services with high switching costs.{" "}
+                <a href="https://alternativecreditinvestor.com/2026/07/06/managers-hunt-for-software-winners-and-losers-amid-ai-panic/" target="_blank" rel="noreferrer">
+                  Alternative Credit Investor
+                </a>
+              </dd>
+            </dl>
+            <Explain id="softwareFacts" />
+          </div>
+          <div className="card">
+            <h3>BDC software exposure vs. price / NAV</h3>
+            <p className="sub">
+              Software share of each BDC&apos;s portfolio at fair value, from its latest quarterly report (reviewed weekly,
+              last {softwareData.updated})
+              {softwareCompare && (
+                <>
+                  {" "}· median P/NAV: software-heavy <strong>{softwareCompare.heavy.toFixed(2)}x</strong> vs. lighter{" "}
+                  <strong>{softwareCompare.light.toFixed(2)}x</strong>
+                </>
+              )}
+            </p>
+            {softwareRows.length ? (
+              <>
+                <HBarChart
+                  rows={[...softwareRows].sort((a, b) => b.pct - a.pct).map((r) => ({ label: r.symbol, value: r.pct }))}
+                  format="pct"
+                  toneFor="softwareShare"
+                />
+                <SortableTable
+                  storageKey="table:bdcSoftware"
+                  scrollStyle={{ marginTop: 8 }}
+                  columns={[
+                    { label: "BDC" },
+                    { label: "Software", title: "Software share of the portfolio at fair value", firstDir: "desc" },
+                    { label: "As of", firstDir: "desc" },
+                    { label: "P/NAV", title: "Price ÷ NAV", firstDir: "asc" },
+                    { label: "3M", firstDir: "desc" },
+                    { label: "Source" },
+                  ]}
+                  rows={softwareRows.map((r) => ({
+                    key: r.symbol,
+                    sort: [r.symbol, r.pct, r.asOf, r.pnav, d.quotes[r.symbol]?.chg3m ?? null, r.label],
+                    cells: [
+                      <>
+                        <span className="sym">{r.symbol}</span>
+                        <span className="name">{r.name}</span>
+                      </>,
+                      <strong style={{ color: stressColor(toScore(r.pct, 10, 35)) }}>{r.pct.toFixed(1)}%</strong>,
+                      <span className="faint">{r.asOf}</span>,
+                      r.pnav != null ? `${r.pnav.toFixed(2)}x` : "—",
+                      <Pct v={d.quotes[r.symbol]?.chg3m} />,
+                      <a href={r.source} target="_blank" rel="noreferrer" title={r.note ?? undefined}>
+                        {r.label}
+                      </a>,
+                    ],
+                  }))}
+                />
+              </>
+            ) : (
+              <div className="empty">No exposure data yet.</div>
+            )}
+            <Explain id="softwareBdc" />
+          </div>
+        </div>
+        <div className="grid g2" style={{ marginTop: 14 }}>
+          <div className="card">
+            <h3>Public software vs S&amp;P 500 (dashed)</h3>
+            {softwareSeries.length ? (
+              <RelativeChart series={softwareSeries} storageKey="rel:software" />
+            ) : (
+              <div className="empty">Unavailable today.</div>
+            )}
+            <Explain id="software" />
+          </div>
+          <div className="card">
+            <h3>Scoreboard</h3>
+            <p className="sub">Adjusted closes · IGV is the sector ETF</p>
+            <QuoteTable quotes={SOFTWARE_GROUP.tickers.map((t) => d.quotes[t.symbol]).filter(Boolean)} storageKey="table:score:software" />
+            <Explain id="scoreboard" />
           </div>
         </div>
       </section>

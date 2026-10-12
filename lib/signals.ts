@@ -169,6 +169,19 @@ export function computeSignals(input: {
       detail: "APO, BX, KKR, ARES relative to SPY over three months.",
     });
 
+  const igv = quotes.get("IGV");
+  if (igv)
+    out.push({
+      id: "software",
+      label: "Software ETF (IGV) drawdown",
+      stage: "4 · Credit transmits",
+      value: `${f1(igv.drawdown)}%`,
+      score: scale(igv.drawdown, -10, -40),
+      calm: "> -10%",
+      stress: "< -40%",
+      detail: "Software is about a fifth to a third of BDC loan books. AI pressure on SaaS shows up in IGV before it shows in private-credit marks.",
+    });
+
   if (bdcPriceToNav != null)
     out.push({
       id: "bdc",

@@ -1,4 +1,4 @@
-import { BDCS, CAPEX_COMPANIES, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
+import { BDCS, CAPEX_COMPANIES, SOFTWARE_GROUP, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
 import { fetchFred, type FredData } from "./fred";
 import { fetchCapex, fetchNvidiaHealth, type CapexRow, type NvidiaHealth } from "./fundamentals";
 import { fetchGpuHistory, fetchGpuPrice, fetchLambdaPrices, fetchRunpodPrices, mergeGpuHistory, type GpuPrice, type GpuWeek, type ListPrices } from "./gpu";
@@ -71,6 +71,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const symbols = new Map<string, string>();
   for (const g of TICKER_GROUPS) for (const t of g.tickers) symbols.set(t.symbol, t.name);
+  for (const t of SOFTWARE_GROUP.tickers) symbols.set(t.symbol, t.name);
   for (const b of BDCS) symbols.set(b.symbol, b.name);
 
   const [quoteResults, fredResults, gpuResults, newsResults, navResults, tenders, history, trendResults, savedTrends, capexResults, nvidiaResult] =

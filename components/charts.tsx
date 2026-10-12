@@ -273,13 +273,23 @@ export function HBarChart({
 }: {
   rows: { label: string; value: number }[];
   reference?: number;
-  format: "ratio" | "usd" | "usdB";
-  toneFor?: "pnav";
+  format: "ratio" | "usd" | "usdB" | "pct";
+  toneFor?: "pnav" | "softwareShare";
 }) {
   const fmt = (v: number) =>
-    format === "ratio" ? `${v.toFixed(2)}x` : format === "usdB" ? `$${v.toFixed(v < 10 ? 1 : 0)}B` : `$${v.toFixed(2)}`;
+    format === "ratio"
+      ? `${v.toFixed(2)}x`
+      : format === "usdB"
+        ? `$${v.toFixed(v < 10 ? 1 : 0)}B`
+        : format === "pct"
+          ? `${v.toFixed(0)}%`
+          : `$${v.toFixed(2)}`;
   const tone = (v: number) =>
-    toneFor === "pnav" ? stressColor(toScore(v, 1.05, 0.8)) : "var(--s1)";
+    toneFor === "pnav"
+      ? stressColor(toScore(v, 1.05, 0.8))
+      : toneFor === "softwareShare"
+        ? stressColor(toScore(v, 10, 35))
+        : "var(--s1)";
   const max = Math.max(...rows.map((r) => r.value), reference ?? 0);
   return (
     <div style={{ height: Math.max(120, rows.length * 34 + 30) }}>

@@ -70,6 +70,21 @@ export const EXPLAIN: Record<string, Explanation> = {
   },
 
   // ── BDCs & redemptions ──
+  software: {
+    what: "Total return of the software ETF (IGV) and the most-watched SaaS names, rebased to 100, against the S&P 500 (dashed).",
+    why: "AI agents threaten per-seat software. The same fear lowers the value of private software companies, which are the biggest borrowers in private credit.",
+    watch: "IGV making new lows while the S&P holds up; Salesforce and Adobe (most cited as AI-threatened) leading declines; seat-based tools falling after layoff news.",
+  },
+  softwareFacts: {
+    what: "Sector-level figures on private-credit lending to software companies, from the BIS, Octus and Kamakura.",
+    why: "Software is the largest single exposure in private credit. Loans made at 2021–23 valuations are coming due while AI pressures those companies' growth.",
+    watch: "New research or BDC filings showing software non-accruals or markdowns, and refinancing trouble as the 2028–29 maturities approach.",
+  },
+  softwareBdc: {
+    what: "Each public BDC's software share at fair value from its latest 10-Q or earnings presentation, next to its price / NAV. Companies define software differently, so compare levels loosely.",
+    why: "If the market thinks software loans are marked too high, BDCs with more software should trade at bigger discounts to NAV.",
+    watch: "The software-heavy group's median P/NAV dropping below the lighter group's, rising software non-accruals in new 10-Qs, or a BDC cutting its software share sharply (selling or writing down loans).",
+  },
   bdcPnav: {
     what: "Each public BDC's share price divided by the net asset value it last reported. 1.0x means the market agrees with the BDC's own valuation of its loans.",
     why: "Private credit marks its own loans, so it can lag. A public BDC trading below NAV is the market saying the marks are too high.",
