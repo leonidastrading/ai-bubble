@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-10",
+  "updated": "2026-10-12",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -145,6 +145,16 @@
       "status": "loi",
       "label": "Up to $100B investment in stages, one per gigawatt deployed; reported in 2026 as restructured into a ~$105B credit guarantee",
       "source": "https://www.techspot.com/news/109579-nvidia-invest-100-billion-openai-10-gigawatts-ai.html"
+    },
+    {
+      "from": "NVDA",
+      "to": "OPENAI",
+      "type": "credit",
+      "amountB": 105,
+      "date": "2026-08-17",
+      "status": "announced",
+      "label": "Guarantee of up to $105B of OpenAI's lease payments for the Pike County, Ohio campus built by SoftBank-backed SB Energy (Nvidia SEC filing)",
+      "source": "https://fortune.com/2026/08/18/openai-data-center-deal-with-nvidia-comes-in-145-billion-lower-than-reportedsignaling-concerns-of-artificial-demand-for-chips/"
     },
     {
       "from": "OPENAI",
@@ -307,6 +317,16 @@
       "source": "https://ai-circular-economy.com/"
     },
     {
+      "from": "ANTHROPIC",
+      "to": "NSCALE",
+      "type": "services",
+      "amountB": 45,
+      "date": "2026-08-26",
+      "status": "reported",
+      "label": "~$45B over six years for Vera Rubin capacity at Nscale's West Virginia site, starting late 2027",
+      "source": "https://techcrunch.com/2026/08/26/anthropic-continues-compute-gobbling-streak-in-45-billion-deal-with-nscale/"
+    },
+    {
       "from": "NSCALE",
       "to": "NVDA",
       "type": "hardware",
@@ -350,11 +370,11 @@
       "from": "SPCX",
       "to": "NVDA",
       "type": "hardware",
-      "amountB": null,
+      "amountB": 40,
       "date": "2026-01-06",
       "status": "reported",
-      "label": "Colossus GPU clusters",
-      "source": "https://valueaddvc.com/xai-valuation"
+      "label": "Colossus GPU clusters; ~$40B Apollo-led debt package (in talks, ~$30B bonds + $10B loans) to fund a new Nvidia chip order",
+      "source": "https://www.thestar.com.my/tech/tech-news/2026/10/07/spacex-seeks-40-billion-to-buy-nvidia-chips-ft-reports"
     },
     {
       "from": "NVDA",

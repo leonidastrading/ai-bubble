@@ -39,13 +39,14 @@ function edgeWidth(e: DealEdge, maxAmount: number) {
  * arrowhead is drawn as its own triangle, sized to the line, and the curve
  * stops at its base so thick lines don't poke through the tip.
  */
-function edgePath(a: Placement, b: Placement, width: number) {
+function edgePath(a: Placement, b: Placement, width: number, lane = 0) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
   const ux = dx / len;
   const uy = dy / len;
-  const bend = Math.min(60, len * 0.18);
+  // Extra deals between the same pair in the same direction curve wider so they don't overlap.
+  const bend = Math.min(60, len * 0.18) * (1 + lane * 0.9);
   const mx = (a.x + b.x) / 2 - uy * bend;
   const my = (a.y + b.y) / 2 + ux * bend;
   const toward = (n: Placement, tx: number, ty: number, pad: number) => {
@@ -174,7 +175,8 @@ export function NetworkGraph({
             const a = byId.get(e.from)!;
             const b = byId.get(e.to)!;
             const w = edgeWidth(e, maxAmount);
-            const { d, arrow } = edgePath(at(a), at(b), w);
+            const lane = edges.slice(0, i).filter((o) => o.from === e.from && o.to === e.to).length;
+            const { d, arrow } = edgePath(at(a), at(b), w, lane);
             const on = lit(e, i);
             return (
               <g key={i} opacity={on ? 0.85 : 0.08}>

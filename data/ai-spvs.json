@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-10",
+  "updated": "2026-10-12",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -42,30 +42,46 @@
     },
     {
       "id": "meta-texas",
-      "name": "Meta El Paso SPV",
+      "name": "Sopaipilla Investor LLC (Meta El Paso)",
       "project": "El Paso, Texas",
       "type": "data-center",
       "tenants": [
         "Meta"
       ],
-      "equity": [],
-      "lenders": [
-        "Morgan Stanley",
-        "JPMorgan"
+      "equity": [
+        {
+          "name": "BlackRock GIP & HPS",
+          "share": 80
+        },
+        {
+          "name": "Meta",
+          "share": 20
+        }
       ],
-      "debtB": 13,
+      "lenders": [],
+      "debtB": 12.5,
       "equityB": null,
-      "rating": null,
-      "terms": "Hyperion-style structure; banks plan to syndicate the debt, no anchor lender yet",
-      "date": null,
-      "status": "raising",
+      "rating": "A+ (S&P prelim.), AA- (Fitch exp.)",
+      "terms": "Hyperion-style structure: senior secured notes issued by a vehicle 80% owned by BlackRock's GIP and HPS; Meta keeps 20% and is developer, operator and sole tenant. Priced at higher yields than Hyperion's 2025 deal. JPMorgan and Morgan Stanley arranged the bond sale",
+      "date": "2026-07-28",
+      "status": "closed",
       "stress": null,
-      "source": "https://www.zerohedge.com/markets/meta-raising-13-billion-spv-texas-data-center-its-cds-hits-record",
+      "source": "https://www.globaldatacenterhub.com/p/blackrock-launches-123-billion-bond",
       "events": [
         {
           "date": null,
           "text": "Over $13B package led by Morgan Stanley and JPMorgan, reported as Meta's CDS hit a record",
           "source": "https://www.zerohedge.com/markets/meta-raising-13-billion-spv-texas-data-center-its-cds-hits-record"
+        },
+        {
+          "date": "2026-07-24",
+          "text": "$12.3B of senior secured notes launched; S&P preliminary A+, Fitch expected AA-",
+          "source": "https://www.globaldatacenterhub.com/p/blackrock-launches-123-billion-bond"
+        },
+        {
+          "date": "2026-07-28",
+          "text": "Priced at $12.5B, at higher yields than a comparable deal last year (WSJ)",
+          "source": "https://www.marketscale.com/industries/software-and-technology/metas-125-billion-data-center-bond-signals-rising-capital-costs-across-ai-infrastructure"
         }
       ]
     },
@@ -146,7 +162,51 @@
       "status": "closed",
       "stress": null,
       "source": "https://octus.com/resources/articles/banks-prep-series-of-multibillion-dollar-debt-offerings-for-oracle/",
-      "events": []
+      "events": [
+        {
+          "date": "2026-10-11",
+          "text": "Bloomberg: JPMorgan, MUFG and other lenders still distributing the $38B after more than six months; some are selling pieces to non-bank buyers at a discount",
+          "source": "https://startupfortune.com/banks-are-now-trying-to-offload-the-ai-data-center-debt-they-just-underwrote/"
+        }
+      ]
+    },
+    {
+      "id": "stargate-michigan",
+      "name": "Stargate Michigan (Saline Township)",
+      "project": "Saline Township, Michigan",
+      "type": "data-center",
+      "tenants": [
+        "Oracle",
+        "OpenAI"
+      ],
+      "equity": [
+        {
+          "name": "Related Digital",
+          "share": null
+        },
+        {
+          "name": "Blackstone",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "PIMCO"
+      ],
+      "debtB": 14,
+      "equityB": 2,
+      "rating": null,
+      "terms": "$16.3B package: ~$14B of bonds secured on the campus (7.5% coupon, 19.5 years, 6 years interest-only then 13 amortizing) plus ~$2B equity; structured by Bank of America after US banks stepped back",
+      "date": "2026-04-25",
+      "status": "closed",
+      "stress": null,
+      "source": "https://thenextweb.com/news/oracle-data-centre-16-billion-financing-stargate",
+      "events": [
+        {
+          "date": "2026-04-25",
+          "text": "Financing closed; PIMCO anchored about $10B of the bond tranche",
+          "source": "https://thenextweb.com/news/oracle-data-centre-16-billion-financing-stargate"
+        }
+      ]
     },
     {
       "id": "xai-colossus2",
