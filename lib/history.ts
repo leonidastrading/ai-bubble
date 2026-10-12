@@ -14,6 +14,8 @@ export type Snapshot = {
   gpu: Record<string, number>;
   /** Daily list prices by source and model (added Oct 2026; absent in older snapshots). */
   gpuList?: Record<string, Record<string, number>>;
+  /** Cost of intelligence (added Oct 2026). */
+  intel?: { gap: number; frontierBlended: number | null; cheapestNearFrontier: number | null };
   signals: Record<string, number>;
 };
 
@@ -82,4 +84,19 @@ export async function readGpuArchive<T>(): Promise<T[]> {
 
 export async function saveGpuArchive<T>(rows: T[]): Promise<void> {
   await writeJson(GPU_PATH, rows);
+}
+
+/**
+ * Daily API prices per model (only appended when a price changes), so the
+ * page can list frontier price cuts as they happen.
+ */
+export type PricePoint = { date: string; inPerM: number; outPerM: number };
+const PRICE_PATH = "history/api-prices.json";
+
+export async function readPriceLog(): Promise<Record<string, PricePoint[]>> {
+  return (await readJson<Record<string, PricePoint[]>>(PRICE_PATH)) ?? {};
+}
+
+export async function savePriceLog(log: Record<string, PricePoint[]>): Promise<void> {
+  await writeJson(PRICE_PATH, log);
 }

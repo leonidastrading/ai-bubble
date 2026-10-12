@@ -1,7 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CACHE_TAG } from "@/lib/config";
 import { getDashboardData, toSnapshot } from "@/lib/data";
-import { appendSnapshot, historyEnabled, saveGpuArchive, saveTrends } from "@/lib/history";
+import { appendSnapshot, historyEnabled, saveGpuArchive, savePriceLog, saveTrends, type PricePoint } from "@/lib/history";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -27,6 +27,18 @@ export async function GET(request: Request) {
       const liveTrends = data.trends.filter((t) => t.live && t.data);
       if (liveTrends.length) await saveTrends(Object.fromEntries(liveTrends.map((t) => [t.id, t.data])));
       if (data.gpuHistory.length) await saveGpuArchive(data.gpuHistory);
+      // Append today's price for the top models only when it changed.
+      if (data.intel.priced.length) {
+        const log: Record<string, PricePoint[]> = { ...data.intel.priceLog };
+        const today = data.generatedAt.slice(0, 10);
+        for (const m of data.intel.priced.slice(0, 40)) {
+          const hist = log[m.apiId] ?? [];
+          const last = hist[hist.length - 1];
+          if (!last || last.inPerM !== m.inPerM || last.outPerM !== m.outPerM)
+            log[m.apiId] = [...hist, { date: today, inPerM: m.inPerM, outPerM: m.outPerM }];
+        }
+        await savePriceLog(log);
+      }
     } catch (err) {
       stored = `history write failed: ${err instanceof Error ? err.message : String(err)}`;
     }

@@ -48,8 +48,9 @@ export function computeSignals(input: {
   nvidia: NvidiaHealth | null;
   spvWorst: { price: number; asOf: string; spv: string } | null;
   h100Market: { price: number; date: string; providers: number | null; yearAgo: number | null } | null;
+  openGap: { gap: number; bestOpen: { model: string }; bestClosed: { model: string }; lagMonths: number | null } | null;
 }): Signal[] {
-  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market } = input;
+  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market, openGap } = input;
   const out: Signal[] = [];
 
   if (spvWorst)
@@ -204,6 +205,18 @@ export function computeSignals(input: {
       calm: "> $2.75",
       stress: "< $1.00",
       detail: "Median on-demand marketplace price (Vast.ai). Falling rates erode GPU-SPV collateral.",
+    });
+
+  if (openGap)
+    out.push({
+      id: "opengap",
+      label: "Open-weight gap to frontier",
+      stage: "2 · Price deflation",
+      value: `${f1(openGap.gap)} ECI pts${openGap.lagMonths != null ? ` (~${openGap.lagMonths} mo behind)` : ""}`,
+      score: scale(openGap.gap, 15, 2),
+      calm: "> 15 pts",
+      stress: "< 2 pts",
+      detail: `Epoch Capabilities Index: ${openGap.bestClosed.model} vs best open-weight ${openGap.bestOpen.model}. A small gap means frontier-level intelligence is available nearly free.`,
     });
 
   const reits = basketDrawdown(quotes, ["EQIX", "DLR", "IRM"]);

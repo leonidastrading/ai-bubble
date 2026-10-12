@@ -2,11 +2,12 @@ import { BDCS, CAPEX_COMPANIES, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, 
 import { fetchFred, type FredData } from "./fred";
 import { fetchCapex, fetchNvidiaHealth, type CapexRow, type NvidiaHealth } from "./fundamentals";
 import { fetchGpuHistory, fetchGpuPrice, fetchLambdaPrices, fetchRunpodPrices, mergeGpuHistory, type GpuPrice, type GpuWeek, type ListPrices } from "./gpu";
-import { readGpuArchive, readHistory, readSavedTrends, type Snapshot } from "./history";
+import { readGpuArchive, readHistory, readPriceLog, readSavedTrends, type PricePoint, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
 import { fetchNews, type NewsItem } from "./news";
 import { getNetwork, type Network } from "./network";
 import { fetchDataCenterConstruction } from "./owid";
+import { computeGap, fetchBtosAi, fetchEci, fetchOpenRouter, priceModels, type AdoptionSeries, type GapSummary, type PricedModel } from "./intelligence";
 import { fetchOffBalance, getSpvSummary, type OffBalanceRow, type SpvSummary } from "./spv";
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
@@ -44,6 +45,14 @@ export type DashboardData = {
   lambda: ListPrices | null;
   gpuHistory: GpuWeek[];
   dcConstruction: Point[] | null;
+  intel: {
+    gap: GapSummary | null;
+    priced: PricedModel[];
+    frontierBlended: number | null;
+    cheapestNearFrontier: PricedModel | null;
+    priceLog: Record<string, PricePoint[]>;
+    adoption: AdoptionSeries | null;
+  };
   news: { id: string; title: string; items: NewsItem[] }[];
   tenderOffers: Filing[] | null;
   trends: TrendsGroup[];
@@ -170,7 +179,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -178,7 +187,22 @@ export async function getDashboardData(): Promise<DashboardData> {
     settle(fetchGpuHistory()),
     readGpuArchive<GpuWeek>(),
     settle(fetchDataCenterConstruction()),
+    settle(fetchEci()),
+    settle(fetchOpenRouter()),
+    settle(fetchBtosAi()),
+    readPriceLog(),
   ]);
+  if (!eciR.ok) errors.push(`Epoch capabilities: ${eciR.error}`);
+  if (!orR.ok) errors.push(`OpenRouter prices: ${orR.error}`);
+  if (!btosR.ok) errors.push(`Census AI adoption: ${btosR.error}`);
+  const gapR = eciR.ok ? settle(Promise.resolve().then(() => computeGap(eciR.data))) : null;
+  const gap = gapR ? await gapR : null;
+  if (gap && !gap.ok) errors.push(`Open-weight gap: ${gap.error}`);
+  const priced = eciR.ok && orR.ok ? priceModels(eciR.data, orR.data) : [];
+  const frontier = priced.find((m) => !m.open) ?? null;
+  // Cheapest model within 10 ECI points of the best model: what near-frontier intelligence costs.
+  const nearFrontier = frontier ? priced.filter((m) => m.eci >= priced[0].eci - 10) : [];
+  const cheapestNearFrontier = nearFrontier.length ? nearFrontier.reduce((a, b) => (b.blended < a.blended ? b : a)) : null;
   if (!dcR.ok) errors.push(`Data center construction: ${dcR.error}`);
   if (!runpodR.ok) errors.push(`GPU RunPod: ${runpodR.error}`);
   if (!lambdaR.ok) errors.push(`GPU Lambda: ${lambdaR.error}`);
@@ -194,7 +218,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const spv = getSpvSummary(Object.fromEntries(quotes));
   if (!networkResult.ok) errors.push(`Deal network: ${networkResult.error}`);
 
-  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
+  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, openGap: gap?.ok ? gap.data : null, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -219,6 +243,14 @@ export async function getDashboardData(): Promise<DashboardData> {
     lambda: lambdaR.ok ? lambdaR.data : null,
     gpuHistory,
     dcConstruction: dcR.ok ? dcR.data : null,
+    intel: {
+      gap: gap?.ok ? gap.data : null,
+      priced,
+      frontierBlended: frontier?.blended ?? null,
+      cheapestNearFrontier,
+      priceLog,
+      adoption: btosR.ok ? btosR.data : null,
+    },
     history,
     errors,
   };
@@ -234,6 +266,13 @@ export function toSnapshot(d: DashboardData): Snapshot {
     score: d.score,
     bdcPriceToNav: d.bdcPriceToNav,
     gpu: Object.fromEntries(d.gpu.map((g) => [g.model, +g.median.toFixed(3)])),
+    intel: d.intel.gap
+      ? {
+          gap: d.intel.gap.gap,
+          frontierBlended: d.intel.frontierBlended,
+          cheapestNearFrontier: d.intel.cheapestNearFrontier?.blended ?? null,
+        }
+      : undefined,
     gpuList: Object.fromEntries(
       (
         [

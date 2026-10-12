@@ -87,6 +87,19 @@ export const TICKER_GROUPS: TickerGroup[] = [
     ],
   },
   {
+    id: "onprem",
+    title: "On-prem AI infrastructure",
+    blurb:
+      "Servers and storage that enterprises buy to run AI in their own data centers. Rising orders here mean adoption is moving beyond the hyperscalers' clouds.",
+    benchmark: "SPY",
+    tickers: [
+      { symbol: "DELL", name: "Dell (AI servers)" },
+      { symbol: "HPE", name: "HPE" },
+      { symbol: "SMCI", name: "Supermicro" },
+      { symbol: "NTAP", name: "NetApp (storage)" },
+    ],
+  },
+  {
     id: "market",
     title: "Broad market & volatility",
     blurb: "Macro spillover: AI names are a large share of index weight.",
@@ -115,7 +128,7 @@ export type FredSeries = {
   id: string;
   title: string;
   unit: string;
-  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp";
+  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp" | "energy";
   /** Years of history to fetch (default 5); long series get longer range options. */
   years?: number;
   /** Fetched only as an input to a derived chart, not shown as its own card. */
@@ -123,6 +136,8 @@ export type FredSeries = {
 };
 
 export const FRED_SERIES: FredSeries[] = [
+  { id: "APU000072610", title: "Electricity price, US city average", unit: "$/kWh", group: "energy", years: 25 },
+  { id: "WPU0543", title: "Producer prices: industrial electric power", unit: "", group: "energy", years: 25 },
   { id: "BB01RC1Q027SBEA", title: "GDP: final sales of computers", unit: "$B", group: "gdp", years: 50 },
   { id: "B935RC1Q027SBEA", title: "Business investment: computers & peripherals", unit: "$B", group: "gdp", years: 50 },
   { id: "B985RC1Q027SBEA", title: "Business investment: software", unit: "$B", group: "gdp", years: 50 },

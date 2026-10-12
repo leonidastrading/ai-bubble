@@ -561,18 +561,21 @@ export function TimeLinesChart({
   ranges = ["3M", "6M", "1Y"],
   defaultRange,
   unit = "$",
+  dateLabel = "Week of",
 }: {
   rows: Record<string, number | string | null>[];
   keys: string[];
   storageKey?: string;
   ranges?: RangeKey[];
   defaultRange?: RangeKey;
-  unit?: "$";
+  unit?: "$" | "pts" | "%";
+  dateLabel?: string;
 }) {
   const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange ?? ranges[ranges.length - 1], ranges);
   const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
   const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
-  const fmt = (v: number) => `${unit}${v.toFixed(2)}`;
+  const fmt = (v: number) => (unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : v.toFixed(1));
+  const suffix = unit === "$" ? "/hr" : "";
   return (
     <div>
       <div className="card-head" style={{ justifyContent: "flex-end" }}>
@@ -588,13 +591,18 @@ export function TimeLinesChart({
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <div className="tt">
-                    <div className="tt-date">Week of {isoDay(Number(label))}</div>
+                    <div className="tt-date">
+                      {dateLabel} {isoDay(Number(label))}
+                    </div>
                     {[...payload]
                       .sort((a, b) => Number(b.value) - Number(a.value))
                       .map((p) => (
                         <div className="tt-row" key={String(p.dataKey)}>
                           <span style={{ color: p.color }}>{String(p.dataKey)}</span>
-                          <span>{fmt(Number(p.value))}/hr</span>
+                          <span>
+                            {fmt(Number(p.value))}
+                            {suffix}
+                          </span>
                         </div>
                       ))}
                   </div>

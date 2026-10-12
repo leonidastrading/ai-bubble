@@ -32,6 +32,7 @@ const SECTIONS = [
   { id: "spv", label: "SPV tracker" },
   { id: "bdcs", label: "BDCs & redemptions" },
   { id: "gpu", label: "GPU rental" },
+  { id: "intel", label: "Cost of intelligence" },
   { id: "credit", label: "Credit spreads" },
   { id: "fed", label: "Concentration & Fed" },
   { id: "gdp", label: "AI in GDP" },
@@ -65,6 +66,7 @@ const GPU_ROWS: { model: string; label: string; slug: string | null }[] = [
 ];
 
 function fmtFred(s: FredSeries, v: number) {
+  if (s.unit === "$/kWh") return `${(v * 100).toFixed(1)}¢/kWh`;
   if (s.unit === "$B") return `$${v.toLocaleString("en-US", { maximumFractionDigits: 0 })}B`;
   if (s.unit === "$M") return `$${(v / 1000).toLocaleString("en-US", { maximumFractionDigits: 0 })}B`;
   return `${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}${s.unit === "%" ? "%" : s.unit === "k" ? "k" : ""}`;
@@ -184,6 +186,28 @@ export default async function Page() {
       .filter((p) => gdp.get(p.t))
       .map((p) => ({ t: p.t, v: +((p.v / gdp.get(p.t)!) * 100).toFixed(2) }));
   })();
+
+  // Cost of intelligence.
+  const gapRows = (d.intel.gap?.series ?? [])
+    .filter((p) => p.t >= "2023-01-01")
+    .map((p) => ({ t: p.t, "Best closed model": p.closed, "Best open-weight model": p.open }));
+  const priceChanges = Object.entries(d.intel.priceLog)
+    .flatMap(([id, hist]) =>
+      hist.slice(1).map((p, i) => {
+        const prev = hist[i];
+        const blend = (x: { inPerM: number; outPerM: number }) => (3 * x.inPerM + x.outPerM) / 4;
+        return { id, date: p.date, from: blend(prev), to: blend(p), change: (blend(p) / blend(prev) - 1) * 100 };
+      }),
+    )
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const priceLogStart = Object.values(d.intel.priceLog).flat().map((p) => p.date).sort()[0] ?? null;
+  const adoptionRows = (() => {
+    const by = new Map<string, Record<string, number | string | null>>();
+    for (const p of d.intel.adoption?.using ?? []) by.set(p.t, { ...(by.get(p.t) ?? { t: p.t }), "Using AI now": p.v });
+    for (const p of d.intel.adoption?.expecting ?? []) by.set(p.t, { ...(by.get(p.t) ?? { t: p.t }), "Expect to in 6 months": p.v });
+    return [...by.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
+  })();
+  const usd2 = (v: number | null | undefined) => (v == null ? "—" : v >= 10 ? `$${v.toFixed(1)}` : `$${v.toFixed(2)}`);
 
   const updated = new Date(d.generatedAt).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -999,6 +1023,169 @@ export default async function Page() {
         </details>
         <p className="note">
           Weekly market data: <a href="https://getdeploying.com/dataset/gpu-prices" target="_blank" rel="noopener noreferrer">GetDeploying GPU rental price history</a> (CC BY 4.0). The free files cover 53 trailing weeks; this dashboard archives each week so the history keeps growing.
+        </p>
+      </section>
+
+      <section id="intel">
+        <h2>Cost of intelligence</h2>
+        <p className="blurb">
+          Step 2 of the scenario: an open-weight model matches the frontier at a fraction of the price, and it sticks. If
+          intelligence gets cheap, who earns a return on $50B GPU clusters? Capability scores from Epoch AI&apos;s
+          independent evaluations; prices from OpenRouter; adoption from the Census Bureau.
+        </p>
+
+        <div className="grid g2">
+          <div className="card">
+            <h3>Open-weight vs. frontier capability</h3>
+            {d.intel.gap ? (
+              <>
+                <p className="sub">
+                  Best closed: <strong>{d.intel.gap.bestClosed.model}</strong> {d.intel.gap.bestClosed.eci.toFixed(1)} · best
+                  open: <strong>{d.intel.gap.bestOpen.model}</strong> {d.intel.gap.bestOpen.eci.toFixed(1)} · gap{" "}
+                  <strong>{d.intel.gap.gap.toFixed(1)}</strong>
+                  {d.intel.gap.gapYearAgo != null && ` (a year ago ${d.intel.gap.gapYearAgo.toFixed(1)})`}
+                  {d.intel.gap.lagMonths != null && ` · open models ~${d.intel.gap.lagMonths} months behind`}
+                </p>
+                <TimeLinesChart
+                  rows={gapRows}
+                  keys={["Best closed model", "Best open-weight model"]}
+                  unit="pts"
+                  dateLabel="Month of"
+                  ranges={["1Y", "2Y", "5Y"]}
+                  defaultRange="5Y"
+                  storageKey="intel:gap"
+                />
+              </>
+            ) : (
+              <div className="empty">Epoch capability data is unavailable today.</div>
+            )}
+            <Explain id="openGap" />
+          </div>
+
+          <div className="card">
+            <h3>What near-frontier intelligence costs</h3>
+            <div style={{ display: "flex", gap: 28, flexWrap: "wrap", margin: "4px 0 10px" }}>
+              <div>
+                <div className="big">{usd2(d.intel.frontierBlended)}</div>
+                <p className="sub" style={{ margin: 0 }}>per M tokens, top closed model</p>
+              </div>
+              {d.intel.cheapestNearFrontier && (
+                <div>
+                  <div className="big" style={{ color: "var(--up)" }}>{usd2(d.intel.cheapestNearFrontier.blended)}</div>
+                  <p className="sub" style={{ margin: 0 }}>
+                    cheapest within 10 pts: {d.intel.cheapestNearFrontier.model}
+                    {d.intel.cheapestNearFrontier.open ? " (open)" : ""}
+                  </p>
+                </div>
+              )}
+              {d.intel.frontierBlended && d.intel.cheapestNearFrontier && (
+                <div>
+                  <div className="big">{(d.intel.frontierBlended / d.intel.cheapestNearFrontier.blended).toFixed(0)}×</div>
+                  <p className="sub" style={{ margin: 0 }}>price ratio</p>
+                </div>
+              )}
+            </div>
+            <h3 style={{ marginTop: 8 }}>Recent API price changes</h3>
+            {priceChanges.length ? (
+              <ul className="news">
+                {priceChanges.slice(0, 8).map((c) => (
+                  <li key={c.id + c.date}>
+                    <strong>{c.id}</strong> · {usd2(c.from)} → {usd2(c.to)} per M tokens{" "}
+                    <Pct v={c.change} digits={0} />
+                    <div className="meta">{c.date}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="sub">
+                {priceLogStart
+                  ? `Tracking daily prices of the top 40 models since ${priceLogStart}. No changes yet.`
+                  : "Daily price tracking starts with the next refresh; cuts will be listed here as they happen."}
+              </p>
+            )}
+            <Explain id="priceCuts" />
+          </div>
+        </div>
+
+        <div className="card" style={{ marginTop: 14 }}>
+          <h3>Price vs. capability, top models</h3>
+          <p className="sub">Blended price assumes 3 input tokens per output token · $ per million tokens</p>
+          {d.intel.priced.length ? (
+            <SortableTable
+              storageKey="table:intel"
+              columns={[
+                { label: "Model" },
+                { label: "Organization", align: "left" },
+                { label: "Weights", align: "left" },
+                { label: "ECI", title: "Epoch Capabilities Index", firstDir: "desc" },
+                { label: "Released", firstDir: "desc" },
+                { label: "Input", firstDir: "asc" },
+                { label: "Output", firstDir: "asc" },
+                { label: "Blended", firstDir: "asc" },
+                { label: "ECI per $", title: "ECI points per blended $ per million tokens", firstDir: "desc" },
+              ]}
+              rows={d.intel.priced.slice(0, 30).map((m) => ({
+                key: m.apiId,
+                sort: [m.model, m.org, m.open ? "open" : "closed", m.eci, m.date, m.inPerM, m.outPerM, m.blended, m.eci / m.blended],
+                cells: [
+                  <span className="sym">{m.model}</span>,
+                  <span className="muted">{m.org}</span>,
+                  <span className={m.open ? "up" : "muted"}>{m.open ? "Open" : "Closed"}</span>,
+                  <strong>{m.eci.toFixed(1)}</strong>,
+                  <span className="faint">{m.date}</span>,
+                  usd2(m.inPerM),
+                  usd2(m.outPerM),
+                  <strong>{usd2(m.blended)}</strong>,
+                  (m.eci / m.blended).toFixed(0),
+                ],
+              }))}
+            />
+          ) : (
+            <div className="empty">Price or capability data is unavailable today.</div>
+          )}
+          <Explain id="apiPrices" />
+        </div>
+
+        <div className="grid g3" style={{ marginTop: 14 }}>
+          <div className="card">
+            <h3>US businesses using AI</h3>
+            <p className="sub">
+              {d.intel.adoption ? (
+                <>
+                  <span style={{ color: "var(--text)", fontWeight: 600 }}>
+                    {d.intel.adoption.using[d.intel.adoption.using.length - 1].v.toFixed(1)}%
+                  </span>{" "}
+                  · two weeks to {d.intel.adoption.using[d.intel.adoption.using.length - 1].t}
+                </>
+              ) : (
+                "Unavailable today"
+              )}
+            </p>
+            {adoptionRows.length > 0 && (
+              <TimeLinesChart
+                rows={adoptionRows}
+                keys={["Using AI now", "Expect to in 6 months"]}
+                unit="%"
+                dateLabel="Two weeks to"
+                ranges={["1Y", "2Y", "5Y"]}
+                defaultRange="5Y"
+                storageKey="intel:btos"
+              />
+            )}
+            <p className="note">
+              <a href="https://www.census.gov/hfp/btos/data_downloads" target="_blank" rel="noopener noreferrer">
+                Census Business Trends and Outlook Survey ↗
+              </a>
+            </p>
+            <Explain id="btos" />
+          </div>
+          {fredGroup("energy").map((s) => (
+            <FredCard key={s.id} s={s} data={d.fred[s.id]} />
+          ))}
+        </div>
+        <p className="note">
+          On-premises adoption has no public time series; the <a href="#onprem">On-prem AI infrastructure</a> section tracks
+          the server and storage vendors that sell into it.
         </p>
       </section>
 

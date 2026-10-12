@@ -288,4 +288,41 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "AI data centers need new power; utilities and generators are building for that demand.",
     watch: "A slowdown after AI demand forecasts are cut, leaving utilities with stranded investment.",
   },
+
+  // ── Cost of intelligence ──
+  openGap: {
+    what: "The best score to date of any closed model and of any open-weight model on Epoch AI's Capabilities Index, which combines dozens of independent benchmarks.",
+    why: "If downloadable models match the frontier, the labs' pricing power (and the return on their clusters) erodes. The scenario's step 2 is this gap closing for good.",
+    watch: "The gap shrinking toward zero and staying there, or the lag (how many months open models trail) dropping below about three months.",
+  },
+  priceCuts: {
+    what: "The price of the best closed model, the cheapest model within 10 points of the top, and day-to-day changes in API prices for the top 40 models (OpenRouter, blended 3:1 input:output).",
+    why: "Revenue per token is what pays for the buildout. Price cuts at the frontier mean usage has to grow faster just to keep revenue flat.",
+    watch: "Frontier labs cutting prices on recent models, and the price ratio between the frontier and near-frontier models widening.",
+  },
+  apiPrices: {
+    what: "Leading models with their capability score, release date, open or closed weights, and API price per million tokens.",
+    why: "Shows how much capability a dollar buys. Cheap open models near the top of the list are the deflation the scenario worries about.",
+    watch: "Open-weight models climbing the ECI column while staying at the cheap end of the price columns.",
+  },
+  btos: {
+    what: "Share of US businesses that used AI in any business function in the last two weeks, and the share expecting to within six months (Census Business Trends and Outlook Survey, biweekly).",
+    why: "Enterprise use is what has to grow into the capex. Rising use with stagnant AI revenue points to the monetization gap; flat use is the stall in step 1.",
+    watch: "The 'using' line flattening, or the 'expect to' line falling below it (businesses dropping AI rather than adding it).",
+  },
+  APU000072610: {
+    what: "Average US retail price of electricity per kilowatt-hour (BLS, monthly).",
+    why: "Power is a large and rising share of the cost of running AI. Data-center demand is also pushing up what households and businesses pay, which is turning into a political issue.",
+    watch: "Accelerating increases, which raise inference costs and the risk of regulatory pushback on new data centers.",
+  },
+  WPU0543: {
+    what: "Producer price index for industrial electric power: what industrial customers, including data centers, pay.",
+    why: "Higher power costs squeeze the margin on every GPU-hour sold, just as rental prices are supposed to pay down GPU-backed debt.",
+    watch: "Power prices rising while GPU rental rates fall: the margin squeeze that hurts neoclouds first.",
+  },
+  onprem: {
+    what: "Total return of companies selling servers and storage for AI in customers' own data centers, rebased to 100, against the S&P 500.",
+    why: "There's no public series for on-premises AI adoption; these vendors' orders and stock prices are the best available proxy.",
+    watch: "The group lagging while cloud AI names rise (enterprises not following), or sharp drops after earnings on AI-server backlog.",
+  },
 };
