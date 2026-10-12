@@ -207,3 +207,6 @@ table.sortable th button:focus-visible { outline: 2px solid var(--accent); outli
 table.sortable th button.active .sort-ind { opacity: 1; }
 .explain.glossary { margin: 6px 0 0; padding-top: 0; border-top: 0; font-size: 13px; gap: 6px 14px; }
 .explain.glossary dt { color: var(--text); }
+
+.facts { margin: 6px 0; padding-left: 18px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.facts li { margin-bottom: 6px; }

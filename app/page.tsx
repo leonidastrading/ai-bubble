@@ -195,6 +195,7 @@ export default async function Page() {
     const live = d.bdcs.find((x) => x.symbol === b.symbol);
     return { ...b, name: live?.name ?? b.symbol, pnav: live?.priceToNav ?? null };
   });
+  const softwareAsOf = [...new Set(softwareRows.map((r) => r.asOf))].sort().join(" to ");
   const softwareCompare = (() => {
     const xs = softwareRows.filter((r) => r.pnav != null);
     if (xs.length < 4) return null;
@@ -840,7 +841,7 @@ export default async function Page() {
                 <p className="sub" style={{ margin: 0 }}>of BDC software principal matures 2028–29</p>
               </div>
             </div>
-            <ul className="explain" style={{ paddingLeft: 18, margin: "6px 0" }}>
+            <ul className="facts">
               <li>
                 Software stocks fell almost 30% from October 2025 to February 2026 (the &ldquo;SaaSpocalypse&rdquo;); BDC
                 stocks fell about 10%, and BDCs with more software lagged peers by about 5 points.{" "}
@@ -890,8 +891,8 @@ export default async function Page() {
           <div className="card">
             <h3>BDC software exposure vs. price / NAV</h3>
             <p className="sub">
-              Software share of each BDC&apos;s portfolio at fair value, from its latest quarterly report (reviewed weekly,
-              last {softwareData.updated})
+              Software share of each BDC&apos;s portfolio at fair value, from its latest quarterly report
+              {softwareAsOf && ` (quarter ended ${softwareAsOf})`}; reviewed weekly, last {softwareData.updated}
               {softwareCompare && (
                 <>
                   {" "}· median P/NAV: software-heavy <strong>{softwareCompare.heavy.toFixed(2)}x</strong> vs. lighter{" "}
@@ -912,25 +913,23 @@ export default async function Page() {
                   columns={[
                     { label: "BDC" },
                     { label: "Software", title: "Software share of the portfolio at fair value", firstDir: "desc" },
-                    { label: "As of", firstDir: "desc" },
                     { label: "P/NAV", title: "Price ÷ NAV", firstDir: "asc" },
                     { label: "3M", firstDir: "desc" },
                     { label: "Source" },
                   ]}
                   rows={softwareRows.map((r) => ({
                     key: r.symbol,
-                    sort: [r.symbol, r.pct, r.asOf, r.pnav, d.quotes[r.symbol]?.chg3m ?? null, r.label],
+                    sort: [r.symbol, r.pct, r.pnav, d.quotes[r.symbol]?.chg3m ?? null, r.label],
                     cells: [
                       <>
                         <span className="sym">{r.symbol}</span>
                         <span className="name">{r.name}</span>
                       </>,
                       <strong style={{ color: stressColor(toScore(r.pct, 10, 35)) }}>{r.pct.toFixed(1)}%</strong>,
-                      <span className="faint">{r.asOf}</span>,
                       r.pnav != null ? `${r.pnav.toFixed(2)}x` : "—",
                       <Pct v={d.quotes[r.symbol]?.chg3m} />,
-                      <a href={r.source} target="_blank" rel="noreferrer" title={r.note ?? undefined}>
-                        {r.label}
+                      <a href={r.source} target="_blank" rel="noreferrer" title={`${r.label}, as of ${r.asOf}. ${r.note ?? ""}`}>
+                        10-Q
                       </a>,
                     ],
                   }))}
