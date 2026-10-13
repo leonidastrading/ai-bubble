@@ -294,7 +294,7 @@ export default async function Page() {
                 <HistoryChart
                   rows={historyRows}
                   keys={[{ key: "score", label: "Composite score", color: "var(--stress)", axis: "left" }]}
-                  format={(v) => v.toFixed(0)}
+                  unit="score"
                 />
               </>
             ) : (
@@ -319,7 +319,7 @@ export default async function Page() {
                     { key: "lambda", label: "Lambda", color: "var(--s3)", axis: "left" },
                   ]}
                   leftDomain={[0, "auto"]}
-                  format={(v) => `$${v.toFixed(2)}`}
+                  unit="usd"
                 />
               </>
             ) : (
@@ -1217,7 +1217,7 @@ export default async function Page() {
                     rows={historyRows}
                     keys={[{ key: "h100", label: "H100 $/hr", color: "var(--s1)", axis: "left" }]}
                     leftDomain={[0, "auto"]}
-                    format={(v) => `$${v.toFixed(2)}`}
+                    unit="usd"
                   />
                 </>
               )}

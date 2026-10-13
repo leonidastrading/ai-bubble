@@ -339,13 +339,14 @@ export function HistoryChart({
   rows,
   keys,
   leftDomain = [0, 100],
-  format = (v: number) => v.toFixed(2),
+  unit = "num",
 }: {
   rows: Record<string, number | string | null>[];
   keys: { key: string; label: string; color: string; axis: "left" | "right" }[];
   leftDomain?: [number | "auto", number | "auto"];
-  format?: (v: number) => string;
+  unit?: "num" | "score" | "usd";
 }) {
+  const format = (v: number) => (unit === "usd" ? `$${v.toFixed(2)}` : unit === "score" ? v.toFixed(0) : v.toFixed(2));
   const data = withTs(rows, "date");
   const hasRight = keys.some((k) => k.axis === "right");
   return (
