@@ -47,13 +47,21 @@ const isoDay = (ts: number) => new Date(ts).toISOString().slice(0, 10);
  * Matters when series have different calendars (fiscal quarters ending in
  * different months) or uneven spacing (thinned older history).
  */
-const timeAxis = {
-  dataKey: "ts",
-  type: "number" as const,
-  scale: "time" as const,
-  domain: ["dataMin", "dataMax"] as [string, string],
-  tickFormatter: (v: number) => fmtDate(isoDay(v)),
-};
+/** Short windows label days ("Oct 12"); longer ones label months ("Oct 26"). */
+function timeAxis(data: { ts: number }[]) {
+  const span = data.length ? data[data.length - 1].ts - data[0].ts : 0;
+  const daily = span < 150 * 86_400_000;
+  return {
+    dataKey: "ts",
+    type: "number" as const,
+    scale: "time" as const,
+    domain: ["dataMin", "dataMax"] as [string, string],
+    tickFormatter: (v: number) =>
+      daily
+        ? new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
+        : fmtDate(isoDay(v)),
+  };
+}
 
 function withTs<T extends Record<string, unknown>>(rows: T[], key = "t"): (T & { ts: number })[] {
   return rows.map((r) => ({ ...r, ts: Date.parse(`${String(r[key])}T00:00:00Z`) }));
@@ -123,7 +131,7 @@ export function RelativeChart({
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
             <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmtTick} {...axisProps} />
             <ReferenceLine y={100} stroke="var(--faint)" strokeDasharray="3 3" />
             <Tooltip
@@ -224,7 +232,7 @@ export function SeriesChart({
               </linearGradient>
             </defs>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
             <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmtTick} {...axisProps} />
             {refs.map((r) => (
               <ReferenceLine
@@ -330,18 +338,25 @@ export function HBarChart({
 export function HistoryChart({
   rows,
   keys,
+  leftDomain = [0, 100],
+  format = (v: number) => v.toFixed(2),
 }: {
   rows: Record<string, number | string | null>[];
   keys: { key: string; label: string; color: string; axis: "left" | "right" }[];
+  leftDomain?: [number | "auto", number | "auto"];
+  format?: (v: number) => string;
 }) {
+  const data = withTs(rows, "date");
+  const hasRight = keys.some((k) => k.axis === "right");
   return (
-    <div style={{ height: 220 }}>
-      <ResponsiveContainer>
-        <LineChart data={withTs(rows, "date")} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
+    <div>
+      <div style={{ height: 220 }}>
+        <ResponsiveContainer>
+        <LineChart data={data} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="var(--grid)" vertical={false} />
-          <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
-          <YAxis yAxisId="left" domain={[0, 100]} width={44} {...axisProps} />
-          <YAxis yAxisId="right" orientation="right" domain={["auto", "auto"]} width={44} {...axisProps} />
+          <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
+          <YAxis yAxisId="left" domain={leftDomain} width={44} tickFormatter={format} {...axisProps} />
+          {hasRight && <YAxis yAxisId="right" orientation="right" domain={["auto", "auto"]} width={44} {...axisProps} />}
           <Tooltip
             content={({ active, payload, label }) =>
               active && payload?.length ? (
@@ -350,7 +365,7 @@ export function HistoryChart({
                   {payload.map((p) => (
                     <div className="tt-row" key={String(p.dataKey)}>
                       <span style={{ color: p.color }}>{keys.find((k) => k.key === p.dataKey)?.label}</span>
-                      <span>{Number(p.value).toFixed(2)}</span>
+                      <span>{format(Number(p.value))}</span>
                     </div>
                   ))}
                 </div>
@@ -371,7 +386,18 @@ export function HistoryChart({
             />
           ))}
         </LineChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
+      {keys.length > 1 && (
+        <div className="legend">
+          {keys.map((k) => (
+            <span key={k.key} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <i style={{ background: k.color }} />
+              {k.label}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -413,7 +439,7 @@ export function TrendsChart({
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
             <YAxis domain={[0, 100]} width={36} {...axisProps} />
             <Tooltip
               content={({ active, payload, label }) =>
@@ -595,7 +621,7 @@ export function TimeLinesChart({
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
-            <XAxis {...timeAxis} minTickGap={40} {...axisProps} />
+            <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
             <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmt} {...axisProps} />
             <Tooltip
               content={({ active, payload, label }) =>

@@ -130,6 +130,8 @@ export default async function Page() {
     date: h.date,
     score: h.score,
     h100: h.gpu["H100 SXM"] ?? null,
+    runpod: h.gpuList?.runpod?.["H100 SXM"] ?? null,
+    lambda: h.gpuList?.lambda?.["H100 SXM"] ?? null,
     pnav: h.bdcPriceToNav,
   }));
 
@@ -280,27 +282,51 @@ export default async function Page() {
           </div>
         </div>
 
-        <div className="card" style={{ marginTop: 14 }}>
-          <h3>Score history</h3>
-          {historyRows.length >= 2 ? (
-            <>
-              <p className="sub">Daily snapshots stored by the refresh job</p>
-              <HistoryChart
-                rows={historyRows}
-                keys={[
-                  { key: "score", label: "Composite score", color: "var(--stress)", axis: "left" },
-                  { key: "h100", label: "H100 $/hr", color: "var(--s1)", axis: "right" },
-                ]}
-              />
-            </>
-          ) : (
-            <p className="sub">
-              {historyEnabled()
-                ? `Collecting daily snapshots (${historyRows.length} so far). The chart appears after the second day.`
-                : "Connect a Vercel Blob store to this project to record the score, GPU prices and BDC price/NAV every day and chart them here."}
-            </p>
-          )}
-          <Explain id="history" />
+        <div className="grid g2" style={{ marginTop: 14 }}>
+          <div className="card">
+            <h3>Score history</h3>
+            {historyRows.length >= 2 ? (
+              <>
+                <p className="sub">
+                  One snapshot per day, saved by the refresh job after the US close · {historyRows.length} days so far, latest{" "}
+                  {historyRows[historyRows.length - 1].date}
+                </p>
+                <HistoryChart
+                  rows={historyRows}
+                  keys={[{ key: "score", label: "Composite score", color: "var(--stress)", axis: "left" }]}
+                  format={(v) => v.toFixed(0)}
+                />
+              </>
+            ) : (
+              <p className="sub">
+                {historyEnabled()
+                  ? `Collecting daily snapshots (${historyRows.length} so far). The chart appears after the second day.`
+                  : "Connect a Vercel Blob store to this project to record the score, GPU prices and BDC price/NAV every day and chart them here."}
+              </p>
+            )}
+            <Explain id="history" />
+          </div>
+          <div className="card">
+            <h3>H100 rental price, daily</h3>
+            {historyRows.length >= 2 ? (
+              <>
+                <p className="sub">$/GPU-hour on demand · Vast.ai marketplace median vs. RunPod and Lambda list prices</p>
+                <HistoryChart
+                  rows={historyRows}
+                  keys={[
+                    { key: "h100", label: "Vast.ai median", color: "var(--s1)", axis: "left" },
+                    { key: "runpod", label: "RunPod", color: "var(--s2)", axis: "left" },
+                    { key: "lambda", label: "Lambda", color: "var(--s3)", axis: "left" },
+                  ]}
+                  leftDomain={[0, "auto"]}
+                  format={(v) => `$${v.toFixed(2)}`}
+                />
+              </>
+            ) : (
+              <p className="sub">Collecting daily snapshots.</p>
+            )}
+            <Explain id="historyGpu" />
+          </div>
         </div>
       </section>
 
@@ -1187,7 +1213,12 @@ export default async function Page() {
               {historyRows.length >= 2 && (
                 <>
                   <h3 style={{ marginTop: 16 }}>Vast.ai H100, daily snapshots</h3>
-                  <HistoryChart rows={historyRows} keys={[{ key: "h100", label: "H100 $/hr", color: "var(--s1)", axis: "left" }]} />
+                  <HistoryChart
+                    rows={historyRows}
+                    keys={[{ key: "h100", label: "H100 $/hr", color: "var(--s1)", axis: "left" }]}
+                    leftDomain={[0, "auto"]}
+                    format={(v) => `$${v.toFixed(2)}`}
+                  />
                 </>
               )}
             </div>
