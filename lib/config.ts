@@ -72,6 +72,25 @@ export const TICKER_GROUPS: TickerGroup[] = [
     ],
   },
   {
+    id: "banks",
+    title: "Bank lenders",
+    blurb:
+      "The banks that arrange and hold data-center and GPU debt (JPMorgan, MUFG and SMBC lead the Oracle-linked loans), plus regional banks. They sit underneath private credit too, lending to the funds.",
+    benchmark: "SPY",
+    tickers: [
+      { symbol: "JPM", name: "JPMorgan Chase" },
+      { symbol: "GS", name: "Goldman Sachs" },
+      { symbol: "MS", name: "Morgan Stanley" },
+      { symbol: "BAC", name: "Bank of America" },
+      { symbol: "C", name: "Citigroup" },
+      { symbol: "WFC", name: "Wells Fargo" },
+      { symbol: "MUFG", name: "Mitsubishi UFJ (ADR)" },
+      { symbol: "SMFG", name: "Sumitomo Mitsui / SMBC (ADR)" },
+      { symbol: "MFG", name: "Mizuho (ADR)" },
+      { symbol: "KRE", name: "Regional bank ETF" },
+    ],
+  },
+  {
     id: "reits",
     title: "Data center REITs & power",
     blurb:
@@ -174,6 +193,8 @@ export const FRED_SERIES: FredSeries[] = [
   { id: "NCBEILQ027S", title: "Market value of nonfinancial corporate equities", unit: "$M", group: "valuation", years: 55, hidden: true },
   { id: "T10Y2Y", title: "10-year minus 2-year Treasury", unit: "%", group: "valuation", years: 1, hidden: true },
   { id: "FEDFUNDS", title: "Fed funds rate (monthly)", unit: "%", group: "valuation", years: 60, hidden: true },
+  { id: "DRTSCILM", title: "Banks tightening business-loan standards (net %)", unit: "%", group: "credit", years: 35 },
+  { id: "BUSLOANS", title: "Business (C&I) loans at US banks", unit: "$B", group: "credit", years: 10 },
   { id: "BAMLH0A0HYM2", title: "High-yield OAS", unit: "%", group: "credit" },
   { id: "BAMLH0A3HYC", title: "CCC & lower OAS", unit: "%", group: "credit" },
   { id: "BAMLC0A4CBBB", title: "BBB corporate OAS", unit: "%", group: "credit" },
@@ -206,6 +227,7 @@ export const NEWS_FEEDS = [
   { id: "circular", title: "Circular & vendor financing", query: '"circular financing" OR "vendor financing" OR "circular deals" (Nvidia OR OpenAI OR AMD OR CoreWeave)' },
   { id: "open-weight", title: "Open-weight models & price cuts", query: '"open-weight" OR "open source model" OR "inference price" OR "price cut" (LLM OR model) (DeepSeek OR Qwen OR Llama OR Mistral OR Kimi)' },
   { id: "software", title: "Software & private credit", query: '(software OR SaaS OR SaaSpocalypse) ("private credit" OR BDC OR "direct lending" OR "software loans")' },
+  { id: "banks", title: "Banks & AI lending", query: '(bank OR banks OR JPMorgan OR MUFG OR SMBC) ("data center" OR "AI infrastructure" OR "significant risk transfer") (loan OR loans OR debt)' },
   { id: "layoffs", title: "AI layoffs & enterprise ROI", query: '"AI layoffs" OR "AI ROI" OR "AI pilots" enterprise' },
 ];
 

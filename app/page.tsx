@@ -20,6 +20,10 @@ const REFS: Record<string, { y: number; label: string; tone: "calm" | "stress" |
   BAMLH0A0HYM2: [{ y: 6.5, label: "stress", tone: "stress" }],
   BAMLH0A3HYC: [{ y: 16, label: "stress", tone: "stress" }],
   VIXCLS: [{ y: 35, label: "stress", tone: "stress" }],
+  DRTSCILM: [
+    { y: 0, label: "neutral", tone: "watch" },
+    { y: 40, label: "recession-level", tone: "stress" },
+  ],
   NFCI: [{ y: 0, label: "avg", tone: "watch" }],
   STLFSI4: [{ y: 0, label: "avg", tone: "watch" }],
 };

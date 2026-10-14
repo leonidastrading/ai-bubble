@@ -27,6 +27,21 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Losses on off-balance-sheet AI debt land on these lenders, not on Big Tech. Their stocks price that risk before it shows in filings.",
     watch: "Blue Owl leading the group down, and the group underperforming the S&P while redemption requests rise.",
   },
+  banks: {
+    what: "Total return of the big US banks, the Japanese megabanks (US-listed shares) and the regional bank ETF, rebased to 100, against the S&P 500.",
+    why: "Banks underwrite the SPV loans and bonds, lend to private-credit funds, and give AI borrowers credit lines that get drawn in full before trouble. When they can't sell the debt on (the $38B Oracle-linked loan took months), it stays on their books.",
+    watch: "MUFG, SMFG and JPMorgan underperforming their peers on data-center news; regional banks (KRE) falling with private-credit stocks.",
+  },
+  DRTSCILM: {
+    what: "Fed Senior Loan Officer Survey: the share of banks tightening standards on business loans to large and mid-sized firms, minus the share easing. Quarterly.",
+    why: "This is credit transmission from the banks' side. Tightening above about 40% came before or during the 1990, 2001, 2008 and 2020 recessions.",
+    watch: "A jump above 20–30%, especially if banks cite industry-specific problems or a worse outlook.",
+  },
+  BUSLOANS: {
+    what: "Commercial and industrial loans on the books of all US commercial banks, monthly.",
+    why: "Borrowers draw their credit lines in full when they see trouble coming, so a sudden jump in C&I loans is a stress signal, not a boom (March 2020, late 2008).",
+    watch: "A spike of several percent in a month or two while markets are falling.",
+  },
   reits: {
     what: "Total return of data-center landlords and power/cooling suppliers, rebased to 100.",
     why: "Long leases protect REIT revenue, so the hit shows up as valuation multiples shrinking; power and cooling vendors are priced for the buildout to continue.",

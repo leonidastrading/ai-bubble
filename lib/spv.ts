@@ -29,6 +29,11 @@ const PROVIDER_TICKERS: Record<string, string> = {
   Nvidia: "NVDA",
   CoreWeave: "CRWV",
   Meta: "META",
+  JPMorgan: "JPM",
+  "Goldman Sachs": "GS",
+  "Morgan Stanley": "MS",
+  MUFG: "MUFG",
+  SMBC: "SMFG",
 };
 
 export type ProviderRow = {

@@ -234,6 +234,32 @@ export function computeSignals(input: {
       detail: "Software is about a fifth to a third of BDC loan books. AI pressure on SaaS shows up in IGV before it shows in private-credit marks.",
     });
 
+  const banks = basketDrawdown(quotes, ["JPM", "GS", "MS", "BAC", "C", "WFC", "MUFG", "SMFG", "MFG"]);
+  if (banks != null)
+    out.push({
+      id: "banks",
+      label: "Lender banks drawdown",
+      stage: "4 · Credit transmits",
+      value: `${f1(banks)}%`,
+      score: scale(banks, -8, -35),
+      calm: "> -8%",
+      stress: "< -35%",
+      detail: "Average distance below 52-week high for the US banks and Japanese megabanks that arrange and hold AI infrastructure debt.",
+    });
+
+  const sloos = fred.get("DRTSCILM");
+  if (sloos)
+    out.push({
+      id: "sloos",
+      label: "Banks tightening loan standards",
+      stage: "4 · Credit transmits",
+      value: `${f1(sloos.last)}% net`,
+      score: scale(sloos.last, 0, 50),
+      calm: "≤ 0%",
+      stress: "≥ 50%",
+      detail: `Fed loan officer survey, C&I loans to large and mid-sized firms, as of ${sloos.lastDate}.`,
+    });
+
   if (bdcPriceToNav != null)
     out.push({
       id: "bdc",
