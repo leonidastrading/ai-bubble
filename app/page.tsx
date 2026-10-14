@@ -232,6 +232,18 @@ export default async function Page() {
   const statusColor = (s: string) => stressColor(s === "flashing" ? 100 : s === "elevated" ? 55 : 0);
   const ACTS = { 1: "Act 1 · The balloon inflates (valuation)", 2: "Act 2 · The pin goes in (rates)", 3: "Act 3 · The structure gives way (breadth & leverage)" } as const;
 
+  // Debt behind past bubbles, one row per quarter.
+  const debtRows = (() => {
+    const byT = new Map<string, Record<string, number | string | null>>();
+    for (const m of d.valuation.debt)
+      for (const p of m.points) {
+        const row = byT.get(p.t) ?? { t: p.t };
+        row[m.label] = p.v;
+        byT.set(p.t, row);
+      }
+    return [...byT.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
+  })();
+
   // Cost of intelligence.
   const gapRows = (d.intel.gap?.series ?? [])
     .filter((p) => p.t >= "2023-01-01")
@@ -415,6 +427,47 @@ export default async function Page() {
                   </li>
                 </ul>
                 <Explain id="bankExposure" />
+                {d.valuation.debt.length > 0 && (
+                  <>
+                    <h3 style={{ marginTop: 16 }}>Debt behind past bubbles, % of GDP</h3>
+                    <p className="sub">Peak around the dot-com top (1999–2001) and the housing top (2006–08), vs. the latest quarter</p>
+                    <SortableTable
+                      storageKey="table:bubbleDebt"
+                      columns={[
+                        { label: "Debt" },
+                        { label: "Dot-com peak", firstDir: "desc" },
+                        { label: "Housing peak", firstDir: "desc" },
+                        { label: "Now", firstDir: "desc" },
+                      ]}
+                      rows={d.valuation.debt.map((m) => ({
+                        key: m.key,
+                        sort: [m.label, m.dotcom?.v ?? null, m.housing?.v ?? null, m.now?.v ?? null],
+                        cells: [
+                          m.label,
+                          m.dotcom ? <span title={m.dotcom.t}>{m.dotcom.v.toFixed(1)}%</span> : "—",
+                          m.housing ? <span title={m.housing.t}>{m.housing.v.toFixed(1)}%</span> : "—",
+                          m.now ? (
+                            <strong title={m.now.t}>
+                              {m.now.v.toFixed(1)}% <span className="faint">({m.now.t.slice(0, 7)})</span>
+                            </strong>
+                          ) : (
+                            "—"
+                          ),
+                        ],
+                      }))}
+                    />
+                    <TimeLinesChart
+                      rows={debtRows}
+                      keys={d.valuation.debt.map((m) => m.label)}
+                      unit="%"
+                      dateLabel="Quarter of"
+                      ranges={["10Y", "25Y", "All"]}
+                      defaultRange="All"
+                      storageKey="debt:bubbles"
+                    />
+                    <Explain id="bubbleDebt" />
+                  </>
+                )}
               </div>
             )}
           </section>

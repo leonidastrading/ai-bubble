@@ -76,6 +76,16 @@ export type Gauge = {
 
 export type HikeCycle = { start: string; from: number; peakDate: string; peak: number };
 
+export type DebtMeasure = {
+  key: string;
+  label: string;
+  /** % of GDP, quarterly. */
+  points: Point[];
+  dotcom: { v: number; t: string } | null;
+  housing: { v: number; t: string } | null;
+  now: { v: number; t: string } | null;
+};
+
 export type Valuation = {
   cape: { t: string; cape: number | null; pe: number | null }[];
   capeNow: number | null;
@@ -90,8 +100,54 @@ export type Valuation = {
   hikeSoFar: { from: number; now: number; since: string } | null;
   breadth1y: number | null;
   margin: { t: string; debtB: number; yoy: number | null; spyYoy: number | null }[];
+  debt: DebtMeasure[];
   gauges: Gauge[];
 };
+
+/**
+ * Debt behind past bubbles, as % of GDP: the peak around the dot-com top
+ * (1999–2001), around the housing top (2006–2008), and now. FRED reports Z.1
+ * levels in millions or billions depending on the series, so scale to billions
+ * by checking the ratio against GDP.
+ */
+function debtMeasures(fred: Map<string, FredData>, margin: Point[]): DebtMeasure[] {
+  const gdp = fred.get("GDP")?.points ?? [];
+  if (!gdp.length) return [];
+  const pctOfGdp = (points: Point[], quarterly: boolean): Point[] => {
+    const raw = points.flatMap((p) => {
+      const g = asOf(gdp, p.t);
+      return g ? [{ t: p.t, v: p.v / g }] : [];
+    });
+    const scale = raw.length && raw[raw.length - 1].v > 20 ? 1000 : 1; // millions vs billions
+    const out = raw.map((p) => ({ t: p.t, v: +((p.v / scale) * 100).toFixed(2) }));
+    // Monthly series: keep quarter-end months so all lines share a cadence.
+    return quarterly ? out : out.filter((p) => ["01", "04", "07", "10"].includes(p.t.slice(5, 7)));
+  };
+  const peak = (pts: Point[], from: string, to: string) => {
+    const xs = pts.filter((p) => p.t >= from && p.t <= to);
+    return xs.length ? xs.reduce((a, b) => (b.v > a.v ? b : a)) : null;
+  };
+  const defs: [string, string, Point[], boolean][] = [
+    ["corp", "Nonfinancial corporate debt", fred.get("BCNSDODNS")?.points ?? [], true],
+    ["mortgage", "Household mortgages", fred.get("HHMSDODNS")?.points ?? [], true],
+    ["bankci", "Bank business (C&I) loans", fred.get("BUSLOANS")?.points ?? [], false],
+    ["margin", "Margin debt (stocks bought on credit)", margin, false],
+  ];
+  return defs
+    .filter(([, , pts]) => pts.length)
+    .map(([key, label, pts, q]) => {
+      const points = pctOfGdp(pts, q);
+      const last = points.at(-1);
+      return {
+        key,
+        label,
+        points,
+        dotcom: peak(points, "1999-01-01", "2001-12-31"),
+        housing: peak(points, "2006-01-01", "2008-12-31"),
+        now: last ? { v: last.v, t: last.t } : null,
+      };
+    });
+}
 
 /** Fed hiking cycles: trough-to-peak moves of at least 1 point in the monthly rate. */
 function hikingCycles(ff: Point[], min = 1): HikeCycle[] {
@@ -306,6 +362,7 @@ export function computeValuation(input: {
     hikeSoFar,
     breadth1y,
     margin: marginRows,
+    debt: debtMeasures(fred, margin),
     gauges,
   };
 }

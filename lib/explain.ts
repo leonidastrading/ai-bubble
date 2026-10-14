@@ -37,6 +37,11 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Banks sit at the base of the chain: they lend to AI companies directly, arrange the SPV debt, and lend to the private-credit funds that hold the rest. Unused credit lines are the hidden part: they get drawn exactly when borrowers are weakest.",
     watch: "A jump in C&I loans (credit section) while bank stocks fall, loan sales like Volta's pricing at deeper discounts or failing, and banks buying credit protection (significant risk transfers) on data-center loans.",
   },
+  bubbleDebt: {
+    what: "Four kinds of debt as a share of GDP (Fed Z.1, Fed H.8, FINRA, BEA): nonfinancial corporate debt, household mortgages, bank business loans, and margin debt. The table shows each one's peak around the 2000 and 2007 tops and its latest value; hover a number for its date.",
+    why: "The dot-com bust was mostly an equity loss: companies had raised money by selling stock, so banks came through. The housing bust was a debt loss: mortgages sat on bank and investor balance sheets, which is why it became a banking crisis. The AI buildout started on cash and equity and is now moving to debt.",
+    watch: "Corporate debt and bank business loans rising toward or past their 2000 and 2008 peaks while AI capex keeps growing. That would mean an AI bust looks more like 2008 than 2000 for lenders.",
+  },
   DRTSCILM: {
     what: "Fed Senior Loan Officer Survey: the share of banks tightening standards on business loans to large and mid-sized firms, minus the share easing. Quarterly.",
     why: "This is credit transmission from the banks' side. Tightening above about 40% came before or during the 1990, 2001, 2008 and 2020 recessions.",
