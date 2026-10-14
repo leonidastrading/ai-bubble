@@ -196,6 +196,25 @@ export default async function Page() {
       .map((p) => ({ t: p.t, v: +((p.v / gdp.get(p.t)!) * 100).toFixed(2) }));
   })();
 
+  // How much of nominal GDP growth (year over year) came from IT equipment & software investment.
+  const growthRows = (() => {
+    const gdp = d.fred.GDP?.points ?? [];
+    const it = new Map((d.fred.A679RC1Q027SBEA?.points ?? []).map((p) => [p.t, p.v]));
+    return gdp.flatMap((p, i) => {
+      const prev = gdp[i - 4];
+      const a = it.get(p.t);
+      const b = prev ? it.get(prev.t) : undefined;
+      if (!prev || a == null || b == null) return [];
+      const growth = ((p.v - prev.v) / prev.v) * 100;
+      const itPts = ((a - b) / prev.v) * 100;
+      return [{ t: p.t, growth: +growth.toFixed(2), it: +itPts.toFixed(2), share: p.v > prev.v ? ((a - b) / (p.v - prev.v)) * 100 : null }];
+    });
+  })();
+  const growthNow = growthRows.at(-1);
+  const growthDotcomPeak = growthRows
+    .filter((r) => r.t >= "1997-01-01" && r.t <= "2000-12-31" && r.share != null)
+    .reduce<(typeof growthRows)[number] | null>((a, b) => (!a || b.share! > a.share! ? b : a), null);
+
   // Software & private credit: curated exposure joined with live price / NAV.
   type BdcSoftware = { symbol: string; pct: number; label: string; asOf: string; priorPct: number | null; source: string; note: string | null };
   const softwareRows = (softwareData.bdcs as BdcSoftware[]).map((b) => {
@@ -1743,6 +1762,40 @@ export default async function Page() {
           national-accounts lines that would show the buildout and its reversal, with history back to the dot-com era for
           comparison.
         </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>How much of GDP growth comes from AI-related investment</h3>
+          <p className="sub">
+            {growthNow ? (
+              <>
+                Last 4 quarters to {growthNow.t}: nominal GDP grew {growthNow.growth.toFixed(1)}%, of which{" "}
+                <span style={{ color: "var(--text)", fontWeight: 600 }}>{growthNow.it.toFixed(2)} pts</span> came from investment in IT
+                equipment &amp; software
+                {growthNow.share != null && (
+                  <>
+                    {" "}
+                    (<span style={{ color: "var(--text)", fontWeight: 600 }}>{growthNow.share.toFixed(0)}%</span> of the growth)
+                  </>
+                )}
+                {growthDotcomPeak && ` · dot-com peak ${growthDotcomPeak.share!.toFixed(0)}% (${growthDotcomPeak.t.slice(0, 7)})`}
+              </>
+            ) : (
+              "Unavailable today"
+            )}
+          </p>
+          {growthRows.length > 0 && (
+            <TimeLinesChart
+              rows={growthRows.map((r) => ({ t: r.t, "Nominal GDP growth (y/y)": r.growth, "From IT equipment & software": r.it }))}
+              keys={["Nominal GDP growth (y/y)", "From IT equipment & software"]}
+              unit="%"
+              dateLabel="Quarter of"
+              ranges={["5Y", "10Y", "25Y", "All"]}
+              defaultRange="25Y"
+              refs={[{ y: 0, label: "", tone: "watch" }]}
+              storageKey="gdp:growthShare"
+            />
+          )}
+          <Explain id="gdpGrowthShare" />
+        </div>
         <div className="grid g3">
           <div className="card">
             <h3>IT investment as a share of GDP</h3>

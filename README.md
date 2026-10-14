@@ -22,7 +22,7 @@ It refreshes once a day on Vercel and needs no API keys.
 | Classic bubble gauges | A scorecard of seven market-wide warning signs (normal / elevated / flashing) and their history: Shiller CAPE vs P/E, excess CAPE yield (Shiller and TIPS methods), the Buffett indicator, the 10y−2y yield curve, Fed hiking cycles, breadth and margin debt | multpl.com (Shiller data), FRED, FINRA |
 | Credit spreads & stress | Fed loan-officer survey (banks tightening business-loan standards), C&I loans, HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
 | Concentration & Fed | Equal-weight ÷ cap-weight S&P 500, Fed funds rate, 10y−3m curve, recession probability | Yahoo, FRED |
-| AI in GDP | IT investment share of GDP vs. the dot-com peak, monthly data-center construction, GDP final sales of computers, business investment in computers and software, power construction | FRED (BEA, Census), Our World in Data |
+| AI in GDP | How much of GDP growth comes from IT equipment & software investment (vs. the dot-com era), IT investment share of GDP vs. the dot-com peak, monthly data-center construction, GDP final sales of computers, business investment in computers and software, power construction | FRED (BEA, Census), Our World in Data |
 | Labor | Information and professional-services unemployment, claims, job openings | FRED |
 | Adoption & compute | Gen-AI adoption share, hosting PPI, semiconductor production | FRED |
 | Google Trends | Search interest for AI assistants (ChatGPT, Claude, Gemini, ...), "AI", bubble-fear terms, and Claude vs. peers. The last good copy is saved to Blob in case Trends rate-limits a refresh | Google Trends (unofficial endpoints) |
