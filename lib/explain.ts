@@ -32,6 +32,11 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Banks underwrite the SPV loans and bonds, lend to private-credit funds, and give AI borrowers credit lines that get drawn in full before trouble. When they can't sell the debt on (the $38B Oracle-linked loan took months), it stays on their books.",
     watch: "MUFG, SMFG and JPMorgan underperforming their peers on data-center news; regional banks (KRE) falling with private-credit stocks.",
   },
+  bankExposure: {
+    what: "Supervisory estimates of how much large US banks have committed to AI-adjacent borrowers (Chicago Fed, from Fed loan data), and Moody's count of hyperscaler leases that aren't yet on balance sheets. These are point-in-time studies, not live data.",
+    why: "Banks sit at the base of the chain: they lend to AI companies directly, arrange the SPV debt, and lend to the private-credit funds that hold the rest. Unused credit lines are the hidden part: they get drawn exactly when borrowers are weakest.",
+    watch: "A jump in C&I loans (credit section) while bank stocks fall, loan sales like Volta's pricing at deeper discounts or failing, and banks buying credit protection (significant risk transfers) on data-center loans.",
+  },
   DRTSCILM: {
     what: "Fed Senior Loan Officer Survey: the share of banks tightening standards on business loans to large and mid-sized firms, minus the share easing. Quarterly.",
     why: "This is credit transmission from the banks' side. Tightening above about 40% came before or during the 1990, 2001, 2008 and 2020 recessions.",

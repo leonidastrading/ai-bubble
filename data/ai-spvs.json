@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-12",
+  "updated": "2026-10-14",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -350,6 +350,45 @@
       "stress": null,
       "source": "https://www.storagenewsletter.com/2026/09/22/lambda-closes-926-million-senior-secured-term-loan-b-facility-backing-gpu-deployment-for-an-investment-grade-customer/",
       "events": []
+    },
+    {
+      "id": "volta-tydal",
+      "name": "Volta Infrastructure GPU loan",
+      "project": "Tydal, Norway (121 MW, leased from Bitdeer)",
+      "type": "gpu",
+      "tenants": [
+        "Anthropic"
+      ],
+      "equity": [
+        {
+          "name": "Volta Infrastructure",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "JPMorgan",
+        "Goldman Sachs"
+      ],
+      "debtB": 5.0,
+      "equityB": null,
+      "rating": "Unrated",
+      "terms": "$1.3B first-lien term loan C plus a $3.7B term loan backed by GPUs, six years; SOFR + 6.25–6.50% at 97–98 cents (about 11–11.75% yield); no corporate guarantee. Funds GPUs and a letter of credit for the data-center lease. Anthropic has a reported six-year, ~$10B compute contract at the site",
+      "date": "2026-10-05",
+      "status": "raising",
+      "stress": null,
+      "source": "https://letsdatascience.com/news/jpmorgan-and-goldman-limit-volta-loan-exposure-d1a4e979",
+      "events": [
+        {
+          "date": "2026-08-27",
+          "text": "JPMorgan begins sounding out lenders for about $5B",
+          "source": "https://thenextweb.com/news/jpmorgan-volta-5b-debt-package-norway-tydal-anthropic"
+        },
+        {
+          "date": "2026-10-07",
+          "text": "Marketed at about 11% yield and 97–98 cents; JPMorgan and Goldman reportedly limited their own exposure; commitments due Oct 14",
+          "source": "https://www.thestar.com.my/business/business-news/2026/10/07/jpmorgan-dangles-11-yield-on-voltas-ai-loan-sale"
+        }
+      ]
     }
   ]
 }

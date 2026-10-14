@@ -370,6 +370,53 @@ export default async function Page() {
                 <Explain id="scoreboard" />
               </div>
             </div>
+            {g.id === "banks" && (
+              <div className="card" style={{ marginTop: 14 }}>
+                <h3>How much AI risk banks carry</h3>
+                <div style={{ display: "flex", gap: 28, flexWrap: "wrap", margin: "4px 0 10px" }}>
+                  <div>
+                    <div className="big">$450B</div>
+                    <p className="sub" style={{ margin: 0 }}>large-bank business-loan commitments to AI-adjacent industries ($150B drawn)</p>
+                  </div>
+                  <div>
+                    <div className="big" style={{ fontSize: 20 }}>25%</div>
+                    <p className="sub" style={{ margin: 0 }}>of Tier 1 capital if fully drawn (9% today)</p>
+                  </div>
+                  <div>
+                    <div className="big" style={{ fontSize: 20 }}>$191B</div>
+                    <p className="sub" style={{ margin: 0 }}>to software; ~$50B rated B or below</p>
+                  </div>
+                  <div>
+                    <div className="big" style={{ fontSize: 20 }}>$662B</div>
+                    <p className="sub" style={{ margin: 0 }}>hyperscaler leases signed but not yet on balance sheets</p>
+                  </div>
+                </div>
+                <ul className="facts">
+                  <li>
+                    AI-adjacent industries (software, data hosting, semiconductors, energy) are 13% of large banks&apos; business-loan
+                    commitments. Energy and semiconductors alone exceed 20% of Tier 1 capital at about a third of banks. Borrowers
+                    in trouble tend to draw their lines in full first, so exposure can jump from 9% toward 25% of capital just as
+                    credit quality falls. Banks also lent $14.9B directly to data centers in the year to Q3 2025 (MSCI).{" "}
+                    <a href="https://chicagofed.org/publications/chicago-fed-insights/2026/ai-tail-risk-for-banks" target="_blank" rel="noreferrer">
+                      Chicago Fed, Feb 2026
+                    </a>
+                  </li>
+                  <li>
+                    Amazon, Microsoft, Google, Meta and Oracle had about $969B of future data-center lease commitments at the end of
+                    2025; $662B of it hasn&apos;t started, so it isn&apos;t recorded as debt. That&apos;s 113% of their adjusted debt.{" "}
+                    <a href="https://www.bisnow.com/national/news/data-center-capital-markets/tech-giants-hiding-662b-data-center-leasing-possibly-far-more-133408" target="_blank" rel="noreferrer">
+                      Moody&apos;s via Bisnow, Feb 2026
+                    </a>
+                  </li>
+                  <li>
+                    Banks are struggling to sell what they underwrite: lenders were still distributing the $38B Oracle-linked loan
+                    after six months, and JPMorgan and Goldman marketed Volta&apos;s $5B GPU-backed loan at about 11% and 97–98 cents
+                    while reportedly limiting their own exposure. Both are in the <a href="#spv">SPV tracker</a>.
+                  </li>
+                </ul>
+                <Explain id="bankExposure" />
+              </div>
+            )}
           </section>
         );
       })}

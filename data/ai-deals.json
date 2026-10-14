@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-12",
+  "updated": "2026-10-14",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -132,6 +132,15 @@
         "valueB": 14,
         "asOf": "2025-09-09",
         "source": "https://tech.eu/2025/09/09/mistral-bags-1-7bn-funding-round-as-asml-takes-significant-stake/"
+      }
+    },
+    {
+      "id": "VOLTA",
+      "name": "Volta",
+      "private": {
+        "valueB": null,
+        "asOf": null,
+        "source": null
       }
     }
   ],
@@ -465,6 +474,16 @@
       "status": "reported",
       "label": "$161B of equipment leases, per draft IPO prospectus",
       "source": "https://ai-circular-economy.com/"
+    },
+    {
+      "from": "ANTHROPIC",
+      "to": "VOLTA",
+      "type": "services",
+      "amountB": 10,
+      "date": "2026-08-27",
+      "status": "reported",
+      "label": "~$10B, six years of compute at Volta's Tydal campus in Norway; Volta is borrowing ~$5B (JPMorgan, Goldman) against GPUs to build it",
+      "source": "https://thenextweb.com/news/jpmorgan-volta-5b-debt-package-norway-tydal-anthropic"
     },
     {
       "from": "AMZN",
