@@ -1,6 +1,7 @@
 import type { FredData } from "./fred";
 import type { NvidiaHealth } from "./fundamentals";
 import type { GpuPrice } from "./gpu";
+import type { Valuation } from "./valuation";
 import type { Quote } from "./yahoo";
 
 export type Signal = {
@@ -48,10 +49,61 @@ export function computeSignals(input: {
   nvidia: NvidiaHealth | null;
   spvWorst: { price: number; asOf: string; spv: string } | null;
   h100Market: { price: number; date: string; providers: number | null; yearAgo: number | null } | null;
+  valuation: Valuation;
   openGap: { gap: number; bestOpen: { model: string }; bestClosed: { model: string }; lagMonths: number | null } | null;
 }): Signal[] {
-  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market, openGap } = input;
+  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market, openGap, valuation } = input;
   const out: Signal[] = [];
+
+  // Market-wide valuation and leverage: how far there is to fall, not when.
+  if (valuation.capeNow != null)
+    out.push({
+      id: "cape",
+      label: "Shiller CAPE",
+      stage: "Setup · Valuation",
+      value: valuation.capeNow.toFixed(1),
+      score: scale(valuation.capeNow, 27, 44),
+      calm: "≤ 27 (post-1990 normal)",
+      stress: "≥ 44 (dot-com peak)",
+      detail: "S&P 500 price ÷ 10-year average inflation-adjusted earnings (multpl.com, Shiller data).",
+    });
+  const ecyNow = valuation.ecy.at(-1);
+  const ecyVal = ecyNow?.tips ?? ecyNow?.shiller;
+  if (ecyVal != null)
+    out.push({
+      id: "ecy",
+      label: "Excess CAPE yield",
+      stage: "Setup · Valuation",
+      value: `${f2(ecyVal)}%`,
+      score: scale(ecyVal, 4, 0),
+      calm: "≥ 4%",
+      stress: "≤ 0%",
+      detail: "Earnings yield (1 ÷ CAPE) minus the 10-year TIPS real yield: the extra return stocks offer over safe real bonds.",
+    });
+  const bNow = valuation.buffett.at(-1);
+  if (bNow)
+    out.push({
+      id: "buffett",
+      label: "Buffett indicator",
+      stage: "Setup · Valuation",
+      value: `${bNow.v.toFixed(0)}% of GDP`,
+      score: scale(bNow.v, 110, 220),
+      calm: "≤ 110%",
+      stress: "≥ 220%",
+      detail: `Market value of US nonfinancial corporate equities ÷ GDP (Fed Z.1), as of ${bNow.t}.`,
+    });
+  const m = valuation.margin.at(-1);
+  if (m?.yoy != null && m.spyYoy != null)
+    out.push({
+      id: "margin",
+      label: "Margin debt growth vs market",
+      stage: "Setup · Leverage",
+      value: `${m.yoy >= 0 ? "+" : ""}${f1(m.yoy)}% vs S&P ${m.spyYoy >= 0 ? "+" : ""}${f1(m.spyYoy)}%`,
+      score: scale(m.yoy - m.spyYoy, 0, 30),
+      calm: "≤ market growth",
+      stress: "30+ pts faster",
+      detail: `FINRA customer margin debit balances, 12-month growth, ${m.t.slice(0, 7)}. Borrowing outpacing prices is a late-bubble pattern.`,
+    });
 
   if (spvWorst)
     out.push({

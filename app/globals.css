@@ -210,3 +210,12 @@ table.sortable th button.active .sort-ind { opacity: 1; }
 
 .facts { margin: 6px 0; padding-left: 18px; font-size: 13px; color: var(--muted); line-height: 1.5; }
 .facts li { margin-bottom: 6px; }
+
+.gauge-row { display: grid; grid-template-columns: 78px minmax(160px, 1.1fr) minmax(120px, 1fr) 2fr; gap: 10px; align-items: baseline; padding: 5px 0; border-top: 1px solid var(--grid); font-size: 13px; }
+.gauge-chip { display: inline-block; text-align: center; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 600; color: #fff; text-transform: uppercase; letter-spacing: 0.03em; }
+.gauge-val { font-variant-numeric: tabular-nums; }
+.gauge-rule { font-size: 12px; }
+@media (max-width: 720px) {
+  .gauge-row { grid-template-columns: 78px 1fr; }
+  .gauge-val, .gauge-rule { grid-column: 2; }
+}

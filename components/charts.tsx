@@ -599,19 +599,26 @@ export function TimeLinesChart({
   defaultRange,
   unit = "$",
   dateLabel = "Week of",
+  refs = [],
+  yMax,
 }: {
   rows: Record<string, number | string | null>[];
   keys: string[];
   storageKey?: string;
   ranges?: RangeKey[];
   defaultRange?: RangeKey;
-  unit?: "$" | "pts" | "%";
+  unit?: "$" | "pts" | "%" | "num" | "$B";
   dateLabel?: string;
+  /** Dashed reference lines, e.g. normal and danger levels. */
+  refs?: { y: number; label: string; tone?: "calm" | "watch" | "stress" }[];
+  /** Clip the axis so one extreme spike doesn't flatten everything else. */
+  yMax?: number;
 }) {
   const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange ?? ranges[ranges.length - 1], ranges);
   const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
   const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
-  const fmt = (v: number) => (unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : v.toFixed(1));
+  const fmt = (v: number) =>
+    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : v.toFixed(1);
   const suffix = unit === "$" ? "/hr" : "";
   return (
     <div>
@@ -623,7 +630,16 @@ export function TimeLinesChart({
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
             <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
-            <YAxis domain={["auto", "auto"]} width={48} tickFormatter={fmt} {...axisProps} />
+            <YAxis domain={["auto", yMax ?? "auto"]} allowDataOverflow={yMax != null} width={48} tickFormatter={fmt} {...axisProps} />
+            {refs.map((r) => (
+              <ReferenceLine
+                key={r.label}
+                y={r.y}
+                stroke={r.tone === "stress" ? "var(--stress)" : r.tone === "calm" ? "var(--calm)" : "var(--faint)"}
+                strokeDasharray="4 3"
+                label={{ value: r.label, position: "insideTopLeft", fill: "var(--faint)", fontSize: 10 }}
+              />
+            ))}
             <Tooltip
               content={({ active, payload, label }) =>
                 active && payload?.length ? (

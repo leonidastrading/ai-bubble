@@ -156,7 +156,7 @@ const excelDate = (serial: number) => new Date(Date.UTC(1899, 11, 30) + serial *
 
 type Cell = { col: string; value: string };
 
-function sheetRows(xml: string): Cell[][] {
+export function sheetRows(xml: string): Cell[][] {
   const rows: Cell[][] = [];
   for (const r of xml.matchAll(/<row [^>]*>([\s\S]*?)<\/row>/g)) {
     const cells: Cell[] = [];

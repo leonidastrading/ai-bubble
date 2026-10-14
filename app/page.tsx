@@ -35,6 +35,7 @@ const SECTIONS = [
   { id: "bdcs", label: "BDCs & redemptions" },
   { id: "gpu", label: "GPU rental" },
   { id: "intel", label: "Cost of intelligence" },
+  { id: "valuation", label: "Bubble gauges" },
   { id: "credit", label: "Credit spreads" },
   { id: "fed", label: "Concentration & Fed" },
   { id: "gdp", label: "AI in GDP" },
@@ -212,6 +213,20 @@ export default async function Page() {
   })();
   const softwareBench = d.quotes[SOFTWARE_GROUP.benchmark!];
   const softwareSeries = [...SOFTWARE_GROUP.tickers.map((t) => d.quotes[t.symbol]).filter(Boolean), ...(softwareBench ? [softwareBench] : [])].map(trim);
+
+  // Classic bubble gauges (market-wide valuation, rates, structure).
+  const v = d.valuation;
+  const capeRows = v.cape.map((r) => ({ t: r.t, "Shiller CAPE": r.cape, "Regular P/E": r.pe }));
+  const dotcomPeak = Math.max(0, ...v.cape.filter((r) => r.t >= "1999-01-01" && r.t <= "2000-12-31").map((r) => r.cape ?? 0));
+  const ecyRows = v.ecy.map((r) => ({ t: r.t, "Shiller method": r.shiller, "TIPS method": r.tips }));
+  const buffettRows = v.buffett.map((p) => ({ t: p.t, "Market value ÷ GDP": p.v }));
+  const curveRows = v.curve.map((p) => ({ t: p.t, "10y − 2y": p.v }));
+  const marginRows = v.margin.map((r) => ({ t: r.t, "Margin debt": r.debtB }));
+  const marginNow = v.margin.at(-1);
+  const flashing = v.gauges.filter((g) => g.status === "flashing").length;
+  const elevated = v.gauges.filter((g) => g.status === "elevated").length;
+  const statusColor = (s: string) => stressColor(s === "flashing" ? 100 : s === "elevated" ? 55 : 0);
+  const ACTS = { 1: "Act 1 · The balloon inflates (valuation)", 2: "Act 2 · The pin goes in (rates)", 3: "Act 3 · The structure gives way (breadth & leverage)" } as const;
 
   // Cost of intelligence.
   const gapRows = (d.intel.gap?.series ?? [])
@@ -1389,6 +1404,200 @@ export default async function Page() {
         <p className="note">
           On-premises adoption has no public time series; the <a href="#onprem">On-prem AI infrastructure</a> section tracks
           the server and storage vendors that sell into it.
+        </p>
+      </section>
+
+      <section id="valuation">
+        <h2>Classic bubble gauges</h2>
+        <p className="blurb">
+          Seven market-wide warning signs that lit up before most big crashes, in three acts: prices far above profits and
+          the economy, the central bank raising rates, and a market held up by a few giants and borrowed money. They measure
+          how much risk is in the market, not when it breaks: CAPE was above 30 in 1997, three years before the dot-com peak.
+        </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>
+            Scorecard: {flashing} flashing, {elevated} elevated, {v.gauges.length - flashing - elevated} normal
+            {v.gauges.length < 7 && ` (${7 - v.gauges.length} unavailable today)`}
+          </h3>
+          {([1, 2, 3] as const).map((act) => (
+            <div key={act} style={{ marginTop: 10 }}>
+              <p className="sub" style={{ margin: "0 0 4px" }}>{ACTS[act]}</p>
+              {v.gauges
+                .filter((g) => g.act === act)
+                .map((g) => (
+                  <div key={g.id} className="gauge-row">
+                    <span className="gauge-chip" style={{ background: statusColor(g.status) }}>{g.status}</span>
+                    <strong>{g.label}</strong>
+                    <span className="gauge-val">{g.value}</span>
+                    <span className="faint gauge-rule">{g.rule}</span>
+                  </div>
+                ))}
+            </div>
+          ))}
+          <Explain id="gaugesScorecard" />
+        </div>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Shiller CAPE vs regular P/E</h3>
+            <p className="sub">
+              Now {v.capeNow?.toFixed(1) ?? "—"} (P/E {v.peNow?.toFixed(1) ?? "—"}) · post-1990 average{" "}
+              {v.capeAvgPost1990?.toFixed(1) ?? "—"} · dot-com peak {dotcomPeak.toFixed(1)} · axis capped at 60 (P/E hit ~123 in 2009
+              when profits collapsed)
+            </p>
+            {capeRows.length ? (
+              <TimeLinesChart
+                rows={capeRows}
+                keys={["Shiller CAPE", "Regular P/E"]}
+                unit="num"
+                dateLabel="Month of"
+                ranges={["5Y", "10Y", "25Y", "All"]}
+                defaultRange="25Y"
+                yMax={60}
+                refs={[
+                  ...(v.capeAvgPost1990 ? [{ y: +v.capeAvgPost1990.toFixed(1), label: "post-1990 avg", tone: "calm" as const }] : []),
+                  { y: +dotcomPeak.toFixed(1), label: "dot-com peak", tone: "stress" as const },
+                ]}
+                storageKey="val:cape"
+              />
+            ) : (
+              <div className="empty">multpl.com is unavailable today.</div>
+            )}
+            <Explain id="cape" />
+          </div>
+          <div className="card">
+            <h3>Excess CAPE yield (ECY)</h3>
+            <p className="sub">
+              Earnings yield (1 ÷ CAPE) minus the real bond yield · now{" "}
+              {v.ecy.at(-1)?.tips != null ? `${v.ecy.at(-1)!.tips!.toFixed(2)}% (TIPS)` : "—"}
+              {v.ecy.at(-1)?.shiller != null && `, ${v.ecy.at(-1)!.shiller!.toFixed(2)}% (Shiller)`}
+            </p>
+            {ecyRows.length ? (
+              <TimeLinesChart
+                rows={ecyRows}
+                keys={["Shiller method", "TIPS method"]}
+                unit="%"
+                dateLabel="Month of"
+                ranges={["5Y", "10Y", "25Y", "All"]}
+                defaultRange="25Y"
+                refs={[
+                  { y: 2, label: "danger below 2%", tone: "stress" },
+                  { y: 0, label: "bonds beat stocks", tone: "watch" },
+                ]}
+                storageKey="val:ecy"
+              />
+            ) : (
+              <div className="empty">Unavailable today.</div>
+            )}
+            <Explain id="ecy" />
+          </div>
+          <div className="card">
+            <h3>Buffett indicator</h3>
+            <p className="sub">
+              Market value of US nonfinancial corporate equities ÷ GDP · {v.buffett.at(-1) ? `${v.buffett.at(-1)!.v.toFixed(0)}% as of ${v.buffett.at(-1)!.t}` : "—"}
+            </p>
+            {buffettRows.length ? (
+              <TimeLinesChart
+                rows={buffettRows}
+                keys={["Market value ÷ GDP"]}
+                unit="%"
+                dateLabel="Quarter of"
+                ranges={["10Y", "25Y", "All"]}
+                defaultRange="All"
+                refs={[
+                  { y: 100, label: "100% ≈ fair", tone: "calm" },
+                  { y: 140, label: "140% flashing", tone: "stress" },
+                ]}
+                storageKey="val:buffett"
+              />
+            ) : (
+              <div className="empty">Unavailable today.</div>
+            )}
+            <Explain id="buffett" />
+          </div>
+          <div className="card">
+            <h3>Yield curve (10-year minus 2-year)</h3>
+            <p className="sub">
+              {v.curveNow ? `${v.curveNow.v >= 0 ? "+" : ""}${v.curveNow.v.toFixed(2)} pts on ${v.curveNow.t}` : "—"} · below zero = inverted
+            </p>
+            {curveRows.length ? (
+              <TimeLinesChart
+                rows={curveRows}
+                keys={["10y − 2y"]}
+                unit="%"
+                dateLabel="Month of"
+                ranges={["5Y", "10Y", "25Y", "All"]}
+                defaultRange="All"
+                refs={[{ y: 0, label: "inverted below", tone: "stress" }]}
+                storageKey="val:curve"
+              />
+            ) : (
+              <div className="empty">Unavailable today.</div>
+            )}
+            <Explain id="yieldCurve" />
+          </div>
+          <div className="card">
+            <h3>Fed hiking cycles (last eight)</h3>
+            <p className="sub">
+              {v.hikeSoFar
+                ? `Now ${v.hikeSoFar.now.toFixed(2)}%, ${v.hikeSoFar.now - v.hikeSoFar.from >= 0 ? "+" : ""}${(v.hikeSoFar.now - v.hikeSoFar.from).toFixed(2)} pts from the ${v.hikeSoFar.from.toFixed(2)}% low on ${v.hikeSoFar.since}`
+                : "—"}
+            </p>
+            {v.cycles.length ? (
+              <SortableTable
+                storageKey="table:hikes"
+                columns={[
+                  { label: "Hikes began", firstDir: "desc" },
+                  { label: "From", firstDir: "desc" },
+                  { label: "Peak", firstDir: "desc" },
+                  { label: "Peak month", firstDir: "desc" },
+                  { label: "Size", title: "Peak rate − starting rate", firstDir: "desc" },
+                ]}
+                rows={[...v.cycles].reverse().slice(0, 8).map((c) => ({
+                  key: c.start,
+                  sort: [c.start, c.from, c.peak, c.peakDate, c.peak - c.from],
+                  cells: [
+                    c.start.slice(0, 7),
+                    `${c.from.toFixed(2)}%`,
+                    `${c.peak.toFixed(2)}%`,
+                    <span className="faint">{c.peakDate.slice(0, 7)}</span>,
+                    <strong>+{(c.peak - c.from).toFixed(2)}</strong>,
+                  ],
+                }))}
+              />
+            ) : (
+              <div className="empty">Unavailable today.</div>
+            )}
+            <Explain id="hikes" />
+          </div>
+          <div className="card">
+            <h3>Margin debt</h3>
+            <p className="sub">
+              FINRA customer debit balances
+              {marginNow
+                ? ` · $${(marginNow.debtB / 1000).toFixed(2)}T in ${marginNow.t.slice(0, 7)}${marginNow.yoy != null ? `, ${marginNow.yoy >= 0 ? "+" : ""}${marginNow.yoy.toFixed(0)}% y/y` : ""}${marginNow.spyYoy != null ? ` vs S&P 500 ${marginNow.spyYoy >= 0 ? "+" : ""}${marginNow.spyYoy.toFixed(0)}%` : ""}`
+                : ""}
+            </p>
+            {marginRows.length ? (
+              <TimeLinesChart
+                rows={marginRows}
+                keys={["Margin debt"]}
+                unit="$B"
+                dateLabel="Month of"
+                ranges={["5Y", "10Y", "25Y", "All"]}
+                defaultRange="All"
+                storageKey="val:margin"
+              />
+            ) : (
+              <div className="empty">FINRA data is unavailable today.</div>
+            )}
+            <Explain id="marginDebt" />
+          </div>
+        </div>
+        <p className="note">
+          Breadth (equal-weight vs cap-weight S&amp;P 500) is charted in <a href="#fed">Concentration &amp; Fed</a>. Data:
+          CAPE and P/E from <a href="https://www.multpl.com/shiller-pe" target="_blank" rel="noreferrer">multpl.com</a> (Robert Shiller&apos;s data);
+          yields, CPI, equity values and GDP from FRED; margin debt from{" "}
+          <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noreferrer">FINRA</a>.
         </p>
       </section>
 

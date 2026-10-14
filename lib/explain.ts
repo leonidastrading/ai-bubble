@@ -75,6 +75,41 @@ export const EXPLAIN: Record<string, Explanation> = {
   },
 
   // ── BDCs & redemptions ──
+  gaugesScorecard: {
+    what: "Seven classic market-wide warning signs, each marked normal, elevated or flashing by fixed thresholds: CAPE, excess CAPE yield and the Buffett indicator (valuation); the yield curve and Fed hikes (rates); breadth and margin debt (structure).",
+    why: "The biggest crashes had all three acts at once: extreme valuations, tightening money, and a narrow, leveraged market. In 2000, six of seven were flashing; 2008 and 2020 came from outside these gauges.",
+    watch: "Act 2 joining Act 1: valuations already flashing while the Fed keeps hiking or the curve inverts, then breadth and margin debt rolling over.",
+  },
+  cape: {
+    what: "Price ÷ 10-year average inflation-adjusted earnings (Shiller CAPE) next to price ÷ last 12 months of earnings (regular P/E), monthly. Dashed lines: the post-1990 average and the dot-com peak.",
+    why: "CAPE smooths booms and busts, so it's the better bubble gauge; regular P/E spikes when profits collapse (2009) and looks tame at peaks (1929). Normal CAPE stepped up after 1990 with high-margin tech, which is why the post-1990 average is the yardstick here.",
+    watch: "CAPE closing in on the dot-com peak (~44). A high CAPE says how much there is to lose, not when.",
+  },
+  ecy: {
+    what: "Earnings yield (100 ÷ CAPE) minus the real return on safe bonds. Shiller method: 10-year Treasury minus the past 10 years' inflation. TIPS method: the 10-year TIPS yield, which already removes expected inflation.",
+    why: "CAPE ignores interest rates. ECY asks whether stocks pay enough extra over safe bonds to be worth the risk. It was below zero in 1929 and 1999.",
+    watch: "Below 2% is the danger zone; below zero, safe bonds are expected to beat stocks. Rising real yields shrink it even if prices don't move.",
+  },
+  buffett: {
+    what: "Market value of US nonfinancial corporate equities (Federal Reserve Z.1) ÷ GDP, quarterly. Published with a lag of about one quarter.",
+    why: "Companies earn their profits from the economy, so a market worth far more than a year of output suggests prices are ahead of reality. The line drifts up over decades because US firms earn more abroad and at higher margins, so compare against past peaks rather than 100%.",
+    watch: "New records above the 2021 peak, and the first quarter it rolls over.",
+  },
+  yieldCurve: {
+    what: "10-year Treasury yield minus 2-year yield. Monthly averages since 1976; today's reading is the latest daily spread.",
+    why: "When short rates exceed long rates, lending stops paying, credit dries up and the economy slows. Inversions preceded the 1980, 1990, 2001 and 2008 recessions by 12–24 months; 2022–24's deep inversion has so far had no recession.",
+    watch: "A new inversion, or a fast re-steepening after one: recessions often start after the curve turns positive again.",
+  },
+  hikes: {
+    what: "Fed hiking cycles found in the monthly Fed funds rate (rises of at least 1 point, trough to peak), and the change in the daily rate from its low of the past two years.",
+    why: "Bubbles grow on cheap money and have usually ended after a run of hikes: 1% → 5.25% before the housing crash, 0.25% → 5.5% before 2022.",
+    watch: "A new cycle building past 1.5 points while valuations are flashing.",
+  },
+  marginDebt: {
+    what: "Debit balances in FINRA member firms' customer margin accounts: money investors have borrowed to buy securities. Monthly, about six weeks after month end.",
+    why: "Borrowing peaks late in bubbles, when confidence is highest, and forced selling on margin calls turns a dip into a crash.",
+    watch: "Margin debt growing much faster than the market (the scorecard flashes at 20+ points), then a sharp monthly drop as leveraged positions unwind.",
+  },
   software: {
     what: "Total return of the software ETF (IGV) and the most-watched SaaS names, rebased to 100, against the S&P 500 (dashed).",
     why: "AI agents threaten per-seat software. The same fear lowers the value of private software companies, which are the biggest borrowers in private credit.",

@@ -149,7 +149,7 @@ export type FredSeries = {
   id: string;
   title: string;
   unit: string;
-  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp" | "energy";
+  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp" | "energy" | "valuation";
   /** Years of history to fetch (default 5); long series get longer range options. */
   years?: number;
   /** Fetched only as an input to a derived chart, not shown as its own card. */
@@ -165,6 +165,15 @@ export const FRED_SERIES: FredSeries[] = [
   { id: "TLPWRCONS", title: "Construction spending: power", unit: "$M", group: "gdp", years: 20 },
   { id: "A679RC1Q027SBEA", title: "Investment in IT equipment & software", unit: "$B", group: "gdp", years: 50, hidden: true },
   { id: "GDP", title: "GDP", unit: "$B", group: "gdp", years: 50, hidden: true },
+  // Inputs for the classic bubble gauges (lib/valuation.ts); not shown as cards.
+  { id: "GS10", title: "10-year Treasury yield (monthly)", unit: "%", group: "valuation", years: 65, hidden: true },
+  { id: "GS2", title: "2-year Treasury yield (monthly)", unit: "%", group: "valuation", years: 52, hidden: true },
+  { id: "FII10", title: "10-year TIPS yield (monthly)", unit: "%", group: "valuation", years: 25, hidden: true },
+  { id: "DFII10", title: "10-year TIPS yield", unit: "%", group: "valuation", years: 1, hidden: true },
+  { id: "CPIAUCSL", title: "CPI", unit: "", group: "valuation", years: 75, hidden: true },
+  { id: "NCBEILQ027S", title: "Market value of nonfinancial corporate equities", unit: "$M", group: "valuation", years: 55, hidden: true },
+  { id: "T10Y2Y", title: "10-year minus 2-year Treasury", unit: "%", group: "valuation", years: 1, hidden: true },
+  { id: "FEDFUNDS", title: "Fed funds rate (monthly)", unit: "%", group: "valuation", years: 60, hidden: true },
   { id: "BAMLH0A0HYM2", title: "High-yield OAS", unit: "%", group: "credit" },
   { id: "BAMLH0A3HYC", title: "CCC & lower OAS", unit: "%", group: "credit" },
   { id: "BAMLC0A4CBBB", title: "BBB corporate OAS", unit: "%", group: "credit" },

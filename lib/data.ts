@@ -12,6 +12,7 @@ import { fetchOffBalance, getSpvSummary, type OffBalanceRow, type SpvSummary } f
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
+import { computeValuation, fetchMarginDebt, fetchMultpl, type Valuation } from "./valuation";
 import { fetchQuote, type Point, type Quote } from "./yahoo";
 
 export type BdcRow = {
@@ -62,6 +63,7 @@ export type DashboardData = {
   network: Network | null;
   spv: SpvSummary;
   offBalance: OffBalanceRow[];
+  valuation: Valuation;
   history: Snapshot[];
   errors: string[];
 };
@@ -180,7 +182,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -192,7 +194,20 @@ export async function getDashboardData(): Promise<DashboardData> {
     settle(fetchOpenRouter()),
     settle(fetchBtosAi()),
     readPriceLog(),
+    settle(fetchMultpl("shiller-pe")),
+    settle(fetchMultpl("s-p-500-pe-ratio")),
+    settle(fetchMarginDebt()),
   ]);
+  if (!capeR.ok) errors.push(`Shiller CAPE (multpl): ${capeR.error}`);
+  if (!peR.ok) errors.push(`S&P 500 P/E (multpl): ${peR.error}`);
+  if (!marginR.ok) errors.push(`FINRA margin debt: ${marginR.error}`);
+  const valuation = computeValuation({
+    cape: capeR.ok ? capeR.data : [],
+    pe: peR.ok ? peR.data : [],
+    fred,
+    quotes,
+    margin: marginR.ok ? marginR.data : [],
+  });
   if (!eciR.ok) errors.push(`Epoch capabilities: ${eciR.error}`);
   if (!orR.ok) errors.push(`OpenRouter prices: ${orR.error}`);
   if (!btosR.ok) errors.push(`Census AI adoption: ${btosR.error}`);
@@ -219,7 +234,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const spv = getSpvSummary(Object.fromEntries(quotes));
   if (!networkResult.ok) errors.push(`Deal network: ${networkResult.error}`);
 
-  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, openGap: gap?.ok ? gap.data : null, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
+  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, valuation, openGap: gap?.ok ? gap.data : null, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -252,6 +267,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       priceLog,
       adoption: btosR.ok ? btosR.data : null,
     },
+    valuation,
     history,
     errors,
   };
