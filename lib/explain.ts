@@ -32,6 +32,16 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Banks underwrite the SPV loans and bonds, lend to private-credit funds, and give AI borrowers credit lines that get drawn in full before trouble. When they can't sell the debt on (the $38B Oracle-linked loan took months), it stays on their books.",
     watch: "MUFG, SMFG and JPMorgan underperforming their peers on data-center news; regional banks (KRE) falling with private-credit stocks.",
   },
+  polymarket: {
+    what: "Open Polymarket markets on an AI downturn, AI-company bankruptcies, a US recession, Fed hikes and the Anthropic IPO. Chance = the current price of a 'Yes' share; 1 week = change in percentage points.",
+    why: "Markets with money at stake update faster than surveys or analysts, and they put explicit odds on the outcomes this page tracks indirectly. Thin markets (low volume) can be moved by a few traders.",
+    watch: "The AI-bubble and CoreWeave-bankruptcy odds rising week after week alongside CDS spreads and loan prices; the recession odds moving with them would mean the market sees spillover.",
+  },
+  polymarketHistory: {
+    what: "Daily odds for the most-traded market in a few key questions, from Polymarket's price history.",
+    why: "The direction matters more than the level: a steady climb means bettors keep updating toward the bubble-pop scenario.",
+    watch: "Several lines rising together, or a sudden jump after news like a loan pulled, a downgrade or a capex cut.",
+  },
   gpuLoanPricing: {
     what: "The interest margin over SOFR on GPU-backed loans tracked in the SPV table, by date, with each loan's size and rating. Hover a loan for how it was priced.",
     why: "When the GPUs and the contracts behind them look riskier, lenders demand more. CoreWeave's margins went from +2.25% (investment grade, March) to +4.50% (May) to +5.50% (August, after price talk had to widen); Volta was marketed at +6.25–6.50% in October.",

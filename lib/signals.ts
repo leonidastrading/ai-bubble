@@ -2,6 +2,7 @@ import type { FredData } from "./fred";
 import type { NvidiaHealth } from "./fundamentals";
 import type { GpuPrice } from "./gpu";
 import { creditStress, impliedDefault5y, latestCds } from "./credit-stress";
+import type { PolyEvent } from "./polymarket";
 import type { Valuation } from "./valuation";
 import type { Quote } from "./yahoo";
 
@@ -51,9 +52,10 @@ export function computeSignals(input: {
   spvWorst: { price: number; asOf: string; spv: string } | null;
   h100Market: { price: number; date: string; providers: number | null; yearAgo: number | null } | null;
   valuation: Valuation;
+  polymarket: PolyEvent[];
   openGap: { gap: number; bestOpen: { model: string }; bestClosed: { model: string }; lagMonths: number | null } | null;
 }): Signal[] {
-  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market, openGap, valuation } = input;
+  const { quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst, h100Market, openGap, valuation, polymarket } = input;
   const out: Signal[] = [];
 
   // Market-wide valuation and leverage: how far there is to fall, not when.
@@ -276,6 +278,23 @@ export function computeSignals(input: {
       calm: "≤ 250 bp",
       stress: "≥ 1,500 bp",
       detail: `5-year credit default swap spread, as of ${worstCds.c.date}: about ${impliedDefault5y(worstCds.c.bps).toFixed(0)}% market-implied odds of default within five years.`,
+    });
+
+  // Prediction-market odds of an AI downturn: the open "AI bubble burst by" market
+  // ending soonest after six months from now (a forward-looking ~1-year window).
+  const bubble = polymarket.find((e) => e.slug === "ai-bubble-burst-by");
+  const horizon = new Date(Date.now() + 182 * 86400_000).toISOString().slice(0, 10);
+  const bubbleMkt = bubble?.markets.find((m) => m.endDate && m.endDate >= horizon) ?? bubble?.markets.at(-1);
+  if (bubble && bubbleMkt)
+    out.push({
+      id: "polybubble",
+      label: "Polymarket: AI bubble bursts",
+      stage: "Market odds",
+      value: `${bubbleMkt.prob.toFixed(0)}% (${bubbleMkt.label})`,
+      score: scale(bubbleMkt.prob, 5, 50),
+      calm: "≤ 5%",
+      stress: "≥ 50%",
+      detail: `Prediction-market probability that the AI industry has a downturn by ${bubbleMkt.label}, under the market's own resolution rules.`,
     });
 
   const sentiment = fred.get("UMCSENT");

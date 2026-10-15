@@ -13,6 +13,7 @@ import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
 import { fetchUsdAiDeposits } from "./onchain";
+import { fetchPolymarket, type PolyEvent } from "./polymarket";
 import { computeValuation, fetchMarginDebt, fetchMultpl, type Valuation } from "./valuation";
 import { fetchQuote, type Point, type Quote } from "./yahoo";
 
@@ -66,6 +67,7 @@ export type DashboardData = {
   offBalance: OffBalanceRow[];
   valuation: Valuation;
   usdAi: Point[] | null;
+  polymarket: PolyEvent[];
   history: Snapshot[];
   errors: string[];
 };
@@ -184,7 +186,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -200,6 +202,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     settle(fetchMultpl("s-p-500-pe-ratio")),
     settle(fetchMarginDebt()),
     settle(fetchUsdAiDeposits()),
+    fetchPolymarket(errors),
   ]);
   if (!usdAiR.ok) errors.push(`USD.AI deposits (DefiLlama): ${usdAiR.error}`);
   if (!capeR.ok) errors.push(`Shiller CAPE (multpl): ${capeR.error}`);
@@ -238,7 +241,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const spv = getSpvSummary(Object.fromEntries(quotes));
   if (!networkResult.ok) errors.push(`Deal network: ${networkResult.error}`);
 
-  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, valuation, openGap: gap?.ok ? gap.data : null, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
+  const signals = computeSignals({ quotes, fred, bdcPriceToNav, gpu, gpuChange30d, capexAggregate, nvidia, spvWorst: spv.worstPrice, valuation, polymarket, openGap: gap?.ok ? gap.data : null, h100Market: h100Market && { price: h100Market.onDemand!, date: h100Market.date, providers: h100Market.providers, yearAgo: h100Weeks.find((w) => w.date >= isoDaysAgo(h100Market.date, 364))?.onDemand ?? null } });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -273,6 +276,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     },
     valuation,
     usdAi: usdAiR.ok ? usdAiR.data : null,
+    polymarket,
     history,
     errors,
   };

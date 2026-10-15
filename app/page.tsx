@@ -44,6 +44,7 @@ const SECTIONS = [
   { id: "gpu", label: "GPU rental" },
   { id: "intel", label: "Cost of intelligence" },
   { id: "valuation", label: "Bubble gauges" },
+  { id: "odds", label: "Prediction markets" },
   { id: "credit", label: "Credit spreads" },
   { id: "fed", label: "Concentration & Fed" },
   { id: "gdp", label: "AI in GDP" },
@@ -265,6 +266,21 @@ export default async function Page() {
     const last = pts[pts.length - 1];
     const prev = pts[pts.length - 8];
     return prev.v ? (last.v / prev.v - 1) * 100 : null;
+  })();
+
+  // Polymarket: one row per open market, and daily odds for the charted ones.
+  const polyRows = d.polymarket.flatMap((e) => e.markets.map((m, i) => ({ e, m, first: i === 0 })));
+  const polyCharted = d.polymarket.filter((e) => e.history?.length);
+  const polyKey = (e: (typeof d.polymarket)[number]) => `${e.label}: ${e.headline}`;
+  const polyHistory = (() => {
+    const byT = new Map<string, Record<string, number | string | null>>();
+    for (const e of polyCharted)
+      for (const p of e.history!) {
+        const row = byT.get(p.t) ?? { t: p.t };
+        row[polyKey(e)] = p.v;
+        byT.set(p.t, row);
+      }
+    return [...byT.values()].sort((a, b) => String(a.t).localeCompare(String(b.t)));
   })();
 
   // Debt behind past bubbles, one row per quarter.
@@ -1794,6 +1810,73 @@ export default async function Page() {
           yields, CPI, equity values and GDP from FRED; margin debt from{" "}
           <a href="https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics" target="_blank" rel="noreferrer">FINRA</a>.
         </p>
+      </section>
+
+      <section id="odds">
+        <h2>Prediction markets</h2>
+        <p className="blurb">
+          What people betting real money on Polymarket think happens next. Prices are probabilities: 15% means the market
+          puts a 15% chance on &ldquo;Yes&rdquo;. Each market resolves under its own written rules, so read them before
+          leaning on a number. Live from Polymarket, refreshed daily.
+        </p>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Current odds</h3>
+            {polyRows.length ? (
+              <SortableTable
+                storageKey="table:polymarket"
+                columns={[
+                  { label: "Question" },
+                  { label: "By" },
+                  { label: "Chance", firstDir: "desc" },
+                  { label: "1 week", title: "Change over the past week, in percentage points", firstDir: "desc" },
+                  { label: "Volume", title: "Dollars traded in this market", firstDir: "desc" },
+                ]}
+                rows={polyRows.map(({ e, m }) => ({
+                  key: `${e.slug}:${m.label}`,
+                  sort: [e.label, m.endDate, m.prob, m.change1w, m.volume],
+                  cells: [
+                    <a href={e.url} target="_blank" rel="noreferrer" title={m.question}>
+                      {e.label}
+                    </a>,
+                    <span className="faint">{m.label === m.question ? "—" : m.label}</span>,
+                    <strong>{m.prob < 1 ? "<1" : m.prob.toFixed(m.prob < 10 ? 1 : 0)}%</strong>,
+                    m.change1w != null ? (
+                      <span style={{ color: m.change1w > 0.5 ? "var(--stress)" : m.change1w < -0.5 ? "var(--calm)" : "var(--faint)" }}>
+                        {m.change1w >= 0 ? "+" : ""}
+                        {m.change1w.toFixed(1)}
+                      </span>
+                    ) : (
+                      "—"
+                    ),
+                    <span className="faint">${m.volume >= 1e6 ? `${(m.volume / 1e6).toFixed(1)}M` : `${(m.volume / 1e3).toFixed(0)}K`}</span>,
+                  ],
+                }))}
+              />
+            ) : (
+              <div className="empty">Polymarket is unavailable today.</div>
+            )}
+            <Explain id="polymarket" />
+          </div>
+          <div className="card">
+            <h3>Odds over time</h3>
+            <p className="sub">Daily price of the most-traded market in each question, %</p>
+            {polyHistory.length > 1 ? (
+              <TimeLinesChart
+                rows={polyHistory}
+                keys={polyCharted.map(polyKey)}
+                unit="%"
+                dateLabel="Day of"
+                ranges={["3M", "6M", "1Y", "2Y"]}
+                defaultRange="1Y"
+                storageKey="odds:history"
+              />
+            ) : (
+              <div className="empty">No price history today.</div>
+            )}
+            <Explain id="polymarketHistory" />
+          </div>
+        </div>
       </section>
 
       <section id="credit">
