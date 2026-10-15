@@ -272,7 +272,11 @@
           "text": "Parent CoreWeave's 5-year CDS hits a record 1,194.5 bp (60%+ implied five-year default odds, up from 368 bp on Oct 6); its 2031 notes trade at 79 cents. The DDTL is secured by GPUs and customer contracts, not the parent",
           "source": "https://www.bloomberg.com/news/articles/2026-10-15/coreweave-risk-gauge-hits-record-pricing-60-odds-of-default"
         }
-      ]
+      ],
+      "pricing": {
+        "spreadBps": 225,
+        "note": "SOFR + 2.25%; first investment-grade (A3) GPU-backed loan"
+      }
     },
     {
       "id": "crwv-ddtl5",
@@ -300,11 +304,16 @@
       "status": "closed",
       "stress": null,
       "source": "https://investors.coreweave.com/news/news-details/2026/CoreWeave-Closes-3-1-Billion-Loan-Facility-Expanding-Access-to-Public-Markets-for-GPU-Backed-Financing/default.aspx",
-      "events": []
+      "events": [],
+      "pricing": {
+        "spreadBps": 450,
+        "note": "SOFR + 4.50%; below investment grade",
+        "source": "https://theenergymag.com/news/2026-08-11/coreweave-ai-2-6-billion-wider-spread/"
+      }
     },
     {
       "id": "crwv-ddtl-vv",
-      "name": "CoreWeave Financing DDTL V-V",
+      "name": "CoreWeave DDTL 5.5",
       "project": "GPU-backed delayed-draw term loan",
       "type": "gpu",
       "tenants": [
@@ -322,13 +331,24 @@
       ],
       "debtB": 2.6,
       "equityB": null,
-      "rating": null,
-      "terms": "Delayed-draw term loan, ~5-year maturity; no draw schedule or parent recourse disclosed",
+      "rating": "Ba2 (Moody's) / BB+ (Fitch)",
+      "terms": "Delayed-draw term loan maturing Sept 1, 2031; SOFR + 5.50% after price talk widened from 4.25–4.50% and the issue price fell from 99 to 97 cents. Customer contracts behind it average about three years, shorter than the loan",
       "date": "2026-08-11",
       "status": "closed",
       "stress": null,
       "source": "https://finance.yahoo.com/technology/ai/articles/coreweave-closes-2-6-billion-132706704.html",
-      "events": []
+      "events": [
+        {
+          "date": "2026-08-10",
+          "text": "Closed at SOFR + 5.50%, a full point wider than DDTL 5.0, after price talk widened; contracts behind it (~3 years) are shorter than the ~5-year loan",
+          "source": "https://theenergymag.com/news/2026-08-11/coreweave-ai-2-6-billion-wider-spread/"
+        }
+      ],
+      "pricing": {
+        "spreadBps": 550,
+        "note": "SOFR + 5.50% at 97 cents; marketed at 4.25–4.50% and 99 cents, widened to clear",
+        "source": "https://theenergymag.com/news/2026-08-11/coreweave-ai-2-6-billion-wider-spread/"
+      }
     },
     {
       "id": "lambda-tlb",
@@ -393,6 +413,44 @@
           "date": "2026-10-07",
           "text": "Marketed at about 11% yield and 97–98 cents; JPMorgan and Goldman reportedly limited their own exposure; commitments due Oct 14",
           "source": "https://www.thestar.com.my/business/business-news/2026/10/07/jpmorgan-dangles-11-yield-on-voltas-ai-loan-sale"
+        }
+      ],
+      "pricing": {
+        "spreadBps": 637.5,
+        "note": "SOFR + 6.25–6.50% at 97–98 cents (marketed)"
+      }
+    },
+    {
+      "id": "sharon-ai",
+      "name": "SharonAI GPU-backed facility",
+      "project": "Australia (first of several financings toward 68,000+ Nvidia GPUs by mid-2027)",
+      "type": "gpu",
+      "tenants": [
+        "SharonAI"
+      ],
+      "equity": [
+        {
+          "name": "SharonAI",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "Goldman Sachs",
+        "Private credit funds"
+      ],
+      "debtB": 0.356,
+      "equityB": null,
+      "rating": null,
+      "terms": "Senior secured facility backed by GPUs and their cash flows; SharonAI (NASDAQ: SHAZ) has a June 2026 agreement with Nvidia for a 72 MW AI factory of up to 40,000 GB300 GPUs with revenue sharing and credit support. Rate not confirmed in a source we could open",
+      "date": "2026-10-06",
+      "status": "closed",
+      "stress": null,
+      "source": "https://thetechcapital.com/sharon-ai-secures-356-million-gpu-backed-debt-facility/",
+      "events": [
+        {
+          "date": "2026-10-06",
+          "text": "US$356M GPU-backed facility signed; Goldman Sachs among lenders (reported)",
+          "source": "https://thetechcapital.com/sharon-ai-secures-356-million-gpu-backed-debt-facility/"
         }
       ]
     }

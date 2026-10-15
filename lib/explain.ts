@@ -32,6 +32,16 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Banks underwrite the SPV loans and bonds, lend to private-credit funds, and give AI borrowers credit lines that get drawn in full before trouble. When they can't sell the debt on (the $38B Oracle-linked loan took months), it stays on their books.",
     watch: "MUFG, SMFG and JPMorgan underperforming their peers on data-center news; regional banks (KRE) falling with private-credit stocks.",
   },
+  gpuLoanPricing: {
+    what: "The interest margin over SOFR on GPU-backed loans tracked in the SPV table, by date, with each loan's size and rating. Hover a loan for how it was priced.",
+    why: "When the GPUs and the contracts behind them look riskier, lenders demand more. CoreWeave's margins went from +2.25% (investment grade, March) to +4.50% (May) to +5.50% (August, after price talk had to widen); Volta was marketed at +6.25–6.50% in October.",
+    watch: "New GPU loans pricing wider still, issue prices falling further below par (97 cents and lower), or deals pulled because they can't be sold.",
+  },
+  usdAi: {
+    what: "Stablecoin deposits in USD.AI, a crypto lending protocol that lends against GPUs to small and mid-sized AI clouds (total value locked, from DefiLlama, daily).",
+    why: "It's one of the few GPU lenders whose funding is public every day. Depositors can withdraw on a 30-day cycle while the loans run about three years, the classic borrow-short, lend-long mismatch, so falling deposits are an early sign of funding stress for smaller GPU borrowers.",
+    watch: "Sharp week-over-week drops, especially alongside neocloud stock and bond selloffs.",
+  },
   creditStress: {
     what: "What the credit market charges to insure AI borrowers against default (5-year CDS, in basis points per year: 1,000 bp = $10 to insure $100 of debt) and what their bonds trade at, from dated news reports. The implied default odds are a rule-of-thumb conversion assuming 40% recovery.",
     why: "Stock prices can fall on growth worries; CDS and bond prices fall when lenders doubt they'll be repaid. That's the 'credit transmits' step. CoreWeave's GPU-backed loans and Oracle's SPV leases sit downstream of these names.",

@@ -18,6 +18,8 @@ export type Spv = {
   date: string | null;
   status: "closed" | "raising" | "reported";
   stress: { price: number; asOf: string; note: string; source: string } | null;
+  /** Loan pricing over SOFR, for GPU-backed loans. */
+  pricing?: { spreadBps: number; note: string; source?: string };
   source: string;
   events: { date: string | null; text: string; source: string }[];
 };

@@ -256,6 +256,17 @@ export default async function Page() {
   const statusColor = (s: string) => stressColor(s === "flashing" ? 100 : s === "elevated" ? 55 : 0);
   const ACTS = { 1: "Act 1 · The balloon inflates (valuation)", 2: "Act 2 · The pin goes in (rates)", 3: "Act 3 · The structure gives way (breadth & leverage)" } as const;
 
+  // GPU-backed loan pricing, oldest first.
+  const gpuPricing = d.spv.spvs.filter((v) => v.pricing && v.debtB != null).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const usdAiPeak = d.usdAi?.length ? d.usdAi.reduce((a, b) => (b.v > a.v ? b : a)) : null;
+  const usdAiWeek = (() => {
+    const pts = d.usdAi ?? [];
+    if (pts.length < 8) return null;
+    const last = pts[pts.length - 1];
+    const prev = pts[pts.length - 8];
+    return prev.v ? (last.v / prev.v - 1) * 100 : null;
+  })();
+
   // Debt behind past bubbles, one row per quarter.
   const debtRows = (() => {
     const byT = new Map<string, Record<string, number | string | null>>();
@@ -922,6 +933,62 @@ export default async function Page() {
                 ))}
             </ul>
           </details>
+        </div>
+
+        <div className="grid g2" style={{ marginTop: 14 }}>
+          <div className="card">
+            <h3>What GPU-backed loans cost</h3>
+            <p className="sub">Interest margin over SOFR (the benchmark rate) on GPU-backed loans, oldest first. Widening margins mean lenders want more to take the same risk. Hover a loan for its rating and terms.</p>
+            <SortableTable
+              storageKey="table:gpuLoanPricing"
+              columns={[
+                { label: "Date", firstDir: "desc" },
+                { label: "Loan" },
+                { label: "Size", firstDir: "desc" },
+                { label: "Margin", title: "Spread over SOFR", firstDir: "desc" },
+              ]}
+              rows={gpuPricing.map((v) => ({
+                key: v.id,
+                sort: [v.date, v.name, v.debtB, v.pricing!.spreadBps],
+                cells: [
+                  <span className="faint">{v.date}</span>,
+                  <span title={`${v.rating ?? "Unrated"}. ${v.pricing!.note}`}>{v.name}</span>,
+                  `$${v.debtB! >= 1 ? v.debtB!.toFixed(1) : v.debtB!.toFixed(2)}B`,
+                  <a href={v.pricing!.source ?? v.source} target="_blank" rel="noreferrer" title={v.pricing!.note}>
+                    <strong style={{ color: stressColor(toScore(v.pricing!.spreadBps, 225, 650)) }}>
+                      +{(v.pricing!.spreadBps / 100).toFixed(2)}%
+                    </strong>
+                  </a>,
+                ],
+              }))}
+            />
+            <ul className="facts" style={{ marginTop: 10 }}>
+              <li>
+                Nvidia signed non-binding agreements with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR on Aug 10
+                to set up financing platforms for its customers, targeting over $500B of outside capital over time.{" "}
+                <a href="https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital" target="_blank" rel="noreferrer">
+                  Nvidia
+                </a>
+              </li>
+            </ul>
+            <Explain id="gpuLoanPricing" />
+          </div>
+          <div className="card">
+            <h3>Crypto money in GPU loans: USD.AI deposits</h3>
+            <p className="sub">
+              {d.usdAi?.length ? (
+                <>
+                  ${d.usdAi[d.usdAi.length - 1].v.toFixed(0)}M on {d.usdAi[d.usdAi.length - 1].t}
+                  {usdAiPeak && ` · peak $${usdAiPeak.v.toFixed(0)}M (${usdAiPeak.t})`}
+                  {usdAiWeek != null && ` · ${usdAiWeek >= 0 ? "+" : ""}${usdAiWeek.toFixed(0)}% in 7 days`}
+                </>
+              ) : (
+                "DefiLlama is unavailable today"
+              )}
+            </p>
+            {d.usdAi?.length ? <SeriesChart points={d.usdAi} unit=" $M" storageKey="series:usdai" ranges={["3M", "6M", "1Y", "2Y"]} defaultRange="1Y" /> : null}
+            <Explain id="usdAi" />
+          </div>
         </div>
 
         <div className="grid g2" style={{ marginTop: 14 }}>
