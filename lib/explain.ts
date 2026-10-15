@@ -32,6 +32,11 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Banks underwrite the SPV loans and bonds, lend to private-credit funds, and give AI borrowers credit lines that get drawn in full before trouble. When they can't sell the debt on (the $38B Oracle-linked loan took months), it stays on their books.",
     watch: "MUFG, SMFG and JPMorgan underperforming their peers on data-center news; regional banks (KRE) falling with private-credit stocks.",
   },
+  creditStress: {
+    what: "What the credit market charges to insure AI borrowers against default (5-year CDS, in basis points per year: 1,000 bp = $10 to insure $100 of debt) and what their bonds trade at, from dated news reports. The implied default odds are a rule-of-thumb conversion assuming 40% recovery.",
+    why: "Stock prices can fall on growth worries; CDS and bond prices fall when lenders doubt they'll be repaid. That's the 'credit transmits' step. CoreWeave's GPU-backed loans and Oracle's SPV leases sit downstream of these names.",
+    watch: "CoreWeave's spread staying above 1,000 bp or bonds sliding toward 60–70 cents (distressed), Oracle approaching junk-like spreads (above ~400 bp) or a downgrade below BBB-, and new names appearing here.",
+  },
   bankExposure: {
     what: "Supervisory estimates of how much large US banks have committed to AI-adjacent borrowers (Chicago Fed, from Fed loan data), and Moody's count of hyperscaler leases that aren't yet on balance sheets. These are point-in-time studies, not live data.",
     why: "Banks sit at the base of the chain: they lend to AI companies directly, arrange the SPV debt, and lend to the private-credit funds that hold the rest. Unused credit lines are the hidden part: they get drawn exactly when borrowers are weakest.",

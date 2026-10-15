@@ -7,6 +7,7 @@ import { stressColor, toScore } from "@/lib/stress-color";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import softwareData from "@/data/bdc-software.json";
+import { creditStress, impliedDefault5y, latestCds } from "@/lib/credit-stress";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
 import { quarterRows } from "@/lib/quarters";
@@ -1734,6 +1735,63 @@ export default async function Page() {
           Much of the buildout is financed off balance sheet through private credit and GPU-backed loans. If the shock
           transmits through credit, it shows up in spreads and financial-conditions indices.
         </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>AI borrowers&apos; credit: default insurance and bond prices</h3>
+          <p className="sub">
+            Reported 5-year credit default swap spreads and bond prices, curated from dated reports (reviewed weekly, last{" "}
+            {creditStress.updated}). Implied default odds use the standard 40%-recovery rule of thumb.
+          </p>
+          <SortableTable
+            storageKey="table:creditStress"
+            columns={[
+              { label: "Borrower" },
+              { label: "5y CDS", title: "Annual cost to insure $100 of debt for five years, in basis points (100 bp = $1)", firstDir: "desc" },
+              { label: "Change", title: "Versus the earliest reading in the table", firstDir: "desc" },
+              { label: "Implied 5y default", title: "Market-implied odds of default within five years (risk-neutral, overstates real-world odds)", firstDir: "desc" },
+              { label: "Bonds", title: "Latest reported bond price, cents on the dollar" },
+              { label: "Rating" },
+              { label: "As of", firstDir: "desc" },
+            ]}
+            rows={creditStress.borrowers.map((b) => {
+              const c = latestCds(b);
+              const first = b.cds[0];
+              const bond = b.bonds.at(-1);
+              return {
+                key: b.ticker,
+                sort: [b.name, c?.bps ?? null, c && first && first !== c ? c.bps - first.bps : null, c ? impliedDefault5y(c.bps) : null, bond?.price ?? null, b.rating, c?.date ?? null],
+                cells: [
+                  <>
+                    <span className="sym">{b.name}</span>
+                    <span className="name">{b.ticker}</span>
+                  </>,
+                  c ? (
+                    <a href={c.source} target="_blank" rel="noreferrer" title={c.note}>
+                      <strong style={{ color: stressColor(toScore(c.bps, 250, 1500)) }}>{c.bps.toLocaleString("en-US", { maximumFractionDigits: 0 })} bp</strong>
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                  c && first && first !== c ? (
+                    <span title={`from ${first.bps} bp on ${first.date}`}>+{(c.bps - first.bps).toFixed(0)} bp since {first.date.slice(5)}</span>
+                  ) : (
+                    "—"
+                  ),
+                  c ? `${impliedDefault5y(c.bps).toFixed(0)}%` : "—",
+                  bond ? (
+                    <a href={bond.source} target="_blank" rel="noreferrer" title={bond.note}>
+                      {bond.name}: {bond.price.toFixed(1)}¢{bond.yield != null ? `, ~${bond.yield}% yield` : ""}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                  b.rating ?? "—",
+                  <span className="faint">{c?.date ?? bond?.date ?? "—"}</span>,
+                ],
+              };
+            })}
+          />
+          <Explain id="creditStress" />
+        </div>
         <div className="grid g3">
           {[...fredGroup("credit"), ...fredGroup("stress")].map((s) => (
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />

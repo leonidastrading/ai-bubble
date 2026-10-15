@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-14",
+  "updated": "2026-10-15",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -266,7 +266,13 @@
       "status": "closed",
       "stress": null,
       "source": "https://www.wing.vc/content/how-the-gpu-became-collateral",
-      "events": []
+      "events": [
+        {
+          "date": "2026-10-15",
+          "text": "Parent CoreWeave's 5-year CDS hits a record 1,194.5 bp (60%+ implied five-year default odds, up from 368 bp on Oct 6); its 2031 notes trade at 79 cents. The DDTL is secured by GPUs and customer contracts, not the parent",
+          "source": "https://www.bloomberg.com/news/articles/2026-10-15/coreweave-risk-gauge-hits-record-pricing-60-odds-of-default"
+        }
+      ]
     },
     {
       "id": "crwv-ddtl5",

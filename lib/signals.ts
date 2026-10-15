@@ -1,6 +1,7 @@
 import type { FredData } from "./fred";
 import type { NvidiaHealth } from "./fundamentals";
 import type { GpuPrice } from "./gpu";
+import { creditStress, impliedDefault5y, latestCds } from "./credit-stress";
 import type { Valuation } from "./valuation";
 import type { Quote } from "./yahoo";
 
@@ -258,6 +259,23 @@ export function computeSignals(input: {
       calm: "≤ 0%",
       stress: "≥ 50%",
       detail: `Fed loan officer survey, C&I loans to large and mid-sized firms, as of ${sloos.lastDate}.`,
+    });
+
+  // Worst reported 5-year CDS among AI borrowers (curated weekly from news reports).
+  const worstCds = creditStress.borrowers
+    .map((b) => ({ b, c: latestCds(b) }))
+    .filter((x): x is { b: (typeof creditStress.borrowers)[number]; c: NonNullable<ReturnType<typeof latestCds>> } => x.c != null)
+    .sort((a, z) => z.c.bps - a.c.bps)[0];
+  if (worstCds)
+    out.push({
+      id: "aicds",
+      label: "Worst AI-borrower CDS",
+      stage: "4 · Credit transmits",
+      value: `${worstCds.b.name} ${worstCds.c.bps.toFixed(0)} bp`,
+      score: scale(worstCds.c.bps, 250, 1500),
+      calm: "≤ 250 bp",
+      stress: "≥ 1,500 bp",
+      detail: `5-year credit default swap spread, as of ${worstCds.c.date}: about ${impliedDefault5y(worstCds.c.bps).toFixed(0)}% market-implied odds of default within five years.`,
     });
 
   const sentiment = fred.get("UMCSENT");
