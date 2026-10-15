@@ -168,7 +168,7 @@ export type FredSeries = {
   id: string;
   title: string;
   unit: string;
-  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp" | "energy" | "valuation";
+  group: "credit" | "stress" | "fed" | "labor" | "economy" | "gdp" | "energy" | "valuation" | "consumer";
   /** Years of history to fetch (default 5); long series get longer range options. */
   years?: number;
   /** Fetched only as an input to a derived chart, not shown as its own card. */
@@ -207,6 +207,16 @@ export const FRED_SERIES: FredSeries[] = [
   { id: "DFF", title: "Fed funds rate", unit: "%", group: "fed" },
   { id: "T10Y3M", title: "Yield curve (10y − 3m)", unit: "%", group: "fed" },
   { id: "RECPROUSM156N", title: "Recession probability (smoothed)", unit: "%", group: "fed" },
+  // Households: mood, debt load and delinquencies (the consumer side of step 6).
+  { id: "UMCSENT", title: "Consumer sentiment (U. Michigan)", unit: "", group: "consumer", years: 50 },
+  { id: "PSAVERT", title: "Personal saving rate", unit: "%", group: "consumer", years: 30 },
+  { id: "HDTGPDUSQ163N", title: "Household debt, % of GDP", unit: "%", group: "consumer", years: 40 },
+  { id: "TDSP", title: "Household debt payments, % of disposable income", unit: "%", group: "consumer", years: 40 },
+  { id: "TOTALSL", title: "Consumer credit outstanding", unit: "$B", group: "consumer", years: 25 },
+  { id: "MVLOAS", title: "Auto loans outstanding", unit: "$B", group: "consumer", years: 20 },
+  { id: "DRCCLACBS", title: "Credit card delinquency rate (banks)", unit: "%", group: "consumer", years: 35 },
+  { id: "DRSFRMACBS", title: "Mortgage delinquency rate (banks)", unit: "%", group: "consumer", years: 35 },
+  { id: "MORTGAGE30US", title: "30-year mortgage rate", unit: "%", group: "consumer", years: 30 },
   { id: "LNU04032237", title: "Unemployment: information industry", unit: "%", group: "labor" },
   { id: "LNU04032239", title: "Unemployment: professional & business services", unit: "%", group: "labor" },
   { id: "UNRATE", title: "Unemployment rate (all)", unit: "%", group: "labor" },

@@ -236,6 +236,51 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Confirms whether market stress is reaching the real economy.",
     watch: "Above 20%.",
   },
+  UMCSENT: {
+    what: "University of Michigan survey of how consumers feel about their finances and the economy, monthly (1966 = 100).",
+    why: "Spending follows confidence. AI-driven white-collar layoffs or a stock drop would show up here within a month or two.",
+    watch: "A fall toward the 50s–60s (2008, 2022 lows) together with rising unemployment rather than just inflation worries.",
+  },
+  PSAVERT: {
+    what: "Share of disposable income households save, monthly (BEA).",
+    why: "Savings are the cushion against job losses. A low saving rate means a spending pullback hits harder and faster.",
+    watch: "A sudden jump: households cutting back out of fear, which is how a market shock turns into a spending recession.",
+  },
+  HDTGPDUSQ163N: {
+    what: "Total household debt (mortgages, cards, auto, student loans) as a share of GDP, quarterly (BIS via FRED).",
+    why: "The 2008 crisis was built on household debt, which peaked near 98% of GDP. A much lower level now means households are less likely to be the trigger this time.",
+    watch: "A renewed climb, especially if paired with falling sentiment.",
+  },
+  TDSP: {
+    what: "Required payments on household debt as a share of disposable income, quarterly (Federal Reserve).",
+    why: "Measures how heavy the debt feels, not just its size. It peaked above 13% in 2007.",
+    watch: "Rising as rates reset higher and incomes slow.",
+  },
+  TOTALSL: {
+    what: "Consumer credit outstanding: credit cards, auto and student loans, excluding mortgages, monthly ($B).",
+    why: "Fast growth while savings fall means households are borrowing to keep spending.",
+    watch: "Growth that suddenly stops: lenders tightening, which cuts spending.",
+  },
+  MVLOAS: {
+    what: "Auto loans outstanding, owned by lenders or packaged into securities, monthly ($B).",
+    why: "Auto loans are the first place subprime stress usually shows, and they're widely sold to bond investors.",
+    watch: "Balances growing while delinquencies rise, or reports of subprime auto lenders failing.",
+  },
+  DRCCLACBS: {
+    what: "Share of credit card balances at US banks that are 30+ days past due, quarterly.",
+    why: "Card delinquencies move first when household budgets crack. Banks hold this risk directly.",
+    watch: "Above about 4%, which last happened around 2009–10.",
+  },
+  DRSFRMACBS: {
+    what: "Share of single-family mortgages at US banks that are 30+ days past due, quarterly.",
+    why: "This is where 2008 broke (it peaked above 11% in 2010). Low and steady now; it matters if an AI bust becomes a broad recession.",
+    watch: "A sustained rise from today's low level.",
+  },
+  MORTGAGE30US: {
+    what: "Freddie Mac average 30-year fixed mortgage rate, weekly.",
+    why: "High rates freeze the housing market and raise payments for new buyers. A rate shock and a market drop together is the 2022 mix.",
+    watch: "A move back above 7% while stocks fall.",
+  },
   LNU04032237: {
     what: "Unemployment rate for the information industry (software, telecom, media, publishing). Not seasonally adjusted, so it's noisy.",
     why: "The \"too successful too fast\" path: AI replaces white-collar work, layoffs cut spending, ad budgets and AI seat licences fall.",

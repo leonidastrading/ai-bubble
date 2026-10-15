@@ -9,7 +9,7 @@ It refreshes once a day on Vercel and needs no API keys.
 
 | Section | What it shows | Source |
 | --- | --- | --- |
-| Composite stress gauge | 27 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
+| Composite stress gauge | 29 signals, each scaled 0 (calm) to 100 (crisis), then averaged | derived |
 | AI chips, hyperscalers, neoclouds, private credit, bank lenders, DC REITs & power, on-prem AI infrastructure, broad market | Relative-performance charts vs. S&P 500 and a scoreboard (1D/1M/3M/YTD/off 52-week high) | Yahoo Finance |
 | Hyperscaler capex vs. revenue | Trailing-twelve-month capex, revenue, capex/revenue and YoY growth for MSFT, GOOGL, AMZN, META, ORCL | SEC EDGAR (XBRL) |
 | Circular financing | Nvidia days sales outstanding, days of inventory, and non-marketable stakes in private companies | SEC EDGAR (XBRL) |
@@ -23,6 +23,7 @@ It refreshes once a day on Vercel and needs no API keys.
 | Credit spreads & stress | Fed loan-officer survey (banks tightening business-loan standards), C&I loans, HY, CCC and BBB OAS, 10-year yield, VIX, NFCI, St. Louis Fed stress index | FRED |
 | Concentration & Fed | Equal-weight ÷ cap-weight S&P 500, Fed funds rate, 10y−3m curve, recession probability | Yahoo, FRED |
 | AI in GDP | How much of GDP growth comes from IT equipment & software investment (vs. the dot-com era), IT investment share of GDP vs. the dot-com peak, monthly data-center construction, GDP final sales of computers, business investment in computers and software, power construction | FRED (BEA, Census), Our World in Data |
+| Consumers & household debt | Consumer sentiment, saving rate, household debt % of GDP, debt payments % of income, consumer credit, auto loans, credit card and mortgage delinquency, 30-year mortgage rate | FRED |
 | Labor | Information and professional-services unemployment, claims, job openings | FRED |
 | Adoption & compute | Gen-AI adoption share, hosting PPI, semiconductor production | FRED |
 | Google Trends | Search interest for AI assistants (ChatGPT, Claude, Gemini, ...), "AI", bubble-fear terms, and Claude vs. peers. The last good copy is saved to Blob in case Trends rate-limits a refresh | Google Trends (unofficial endpoints) |

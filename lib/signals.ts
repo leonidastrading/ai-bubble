@@ -260,6 +260,32 @@ export function computeSignals(input: {
       detail: `Fed loan officer survey, C&I loans to large and mid-sized firms, as of ${sloos.lastDate}.`,
     });
 
+  const sentiment = fred.get("UMCSENT");
+  if (sentiment)
+    out.push({
+      id: "sentiment",
+      label: "Consumer sentiment",
+      stage: "6 · Macro spillover",
+      value: f1(sentiment.last),
+      score: scale(sentiment.last, 90, 55),
+      calm: "≥ 90",
+      stress: "≤ 55",
+      detail: `University of Michigan index, as of ${sentiment.lastDate}. The 2008 and 2022 lows were in the 50s.`,
+    });
+
+  const cards = fred.get("DRCCLACBS");
+  if (cards)
+    out.push({
+      id: "carddelinq",
+      label: "Credit card delinquency",
+      stage: "6 · Macro spillover",
+      value: `${f2(cards.last)}%`,
+      score: scale(cards.last, 2.5, 5),
+      calm: "≤ 2.5%",
+      stress: "≥ 5%",
+      detail: `Share of bank card balances 30+ days past due, as of ${cards.lastDate}.`,
+    });
+
   if (bdcPriceToNav != null)
     out.push({
       id: "bdc",

@@ -20,6 +20,9 @@ const REFS: Record<string, { y: number; label: string; tone: "calm" | "stress" |
   BAMLH0A0HYM2: [{ y: 6.5, label: "stress", tone: "stress" }],
   BAMLH0A3HYC: [{ y: 16, label: "stress", tone: "stress" }],
   VIXCLS: [{ y: 35, label: "stress", tone: "stress" }],
+  UMCSENT: [{ y: 60, label: "recession-level", tone: "stress" }],
+  DRCCLACBS: [{ y: 4, label: "stress", tone: "stress" }],
+  HDTGPDUSQ163N: [{ y: 98, label: "2008 peak ~98%", tone: "stress" }],
   DRTSCILM: [
     { y: 0, label: "neutral", tone: "watch" },
     { y: 40, label: "recession-level", tone: "stress" },
@@ -44,6 +47,7 @@ const SECTIONS = [
   { id: "fed", label: "Concentration & Fed" },
   { id: "gdp", label: "AI in GDP" },
   { id: "labor", label: "Labor" },
+  { id: "consumer", label: "Consumers" },
   { id: "economy", label: "Adoption & compute" },
   { id: "trends", label: "Google Trends" },
   { id: "news", label: "News" },
@@ -1853,6 +1857,20 @@ export default async function Page() {
         </p>
         <div className="grid g3">
           {fredGroup("labor").map((s) => (
+            <FredCard key={s.id} s={s} data={d.fred[s.id]} />
+          ))}
+        </div>
+      </section>
+
+      <section id="consumer">
+        <h2>Consumers &amp; household debt</h2>
+        <p className="blurb">
+          Where an AI bust would reach Main Street: white-collar layoffs and a falling stock market hit spending, and
+          households with thin savings and rising debt payments fall behind. Unlike 2008, household debt is not the
+          center of this cycle, so watch whether the cushion holds rather than whether it breaks first.
+        </p>
+        <div className="grid g3">
+          {fredGroup("consumer").map((s) => (
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />
           ))}
         </div>
