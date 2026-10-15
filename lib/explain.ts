@@ -76,7 +76,7 @@ export const EXPLAIN: Record<string, Explanation> = {
   // ── Composite ──
   history: {
     what: "The composite stress score (0 = calm, 100 = crisis), one snapshot saved per day after the US close. Weekends repeat Friday's market data.",
-    why: "One day's score is noisy; the direction over weeks is the signal. It moves slowly because it averages 21 signals, several of which update only weekly or monthly.",
+    why: "One day's score is noisy; the direction over weeks is the signal. It moves slowly because it averages every signal in the table above, several of which update only weekly or monthly.",
     watch: "The score climbing steadily for several weeks, especially with the H100 price falling at the same time.",
   },
   historyGpu: {

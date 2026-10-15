@@ -51,11 +51,11 @@
       "equity": [
         {
           "name": "BlackRock GIP & HPS",
-          "share": 80
+          "share": 0.8
         },
         {
           "name": "Meta",
-          "share": 20
+          "share": 0.2
         }
       ],
       "lenders": [],
