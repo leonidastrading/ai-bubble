@@ -607,7 +607,7 @@ export function TimeLinesChart({
   storageKey?: string;
   ranges?: RangeKey[];
   defaultRange?: RangeKey;
-  unit?: "$" | "pts" | "%" | "num" | "$B";
+  unit?: "$" | "pts" | "%" | "num" | "$B" | "MW";
   dateLabel?: string;
   /** Dashed reference lines, e.g. normal and danger levels. */
   refs?: { y: number; label: string; tone?: "calm" | "watch" | "stress" }[];
@@ -618,7 +618,7 @@ export function TimeLinesChart({
   const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
   const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
   const fmt = (v: number) =>
-    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : v.toFixed(1);
+    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : unit === "MW" ? `${v.toLocaleString("en-US", { maximumFractionDigits: 0 })} MW` : v.toFixed(1);
   const suffix = unit === "$" ? "/hr" : "";
   return (
     <div>
@@ -630,7 +630,13 @@ export function TimeLinesChart({
           <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
             <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
-            <YAxis domain={["auto", yMax ?? "auto"]} allowDataOverflow={yMax != null} width={48} tickFormatter={fmt} {...axisProps} />
+            <YAxis
+              domain={["auto", yMax ?? "auto"]}
+              allowDataOverflow={yMax != null}
+              width={48}
+              tickFormatter={unit === "MW" ? (v: number) => `${+(v / 1000).toFixed(1)} GW` : fmt}
+              {...axisProps}
+            />
             {refs.map((r) => (
               <ReferenceLine
                 key={r.label}

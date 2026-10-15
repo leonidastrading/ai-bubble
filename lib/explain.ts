@@ -67,6 +67,11 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "The dot-com bust was mostly an equity loss: companies had raised money by selling stock, so banks came through. The housing bust was a debt loss: mortgages sat on bank and investor balance sheets, which is why it became a banking crisis. The AI buildout started on cash and equity and is now moving to debt.",
     watch: "Corporate debt and bank business loans rising toward or past their 2000 and 2008 peaks while AI capex keeps growing. That would mean an AI bust looks more like 2008 than 2000 for lenders.",
   },
+  dcCapacity: {
+    what: "Data center capacity in the main US markets (Northern Virginia, Dallas, Silicon Valley, Chicago, Phoenix, New York, Atlanta, Hillsboro) that is operating vs. being built, in megawatts of IT power, from CBRE's twice-yearly reports. Lines skip editions that gave no total.",
+    why: "Under-construction capacity is the pipeline of future supply. In 2018–2021 it was a few hundred MW; now it's about 70% of everything already operating. If demand stalls, that pipeline lands on a market priced for scarcity, which is what happened to telecom fiber after 2000.",
+    watch: "Construction falling while vacancy rises (the pipeline finishing into weaker demand), the preleased share dropping below ~70%, or projects being paused.",
+  },
   gdpGrowthShare: {
     what: "Year-over-year growth in nominal GDP, and how many percentage points of it came from business investment in IT equipment and software (computers, servers, networking, software), quarterly from BEA. Our calculation: the change in that investment ÷ GDP a year earlier.",
     why: "If a large share of growth comes from building AI capacity, the economy depends on that spending continuing. When the dot-com buildout stopped in 2001, this line went negative and pulled GDP down with it. Data-center buildings are counted separately (construction), so this understates the full AI buildout.",

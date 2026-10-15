@@ -1,0 +1,156 @@
+{
+  "updated": "2026-10-15",
+  "notes": "CBRE North America Data Center Trends, primary US markets (7 until 2022, 8 from H1 2023 with Hillsboro). Operating = total inventory; under construction = capacity being built. MW of critical IT power. Blank where the edition gave no total. Updated twice a year (Feb/Mar and Aug/Sep).",
+  "editions": [
+    {
+      "edition": "H2 2018",
+      "date": "2018-12-31",
+      "operatingMW": null,
+      "constructionMW": 502,
+      "vacancyPct": null,
+      "preleasedPct": null,
+      "source": "https://saportareport.com/wp-content/uploads/2019/04/NA-Data-Center-Trends-Report-H2-2018-.pdf",
+      "note": "7 primary markets; '>500 MW' under construction"
+    },
+    {
+      "edition": "H2 2019",
+      "date": "2019-12-31",
+      "operatingMW": null,
+      "constructionMW": 282.7,
+      "vacancyPct": null,
+      "preleasedPct": null,
+      "source": "https://irei.com/news/north-american-data-center-inventory-increased-2019/",
+      "note": "Trade press; market count not stated"
+    },
+    {
+      "edition": "H1 2020",
+      "date": "2020-06-30",
+      "operatingMW": null,
+      "constructionMW": 373.6,
+      "vacancyPct": 10.3,
+      "preleasedPct": null,
+      "source": "https://newslink.mba.org/?p=110254",
+      "note": "Trade press"
+    },
+    {
+      "edition": "H2 2020",
+      "date": "2020-12-31",
+      "operatingMW": null,
+      "constructionMW": 457.8,
+      "vacancyPct": 8.5,
+      "preleasedPct": null,
+      "source": "https://njbmagazine.com/njb-news-now/data-center-market-experiences-robust-demand-from-cloud-providers/",
+      "note": "Trade press"
+    },
+    {
+      "edition": "H1 2021",
+      "date": "2021-06-30",
+      "operatingMW": null,
+      "constructionMW": 527.6,
+      "vacancyPct": null,
+      "preleasedPct": 60,
+      "source": "https://njbmagazine.com/njb-news-now/financial-services-sector-dominates-new-york-tri-state-data-center-leasing-activity/",
+      "note": "Trade press"
+    },
+    {
+      "edition": "H2 2021",
+      "date": "2021-12-31",
+      "operatingMW": 3358.1,
+      "constructionMW": 727.6,
+      "vacancyPct": 7.2,
+      "preleasedPct": 44.2,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h2-2021",
+      "note": "7 primary markets"
+    },
+    {
+      "edition": "H1 2022",
+      "date": "2022-06-30",
+      "operatingMW": 3711.0,
+      "constructionMW": 1601.5,
+      "vacancyPct": 3.8,
+      "preleasedPct": 73,
+      "source": "https://cbre.com/insights/reports/north-america-data-center-trends-h1-2022",
+      "note": "7 primary markets"
+    },
+    {
+      "edition": "H2 2022",
+      "date": "2022-12-31",
+      "operatingMW": 3928.7,
+      "constructionMW": 1839.9,
+      "vacancyPct": 3.2,
+      "preleasedPct": null,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h2-2022",
+      "note": "7 primary markets"
+    },
+    {
+      "edition": "H1 2023",
+      "date": "2023-06-30",
+      "operatingMW": null,
+      "constructionMW": 2287.6,
+      "vacancyPct": 3.3,
+      "preleasedPct": 73.1,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h1-2023",
+      "note": "8 primary markets from here (Hillsboro added)"
+    },
+    {
+      "edition": "H2 2023",
+      "date": "2023-12-31",
+      "operatingMW": 5174.1,
+      "constructionMW": 3077.8,
+      "vacancyPct": 3.7,
+      "preleasedPct": 83,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h2-2023",
+      "note": "8 primary markets"
+    },
+    {
+      "edition": "H1 2024",
+      "date": "2024-06-30",
+      "operatingMW": null,
+      "constructionMW": 3871.8,
+      "vacancyPct": 2.8,
+      "preleasedPct": 79,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h1-2024",
+      "note": "8 primary markets"
+    },
+    {
+      "edition": "H2 2024",
+      "date": "2024-12-31",
+      "operatingMW": 6922.6,
+      "constructionMW": 6350.1,
+      "vacancyPct": 1.9,
+      "preleasedPct": null,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h2-2024",
+      "note": "8 primary markets"
+    },
+    {
+      "edition": "H1 2025",
+      "date": "2025-06-30",
+      "operatingMW": 8155,
+      "constructionMW": 5242.5,
+      "vacancyPct": 1.6,
+      "preleasedPct": 74.3,
+      "source": "https://www.cbre.com/insights/reports/north-america-data-center-trends-h1-2025",
+      "note": "CBRE revised inventory data this edition"
+    },
+    {
+      "edition": "H2 2025",
+      "date": "2025-12-31",
+      "operatingMW": 9432,
+      "constructionMW": 5994.4,
+      "vacancyPct": 1.4,
+      "preleasedPct": null,
+      "source": "https://www.cbre.com/press-releases/fast-growing-north-american-data-center-market-set-records-in-2025",
+      "note": "First year-over-year fall in construction since 2020"
+    },
+    {
+      "edition": "H1 2026",
+      "date": "2026-06-30",
+      "operatingMW": 10903,
+      "constructionMW": 7481.1,
+      "vacancyPct": 1.4,
+      "preleasedPct": 80.4,
+      "source": "https://www.cbre.com/press-releases/north-american-data-center-demand-continues-to-outpace-supply-despite-record-construction",
+      "note": "Record construction; Atlanta passed Northern Virginia in construction"
+    }
+  ]
+}

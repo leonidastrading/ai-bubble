@@ -7,6 +7,7 @@ import { stressColor, toScore } from "@/lib/stress-color";
 import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import softwareData from "@/data/bdc-software.json";
+import dcData from "@/data/datacenters.json";
 import { creditStress, impliedDefault5y, latestCds } from "@/lib/credit-stress";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
@@ -256,6 +257,21 @@ export default async function Page() {
   const elevated = v.gauges.filter((g) => g.status === "elevated").length;
   const statusColor = (s: string) => stressColor(s === "flashing" ? 100 : s === "elevated" ? 55 : 0);
   const ACTS = { 1: "Act 1 · The balloon inflates (valuation)", 2: "Act 2 · The pin goes in (rates)", 3: "Act 3 · The structure gives way (breadth & leverage)" } as const;
+
+  // US data center capacity: operating vs under construction (CBRE, semiannual).
+  const dcEditions = dcData.editions as {
+    edition: string;
+    date: string;
+    operatingMW: number | null;
+    constructionMW: number | null;
+    vacancyPct: number | null;
+    preleasedPct: number | null;
+    source: string;
+    note: string;
+  }[];
+  const dcRows = dcEditions.map((e) => ({ t: e.date, Operating: e.operatingMW, "Under construction": e.constructionMW }));
+  const dcLatest = dcEditions[dcEditions.length - 1];
+  const dcYearAgo = dcEditions.find((e) => e.date === `${Number(dcLatest.date.slice(0, 4)) - 1}${dcLatest.date.slice(4)}`);
 
   // GPU-backed loan pricing, oldest first.
   const gpuPricing = d.spv.spvs.filter((v) => v.pricing && v.debtB != null).sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -1974,6 +1990,51 @@ export default async function Page() {
           national-accounts lines that would show the buildout and its reversal, with history back to the dot-com era for
           comparison.
         </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>US data centers: operating vs. under construction</h3>
+          <div style={{ display: "flex", gap: 28, flexWrap: "wrap", margin: "4px 0 10px" }}>
+            <div>
+              <div className="big">{((dcLatest.operatingMW ?? 0) / 1000).toFixed(1)} GW</div>
+              <p className="sub" style={{ margin: 0 }}>operating, {dcLatest.edition}</p>
+            </div>
+            <div>
+              <div className="big" style={{ fontSize: 20 }}>{((dcLatest.constructionMW ?? 0) / 1000).toFixed(1)} GW</div>
+              <p className="sub" style={{ margin: 0 }}>
+                under construction
+                {dcYearAgo?.constructionMW ? ` (${dcLatest.constructionMW! >= dcYearAgo.constructionMW ? "+" : ""}${((dcLatest.constructionMW! / dcYearAgo.constructionMW - 1) * 100).toFixed(0)}% y/y)` : ""}
+              </p>
+            </div>
+            {dcLatest.preleasedPct != null && (
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>{dcLatest.preleasedPct.toFixed(0)}%</div>
+                <p className="sub" style={{ margin: 0 }}>of construction preleased</p>
+              </div>
+            )}
+            {dcLatest.vacancyPct != null && (
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>{dcLatest.vacancyPct.toFixed(1)}%</div>
+                <p className="sub" style={{ margin: 0 }}>vacancy</p>
+              </div>
+            )}
+          </div>
+          <TimeLinesChart
+            rows={dcRows}
+            keys={["Operating", "Under construction"]}
+            unit="MW"
+            dateLabel="Half ending"
+            ranges={["5Y", "10Y"]}
+            defaultRange="10Y"
+            storageKey="dc:capacity"
+          />
+          <p className="note" style={{ marginTop: 6 }}>
+            CBRE North America Data Center Trends, primary US markets (7 until 2022, 8 since). Lines skip editions that gave no
+            total; operating capacity is only published as a total from 2021.{" "}
+            <a href={dcLatest.source} target="_blank" rel="noreferrer">
+              Latest report
+            </a>
+          </p>
+          <Explain id="dcCapacity" />
+        </div>
         <div className="card" style={{ marginBottom: 14 }}>
           <h3>How much of GDP growth comes from AI-related investment</h3>
           <p className="sub">
