@@ -261,7 +261,7 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Fast growth while savings fall means households are borrowing to keep spending.",
     watch: "Growth that suddenly stops: lenders tightening, which cuts spending.",
   },
-  MVLOAS: {
+  MVLOASM: {
     what: "Auto loans outstanding, owned by lenders or packaged into securities, monthly ($B).",
     why: "Auto loans are the first place subprime stress usually shows, and they're widely sold to bond investors.",
     watch: "Balances growing while delinquencies rise, or reports of subprime auto lenders failing.",
