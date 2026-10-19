@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-15",
+  "updated": "2026-10-19",
   "notes": "Reported market prices of AI borrowers' credit: 5-year credit default swap (CDS) spreads in basis points and bond prices in cents on the dollar, each from a dated report. Curated weekly; CDS data itself is behind paywalls (ICE, S&P, Bloomberg).",
   "borrowers": [
     {
@@ -7,12 +7,32 @@
       "ticker": "CRWV",
       "rating": "B+ (S&P)",
       "cds": [
-        { "date": "2026-10-06", "bps": 368, "source": "https://startupfortune.com/coreweave-default-odds-hit-60-percent-as-credit-swaps-top-1000-basis-points/" },
-        { "date": "2026-10-09", "bps": 643, "source": "https://startupfortune.com/coreweave-default-odds-hit-60-percent-as-credit-swaps-top-1000-basis-points/" },
-        { "date": "2026-10-15", "bps": 1194.5, "note": "Intraday record, ICE Data Services via Bloomberg", "source": "https://www.bloomberg.com/news/articles/2026-10-15/coreweave-risk-gauge-hits-record-pricing-60-odds-of-default" }
+        {
+          "date": "2026-10-06",
+          "bps": 368,
+          "source": "https://startupfortune.com/coreweave-default-odds-hit-60-percent-as-credit-swaps-top-1000-basis-points/"
+        },
+        {
+          "date": "2026-10-09",
+          "bps": 643,
+          "source": "https://startupfortune.com/coreweave-default-odds-hit-60-percent-as-credit-swaps-top-1000-basis-points/"
+        },
+        {
+          "date": "2026-10-15",
+          "bps": 1194.5,
+          "note": "Intraday record, ICE Data Services via Bloomberg",
+          "source": "https://www.bloomberg.com/news/articles/2026-10-15/coreweave-risk-gauge-hits-record-pricing-60-odds-of-default"
+        }
       ],
       "bonds": [
-        { "name": "Notes due 2031", "price": 79.15, "yield": 16, "date": "2026-10-15", "note": "Tradeweb via Reuters; about $50B of total debt", "source": "https://www.marketscreener.com/news/coreweave-shares-bonds-slide-further-as-ai-debt-fears-mount-ce785dd3dd8cf522" }
+        {
+          "name": "Notes due 2031",
+          "price": 79.15,
+          "yield": 16,
+          "date": "2026-10-15",
+          "note": "Tradeweb via Reuters; about $50B of total debt",
+          "source": "https://www.marketscreener.com/news/coreweave-shares-bonds-slide-further-as-ai-debt-fears-mount-ce785dd3dd8cf522"
+        }
       ]
     },
     {
@@ -20,7 +40,12 @@
       "ticker": "ORCL",
       "rating": null,
       "cds": [
-        { "date": "2026-10-15", "bps": 288, "note": "Record; automated GuruFocus market report", "source": "https://www.gurufocus.com/news/9124975/credit-default-swaps-surge-for-us-tech-firms-amid-ai-sector-strain-oracle-orcl-spreads-hit-record-high" }
+        {
+          "date": "2026-10-15",
+          "bps": 288,
+          "note": "Record; automated GuruFocus market report",
+          "source": "https://www.gurufocus.com/news/9124975/credit-default-swaps-surge-for-us-tech-firms-amid-ai-sector-strain-oracle-orcl-spreads-hit-record-high"
+        }
       ],
       "bonds": []
     },
@@ -29,7 +54,12 @@
       "ticker": "9984.T",
       "rating": null,
       "cds": [
-        { "date": "2026-10-15", "bps": 424, "note": "Automated GuruFocus market report", "source": "https://www.gurufocus.com/news/9124975/credit-default-swaps-surge-for-us-tech-firms-amid-ai-sector-strain-oracle-orcl-spreads-hit-record-high" }
+        {
+          "date": "2026-10-15",
+          "bps": 424,
+          "note": "Automated GuruFocus market report",
+          "source": "https://www.gurufocus.com/news/9124975/credit-default-swaps-surge-for-us-tech-firms-amid-ai-sector-strain-oracle-orcl-spreads-hit-record-high"
+        }
       ],
       "bonds": []
     }

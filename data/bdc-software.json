@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-12",
+  "updated": "2026-10-19",
   "notes": "Software share of each public BDC's portfolio at fair value, from its latest 10-Q or earnings presentation. pct is the sum of all software rows when the company splits them; label names the rows used. priorPct is from the same table's comparison column (the last fiscal year-end), not a year earlier.",
   "bdcs": [
     {

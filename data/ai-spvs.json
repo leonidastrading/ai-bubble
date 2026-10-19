@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-15",
+  "updated": "2026-10-19",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -398,7 +398,7 @@
       "debtB": 5.0,
       "equityB": null,
       "rating": "Unrated",
-      "terms": "$1.3B first-lien term loan C plus a $3.7B term loan backed by GPUs, six years; SOFR + 6.25–6.50% at 97–98 cents (about 11–11.75% yield); no corporate guarantee. Funds GPUs and a letter of credit for the data-center lease. Anthropic has a reported six-year, ~$10B compute contract at the site",
+      "terms": "$1.3B first-lien term loan C plus a $3.7B term loan backed by GPUs, six years; SOFR + 6.25–6.50% at 97–98 cents (about 11–11.75% yield); no corporate guarantee. JPMorgan and Goldman underwrote only the $1.3B term loan C; the $3.7B GPU loan (about 36,000 Nvidia GPUs) is offered on a best-efforts basis. Funds GPUs and a letter of credit for the data-center lease. Anthropic has a reported six-year, ~$10B compute contract at the site",
       "date": "2026-10-05",
       "status": "raising",
       "stress": null,
@@ -413,6 +413,16 @@
           "date": "2026-10-07",
           "text": "Marketed at about 11% yield and 97–98 cents; JPMorgan and Goldman reportedly limited their own exposure; commitments due Oct 14",
           "source": "https://www.thestar.com.my/business/business-news/2026/10/07/jpmorgan-dangles-11-yield-on-voltas-ai-loan-sale"
+        },
+        {
+          "date": "2026-10-12",
+          "text": "Banks underwrite only the $1.3B term loan C; the $3.7B GPU-backed tranche is sold best-efforts. An August–September attempt at SOFR + 5.00% failed to clear (Bloomberg)",
+          "source": "https://aiweekly.co/alerts/jpmorgan-goldman-underwrite-only-13b-of-voltas-5b-ai-loan"
+        },
+        {
+          "date": "2026-10-15",
+          "text": "Missed its Oct 14 pricing deadline; not yet priced as investors asked for further changes, though a source called it oversubscribed",
+          "source": "https://octus.com/?p=46338"
         }
       ],
       "pricing": {

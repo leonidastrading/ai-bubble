@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-14",
+  "updated": "2026-10-19",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -329,11 +329,11 @@
       "from": "ANTHROPIC",
       "to": "NSCALE",
       "type": "services",
-      "amountB": 45,
+      "amountB": 44.6,
       "date": "2026-08-26",
       "status": "reported",
-      "label": "~$45B over six years for Vera Rubin capacity at Nscale's West Virginia site, starting late 2027",
-      "source": "https://techcrunch.com/2026/08/26/anthropic-continues-compute-gobbling-streak-in-45-billion-deal-with-nscale/"
+      "label": "Up to $44.6B for 460 MW at Nscale's Monarch campus, West Virginia (signed Aug 25); unfunded, as Nscale had not secured financing per its Sept 18 IPO filing",
+      "source": "https://cryptobriefing.com/nscale-103-billion-data-center-contracts-ipo/"
     },
     {
       "from": "NSCALE",
