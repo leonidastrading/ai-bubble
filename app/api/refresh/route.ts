@@ -1,7 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CACHE_TAG } from "@/lib/config";
 import { getDashboardData, toSnapshot } from "@/lib/data";
-import { appendSnapshot, historyEnabled, saveGpuArchive, savePriceLog, saveTrends, type PricePoint } from "@/lib/history";
+import { appendSnapshot, historyEnabled, saveGpuArchive, savePriceLog, saveTrends, setFreshReads, type PricePoint } from "@/lib/history";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -18,15 +18,23 @@ export async function GET(request: Request) {
   }
 
   revalidateTag(CACHE_TAG, { expire: 0 });
-  const data = await getDashboardData();
+  // This run writes back what it reads, so it must see the latest Blob copies.
+  setFreshReads(true);
+  let data;
+  try {
+    data = await getDashboardData();
+  } finally {
+    setFreshReads(false);
+  }
 
   let stored: number | string = "history disabled (no Blob store connected)";
   if (historyEnabled()) {
     try {
-      stored = await appendSnapshot(toSnapshot(data));
+      // Reuse what getDashboardData already read; each file is written only if it changed.
+      stored = await appendSnapshot(toSnapshot(data), data.history);
       const liveTrends = data.trends.filter((t) => t.live && t.data);
-      if (liveTrends.length) await saveTrends(Object.fromEntries(liveTrends.map((t) => [t.id, t.data])));
-      if (data.gpuHistory.length) await saveGpuArchive(data.gpuHistory);
+      if (liveTrends.length) await saveTrends(Object.fromEntries(liveTrends.map((t) => [t.id, t.data!])), data.saved.trends);
+      if (data.gpuHistory.length) await saveGpuArchive(data.gpuHistory, data.saved.gpuArchive);
       // Append today's price for the top models only when it changed.
       if (data.intel.priced.length) {
         const log: Record<string, PricePoint[]> = { ...data.intel.priceLog };
@@ -37,7 +45,7 @@ export async function GET(request: Request) {
           if (!last || last.inPerM !== m.inPerM || last.outPerM !== m.outPerM)
             log[m.apiId] = [...hist, { date: today, inPerM: m.inPerM, outPerM: m.outPerM }];
         }
-        await savePriceLog(log);
+        await savePriceLog(log, data.intel.priceLog);
       }
     } catch (err) {
       stored = `history write failed: ${err instanceof Error ? err.message : String(err)}`;

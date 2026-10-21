@@ -29,10 +29,20 @@ const PATH = "history/snapshots.json";
 export const historyEnabled = () =>
   Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 
+/**
+ * Page renders and builds read through Blob's cache (writes set a 60-second
+ * max-age, so it's never stale for long). Only the daily refresh, which
+ * writes back what it reads, needs a guaranteed-latest read.
+ */
+let freshReads = false;
+export function setFreshReads(on: boolean) {
+  freshReads = on;
+}
+
 async function readJson<T>(path: string): Promise<T | null> {
   if (!historyEnabled()) return null;
   try {
-    const res = await get(path, { access: "private", useCache: false });
+    const res = await get(path, { access: "private", useCache: !freshReads });
     if (!res?.stream) return null;
     return (await new Response(res.stream).json()) as T;
   } catch {
@@ -46,15 +56,26 @@ async function writeJson(path: string, data: unknown): Promise<void> {
     allowOverwrite: true,
     addRandomSuffix: false,
     contentType: "application/json",
+    cacheControlMaxAge: 60,
   });
+}
+
+/** Writes only when the content changed; each write is a billed Blob operation. */
+async function writeIfChanged(path: string, data: unknown, previous: unknown): Promise<boolean> {
+  if (JSON.stringify(data) === JSON.stringify(previous)) return false;
+  await writeJson(path, data);
+  return true;
 }
 
 export async function readHistory(): Promise<Snapshot[]> {
   return (await readJson<Snapshot[]>(PATH)) ?? [];
 }
 
-export async function appendSnapshot(snap: Snapshot): Promise<number> {
-  const all = (await readHistory()).filter((s) => s.date !== snap.date);
+/** `existing` is the history already read by this refresh, to avoid a second read. */
+export async function appendSnapshot(snap: Snapshot, existing?: Snapshot[]): Promise<number> {
+  // An empty copy may mean the earlier read failed; re-read rather than overwrite the archive.
+  const base = existing?.length ? existing : await readHistory();
+  const all = base.filter((s) => s.date !== snap.date);
   all.push(snap);
   all.sort((a, b) => a.date.localeCompare(b.date));
   await writeJson(PATH, all);
@@ -71,9 +92,9 @@ export async function readSavedTrends<T>(): Promise<Record<string, T>> {
   return (await readJson<Record<string, T>>(TRENDS_PATH)) ?? {};
 }
 
-export async function saveTrends<T>(groups: Record<string, T>): Promise<void> {
-  const merged = { ...(await readSavedTrends<T>()), ...groups };
-  await writeJson(TRENDS_PATH, merged);
+export async function saveTrends<T>(groups: Record<string, T>, existing?: Record<string, T>): Promise<boolean> {
+  const prev = existing && Object.keys(existing).length ? existing : await readSavedTrends<T>();
+  return writeIfChanged(TRENDS_PATH, { ...prev, ...groups }, prev);
 }
 
 /**
@@ -87,8 +108,8 @@ export async function readGpuArchive<T>(): Promise<T[]> {
   return (await readJson<T[]>(GPU_PATH)) ?? [];
 }
 
-export async function saveGpuArchive<T>(rows: T[]): Promise<void> {
-  await writeJson(GPU_PATH, rows);
+export async function saveGpuArchive<T>(rows: T[], existing?: T[]): Promise<boolean> {
+  return writeIfChanged(GPU_PATH, rows, existing?.length ? existing : await readGpuArchive<T>());
 }
 
 /**
@@ -102,6 +123,6 @@ export async function readPriceLog(): Promise<Record<string, PricePoint[]>> {
   return (await readJson<Record<string, PricePoint[]>>(PRICE_PATH)) ?? {};
 }
 
-export async function savePriceLog(log: Record<string, PricePoint[]>): Promise<void> {
-  await writeJson(PRICE_PATH, log);
+export async function savePriceLog(log: Record<string, PricePoint[]>, existing?: Record<string, PricePoint[]>): Promise<boolean> {
+  return writeIfChanged(PRICE_PATH, log, existing && Object.keys(existing).length ? existing : await readPriceLog());
 }

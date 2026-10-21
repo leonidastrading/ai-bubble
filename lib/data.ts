@@ -70,6 +70,8 @@ export type DashboardData = {
   usdAi: Point[] | null;
   polymarket: PolyEvent[];
   dcCounts: { dcmap: DcMapCounts | null; kadoa: KadoaCounts | null };
+  /** Blob contents as read, so the refresh can write back without reading again. */
+  saved: { trends: Record<string, TrendsData>; gpuArchive: GpuWeek[] };
   history: Snapshot[];
   errors: string[];
 };
@@ -284,6 +286,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     usdAi: usdAiR.ok ? usdAiR.data : null,
     polymarket,
     dcCounts: { dcmap: dcMapR.ok ? dcMapR.data : null, kadoa: kadoaR.ok ? kadoaR.data : null },
+    saved: { trends: savedTrends, gpuArchive },
     history,
     errors,
   };
