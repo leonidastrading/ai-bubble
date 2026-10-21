@@ -21,7 +21,8 @@ export async function fetchFred(id: string, years = 5): Promise<FredData> {
   for (const line of text.trim().split("\n").slice(1)) {
     const [t, raw] = line.split(",");
     const v = Number(raw);
-    if (t && raw && raw !== "." && Number.isFinite(v)) points.push({ t, v });
+    // A bot-challenge HTML page instead of CSV must not slip through as data.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(t) && raw && raw !== "." && Number.isFinite(v)) points.push({ t, v });
   }
   if (!points.length) throw new Error(`No observations for ${id}`);
 

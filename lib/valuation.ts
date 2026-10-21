@@ -60,7 +60,7 @@ function asOf(points: Point[], t: string): number | null {
 const monthsBefore = (t: string, n: number) => {
   const d = new Date(`${t.slice(0, 7)}-01T00:00:00Z`);
   d.setUTCMonth(d.getUTCMonth() - n);
-  return d.toISOString().slice(0, 10);
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
 };
 
 export type Status = "normal" | "elevated" | "flashing";
