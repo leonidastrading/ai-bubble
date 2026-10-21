@@ -12,6 +12,7 @@ import { fetchOffBalance, getSpvSummary, type OffBalanceRow, type SpvSummary } f
 import { fetchNav, fetchTenderOffers, type Filing } from "./sec";
 import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
+import { fetchDcMap, fetchKadoa, type DcMapCounts, type KadoaCounts } from "./dccount";
 import { fetchUsdAiDeposits } from "./onchain";
 import { fetchPolymarket, type PolyEvent } from "./polymarket";
 import { computeValuation, fetchMarginDebt, fetchMultpl, type Valuation } from "./valuation";
@@ -68,6 +69,7 @@ export type DashboardData = {
   valuation: Valuation;
   usdAi: Point[] | null;
   polymarket: PolyEvent[];
+  dcCounts: { dcmap: DcMapCounts | null; kadoa: KadoaCounts | null };
   history: Snapshot[];
   errors: string[];
 };
@@ -186,7 +188,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -203,7 +205,11 @@ export async function getDashboardData(): Promise<DashboardData> {
     settle(fetchMarginDebt()),
     settle(fetchUsdAiDeposits()),
     fetchPolymarket(errors),
+    settle(fetchDcMap()),
+    settle(fetchKadoa()),
   ]);
+  if (!dcMapR.ok) errors.push(`Data center counts (dcmap.us): ${dcMapR.error}`);
+  if (!kadoaR.ok) errors.push(`Data center counts (Kadoa): ${kadoaR.error}`);
   if (!usdAiR.ok) errors.push(`USD.AI deposits (DefiLlama): ${usdAiR.error}`);
   if (!capeR.ok) errors.push(`Shiller CAPE (multpl): ${capeR.error}`);
   if (!peR.ok) errors.push(`S&P 500 P/E (multpl): ${peR.error}`);
@@ -277,6 +283,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     valuation,
     usdAi: usdAiR.ok ? usdAiR.data : null,
     polymarket,
+    dcCounts: { dcmap: dcMapR.ok ? dcMapR.data : null, kadoa: kadoaR.ok ? kadoaR.data : null },
     history,
     errors,
   };
@@ -299,6 +306,17 @@ export function toSnapshot(d: DashboardData): Snapshot {
           cheapestNearFrontier: d.intel.cheapestNearFrontier?.blended ?? null,
         }
       : undefined,
+    dcCounts: {
+      ...(d.dcCounts.dcmap && {
+        dcmap: {
+          operational: d.dcCounts.dcmap.operational,
+          construction: d.dcCounts.dcmap.construction,
+          planned: d.dcCounts.dcmap.planned,
+          paused: d.dcCounts.dcmap.paused,
+        },
+      }),
+      ...(d.dcCounts.kadoa && { kadoa: { operational: d.dcCounts.kadoa.operational, construction: d.dcCounts.kadoa.construction } }),
+    },
     gpuList: Object.fromEntries(
       (
         [

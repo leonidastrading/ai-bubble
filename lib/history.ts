@@ -16,6 +16,11 @@ export type Snapshot = {
   gpuList?: Record<string, Record<string, number>>;
   /** Cost of intelligence (added Oct 2026). */
   intel?: { gap: number; frontierBlended: number | null; cheapestNearFrontier: number | null };
+  /** US data center facility counts by stage (added Oct 2026). */
+  dcCounts?: {
+    dcmap?: { operational: number; construction: number; planned: number; paused: number };
+    kadoa?: { operational: number; construction: number };
+  };
   signals: Record<string, number>;
 };
 

@@ -273,6 +273,16 @@ export default async function Page() {
   const dcLatest = dcEditions[dcEditions.length - 1];
   const dcYearAgo = dcEditions.find((e) => e.date === `${Number(dcLatest.date.slice(0, 4)) - 1}${dcLatest.date.slice(4)}`);
 
+  // US data center facility counts, from daily snapshots (history starts Oct 2026).
+  const dcCountRows = d.history
+    .filter((h) => h.dcCounts?.dcmap || h.dcCounts?.kadoa)
+    .map((h) => ({
+      t: h.date,
+      "Under construction (dcmap)": h.dcCounts?.dcmap?.construction ?? null,
+      "Paused (dcmap)": h.dcCounts?.dcmap?.paused ?? null,
+      "Under construction, permitted (Kadoa)": h.dcCounts?.kadoa?.construction ?? null,
+    }));
+
   // GPU-backed loan pricing, oldest first.
   const gpuPricing = d.spv.spvs.filter((v) => v.pricing && v.debtB != null).sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const usdAiPeak = d.usdAi?.length ? d.usdAi.reduce((a, b) => (b.v > a.v ? b : a)) : null;
@@ -2034,6 +2044,87 @@ export default async function Page() {
             </a>
           </p>
           <Explain id="dcCapacity" />
+        </div>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>US data centers by count: online vs. being built</h3>
+          {d.dcCounts.dcmap ? (
+            <div style={{ display: "flex", gap: 28, flexWrap: "wrap", margin: "4px 0 10px" }}>
+              <div>
+                <div className="big">{d.dcCounts.dcmap.operational.toLocaleString("en-US")}</div>
+                <p className="sub" style={{ margin: 0 }}>operational{d.dcCounts.dcmap.gwOperational != null && ` · ${d.dcCounts.dcmap.gwOperational} GW reported`}</p>
+              </div>
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>{d.dcCounts.dcmap.construction.toLocaleString("en-US")}</div>
+                <p className="sub" style={{ margin: 0 }}>under construction{d.dcCounts.dcmap.gwConstruction != null && ` · ${d.dcCounts.dcmap.gwConstruction} GW`}</p>
+              </div>
+              <div>
+                <div className="big" style={{ fontSize: 20 }}>{d.dcCounts.dcmap.planned.toLocaleString("en-US")}</div>
+                <p className="sub" style={{ margin: 0 }}>planned{d.dcCounts.dcmap.gwPlanned != null && ` · ${d.dcCounts.dcmap.gwPlanned} GW`}</p>
+              </div>
+              <div>
+                <div className="big" style={{ fontSize: 20, color: stressColor(toScore(d.dcCounts.dcmap.paused, 40, 200)) }}>
+                  {d.dcCounts.dcmap.paused.toLocaleString("en-US")}
+                </div>
+                <p className="sub" style={{ margin: 0 }}>paused</p>
+              </div>
+            </div>
+          ) : (
+            <div className="empty">dcmap.us is unavailable today.</div>
+          )}
+          <SortableTable
+            storageKey="table:dcCounts"
+            columns={[
+              { label: "Tracker" },
+              { label: "Operational", firstDir: "desc" },
+              { label: "Under construction", firstDir: "desc" },
+              { label: "Planned", firstDir: "desc" },
+              { label: "Paused", firstDir: "desc" },
+              { label: "What it counts" },
+            ]}
+            rows={[
+              {
+                key: "dcmap",
+                sort: ["dcmap.us", d.dcCounts.dcmap?.operational ?? null, d.dcCounts.dcmap?.construction ?? null, d.dcCounts.dcmap?.planned ?? null, d.dcCounts.dcmap?.paused ?? null, ""],
+                cells: [
+                  <a href="https://dcmap.us/" target="_blank" rel="noreferrer">dcmap.us</a>,
+                  d.dcCounts.dcmap?.operational.toLocaleString("en-US") ?? "—",
+                  d.dcCounts.dcmap?.construction.toLocaleString("en-US") ?? "—",
+                  d.dcCounts.dcmap?.planned.toLocaleString("en-US") ?? "—",
+                  d.dcCounts.dcmap?.paused.toLocaleString("en-US") ?? "—",
+                  <span className="faint">Facilities and announced projects</span>,
+                ],
+              },
+              {
+                key: "kadoa",
+                sort: ["Kadoa", d.dcCounts.kadoa?.operational ?? null, d.dcCounts.kadoa?.construction ?? null, null, null, ""],
+                cells: [
+                  <a href="https://www.kadoa.com/datacenter/report" target="_blank" rel="noreferrer">Kadoa</a>,
+                  d.dcCounts.kadoa?.operational.toLocaleString("en-US") ?? "—",
+                  d.dcCounts.kadoa?.construction.toLocaleString("en-US") ?? "—",
+                  "—",
+                  "—",
+                  <span className="faint">Sites with building permits only</span>,
+                ],
+              },
+            ]}
+          />
+          {dcCountRows.length >= 2 ? (
+            <TimeLinesChart
+              rows={dcCountRows}
+              keys={["Under construction (dcmap)", "Paused (dcmap)", "Under construction, permitted (Kadoa)"]}
+              unit="num"
+              dateLabel="Day of"
+              ranges={["3M", "6M", "1Y", "2Y"]}
+              defaultRange="1Y"
+              storageKey="dc:counts"
+            />
+          ) : (
+            <p className="sub" style={{ marginTop: 8 }}>
+              Neither tracker publishes history, so the dashboard saves their counts every day; the trend chart appears after the
+              second daily reading.
+            </p>
+          )}
+          <Explain id="dcCounts" />
         </div>
         <div className="card" style={{ marginBottom: 14 }}>
           <h3>How much of GDP growth comes from AI-related investment</h3>
