@@ -8,6 +8,7 @@ import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, 
 import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import softwareData from "@/data/bdc-software.json";
 import dcData from "@/data/datacenters.json";
+import usersData from "@/data/ai-users.json";
 import { creditStress, impliedDefault5y, latestCds } from "@/lib/credit-stress";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
@@ -37,6 +38,7 @@ const SECTIONS = [
   { id: "signals", label: "Signals" },
   ...TICKER_GROUPS.map((g) => ({ id: g.id, label: g.title.split(" (")[0] })),
   { id: "capex", label: "Capex vs revenue" },
+  { id: "users", label: "AI users" },
   { id: "circular", label: "Circular financing" },
   { id: "web", label: "AI money web" },
   { id: "spv", label: "SPV tracker" },
@@ -257,6 +259,44 @@ export default async function Page() {
   const elevated = v.gauges.filter((g) => g.status === "elevated").length;
   const statusColor = (s: string) => stressColor(s === "flashing" ? 100 : s === "elevated" ? 55 : 0);
   const ACTS = { 1: "Act 1 · The balloon inflates (valuation)", 2: "Act 2 · The pin goes in (rates)", 3: "Act 3 · The structure gives way (breadth & leverage)" } as const;
+
+  // Reported users per AI lab (curated; each figure dated when announced).
+  type UserSeries = {
+    id: string;
+    lab: string;
+    product: string;
+    metric: string;
+    label: string;
+    group: string;
+    sourceType?: string;
+    points: { date: string; value: number; source: string; note: string }[];
+  };
+  const userSeries = usersData.series as UserSeries[];
+  const userRows = (group: string) => {
+    const series = userSeries.filter((s) => s.group === group);
+    const dates = [...new Set(series.flatMap((s) => s.points.map((p) => p.date)))].sort();
+    return {
+      keys: series.filter((s) => s.points.length > 1).map((s) => s.label),
+      rows: dates.map((t) => ({ t, ...Object.fromEntries(series.map((s) => [s.label, s.points.find((p) => p.date === t)?.value ?? null])) })),
+    };
+  };
+  const usersMain = userRows("users");
+  const usersPaid = userRows("paid");
+  /** Latest figure vs the last one reported at least a year earlier. */
+  const userGrowth = (s: UserSeries) => {
+    const last = s.points[s.points.length - 1];
+    const cut = `${Number(last.date.slice(0, 4)) - 1}${last.date.slice(4)}`;
+    const base = [...s.points].reverse().find((p) => p.date <= cut);
+    return base ? { pct: (last.value / base.value - 1) * 100, from: base } : null;
+  };
+  const fmtUsers = (v: number) => (v >= 1000 ? `${+(v / 1000).toFixed(2)}B` : v >= 1 ? `${+v.toFixed(1)}M` : `${Math.round(v * 1000)}K`);
+  const usersLatest = (id: string) => {
+    const s = userSeries.find((x) => x.id === id);
+    return s ? { s, last: s.points[s.points.length - 1], g: userGrowth(s) } : null;
+  };
+  const usersChatgpt = usersLatest("chatgpt-wau");
+  const usersGemini = usersLatest("gemini-mau");
+  const usersMeta = usersLatest("meta-ai-mau");
 
   // US data center capacity: operating vs under construction (CBRE, semiannual).
   const dcEditions = dcData.editions as {
@@ -608,6 +648,83 @@ export default async function Page() {
               feed.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section id="users">
+        <h2>AI adoption: users per lab</h2>
+        <p className="blurb">
+          The demand side of the buildout. The capex only pays off if people and businesses keep adopting AI and, eventually, paying
+          for it. These are the figures each company announced (earnings calls, filings, executive statements), dated when
+          announced. Labs report different measures (weekly, monthly or daily users), so lines are only comparable within a
+          measure. Updated weekly by hand; last reviewed {usersData.updated}.
+        </p>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Reported users by assistant</h3>
+            <p className="sub">
+              {usersChatgpt && (
+                <>
+                  ChatGPT{" "}
+                  <span style={{ color: "var(--text)", fontWeight: 600 }}>{fmtUsers(usersChatgpt.last.value)}</span> weekly
+                  {usersChatgpt.g && ` (+${usersChatgpt.g.pct.toFixed(0)}% in a year)`}
+                </>
+              )}
+              {usersGemini && (
+                <>
+                  {" "}
+                  · Gemini <span style={{ color: "var(--text)", fontWeight: 600 }}>{fmtUsers(usersGemini.last.value)}</span>{" "}
+                  monthly{usersGemini.g && ` (+${usersGemini.g.pct.toFixed(0)}%)`}
+                </>
+              )}
+              {usersMeta && ` · Meta AI last disclosed ${fmtUsers(usersMeta.last.value)} monthly (${usersMeta.last.date.slice(0, 7)})`}
+            </p>
+            <TimeLinesChart rows={usersMain.rows} keys={usersMain.keys} unit="M" dateLabel="Reported" ranges={["1Y", "2Y", "All"]} defaultRange="All" dots storageKey="users:main" />
+            <Explain id="aiUsers" />
+          </div>
+          <div className="card">
+            <h3>Paying users and work seats</h3>
+            <p className="sub">Who pays: consumer subscriptions and business seats, the part of usage that turns into revenue</p>
+            <TimeLinesChart rows={usersPaid.rows} keys={usersPaid.keys} unit="M" dateLabel="Reported" ranges={["1Y", "2Y", "All"]} defaultRange="All" dots storageKey="users:paid" />
+            <Explain id="aiUsersPaid" />
+          </div>
+        </div>
+        <div className="card" style={{ marginTop: 14 }}>
+          <h3>Latest figure per lab</h3>
+          <p className="sub">Company-reported first; third-party estimates (Sensor Tower, Similarweb, QuestMobile) are marked. Hover a value for the exact wording.</p>
+          <SortableTable
+            storageKey="table:aiUsers"
+            columns={[
+              { label: "Lab" },
+              { label: "Product", align: "left" },
+              { label: "Measure", align: "left" },
+              { label: "Latest", firstDir: "desc" },
+              { label: "Reported", firstDir: "desc" },
+              { label: "1-yr growth", title: "Latest figure vs the last one reported at least a year earlier", firstDir: "desc" },
+              { label: "Source" },
+            ]}
+            rows={userSeries.map((s) => {
+              const last = s.points[s.points.length - 1];
+              const g = userGrowth(s);
+              const host = new URL(last.source).hostname.replace(/^www\./, "");
+              return {
+                key: s.id,
+                sort: [s.lab, s.product, s.metric, last.value, last.date, g?.pct ?? null, host],
+                cells: [
+                  s.lab,
+                  s.product,
+                  <span className={s.sourceType ? "faint" : undefined}>{s.metric}</span>,
+                  <span title={last.note}>{fmtUsers(last.value)}</span>,
+                  last.date.slice(0, 7),
+                  g ? <span title={`From ${fmtUsers(g.from.value)} on ${g.from.date}`}>+{g.pct.toFixed(0)}%</span> : "—",
+                  <a href={last.source} target="_blank" rel="noreferrer">
+                    {host}
+                  </a>,
+                ],
+              };
+            })}
+          />
+          <Explain id="aiUsersTable" />
         </div>
       </section>
 

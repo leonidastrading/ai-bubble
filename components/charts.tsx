@@ -591,6 +591,9 @@ export function MultiSeriesChart({
 }
 
 /** Several dated price series on a true time axis, with range picker and toggleable legend. */
+/** Millions as "450M" or "1.2B". */
+const millions = (v: number, digits = 2) => (v >= 1000 ? `${+(v / 1000).toFixed(digits)}B` : `${+v.toFixed(1)}M`);
+
 export function TimeLinesChart({
   rows,
   keys,
@@ -601,24 +604,27 @@ export function TimeLinesChart({
   dateLabel = "Week of",
   refs = [],
   yMax,
+  dots = false,
 }: {
   rows: Record<string, number | string | null>[];
   keys: string[];
   storageKey?: string;
   ranges?: RangeKey[];
   defaultRange?: RangeKey;
-  unit?: "$" | "pts" | "%" | "num" | "$B" | "MW";
+  unit?: "$" | "pts" | "%" | "num" | "$B" | "MW" | "M";
   dateLabel?: string;
   /** Dashed reference lines, e.g. normal and danger levels. */
   refs?: { y: number; label: string; tone?: "calm" | "watch" | "stress" }[];
   /** Clip the axis so one extreme spike doesn't flatten everything else. */
   yMax?: number;
+  /** Mark each data point, for sparse series such as figures reported a few times a year. */
+  dots?: boolean;
 }) {
   const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, defaultRange ?? ranges[ranges.length - 1], ranges);
   const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
   const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
   const fmt = (v: number) =>
-    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : unit === "MW" ? `${v.toLocaleString("en-US", { maximumFractionDigits: 0 })} MW` : v.toFixed(1);
+    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : unit === "MW" ? `${v.toLocaleString("en-US", { maximumFractionDigits: 0 })} MW` : unit === "M" ? millions(v) : v.toFixed(1);
   const suffix = unit === "$" ? "/hr" : "";
   return (
     <div>
@@ -634,7 +640,7 @@ export function TimeLinesChart({
               domain={["auto", yMax ?? "auto"]}
               allowDataOverflow={yMax != null}
               width={48}
-              tickFormatter={unit === "MW" ? (v: number) => `${+(v / 1000).toFixed(1)} GW` : fmt}
+              tickFormatter={unit === "MW" ? (v: number) => `${+(v / 1000).toFixed(1)} GW` : unit === "M" ? (v: number) => millions(v, 1) : fmt}
               {...axisProps}
             />
             {refs.map((r) => (
@@ -653,7 +659,8 @@ export function TimeLinesChart({
                     <div className="tt-date">
                       {dateLabel} {isoDay(Number(label))}
                     </div>
-                    {[...payload]
+                    {payload
+                      .filter((p) => p.value != null)
                       .sort((a, b) => Number(b.value) - Number(a.value))
                       .map((p) => (
                         <div className="tt-row" key={String(p.dataKey)}>
@@ -676,7 +683,7 @@ export function TimeLinesChart({
                   dataKey={k}
                   stroke={PALETTE[i % PALETTE.length]}
                   strokeWidth={1.8}
-                  dot={false}
+                  dot={dots ? { r: 2.5 } : false}
                   connectNulls
                   isAnimationActive={false}
                 />

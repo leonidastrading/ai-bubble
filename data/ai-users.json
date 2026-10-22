@@ -1,0 +1,567 @@
+{
+  "updated": "2026-10-22",
+  "notes": "Millions. Dates are when the figure was announced (day 01 = month only, as noted). Each series is one metric; weekly, monthly and daily users, paid seats and queries are never mixed. Most company figures are floors ('more than X'). Definitions differ: Gemini = app plus web, excluding Search; Meta AI = use across all Meta apps; Microsoft = all first-party Copilots; Grok includes use inside X. Third-party estimates are tagged sourceType third-party. Revenue is excluded.",
+  "series": [
+    {
+      "id": "chatgpt-wau",
+      "lab": "OpenAI",
+      "product": "ChatGPT",
+      "metric": "Weekly active users",
+      "label": "ChatGPT (weekly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2023-11-06",
+          "value": 100,
+          "source": "https://techcrunch.com/2023/11/06/openais-chatgpt-now-has-100-million-weekly-active-users/",
+          "note": "DevDay 2023, Altman"
+        },
+        {
+          "date": "2024-08-29",
+          "value": 200,
+          "source": "https://www.simonwillison.net/2024/Aug/31/openai-says-chatgpt-usage-has-doubled-since-last-year",
+          "note": "'More than 200M'; OpenAI statement to Axios, confirmed to The Verge"
+        },
+        {
+          "date": "2024-12-04",
+          "value": 300,
+          "source": "https://thewrap.com/openai-chatgpt-three-hundred-million-users",
+          "note": "Altman at NYT DealBook Summit"
+        },
+        {
+          "date": "2025-02-20",
+          "value": 400,
+          "source": "https://techcrunch.com/2025/02/20/openai-now-serves-400-million-users-every-week/",
+          "note": "OpenAI to CNBC"
+        },
+        {
+          "date": "2025-03-31",
+          "value": 500,
+          "source": "https://www.pymnts.com/artificial-intelligence-2/2025/openai-adds-200-million-weekly-users-in-4-months/",
+          "note": "'500M at the end of March', per Nick Turley (said Aug 2025)"
+        },
+        {
+          "date": "2025-08-04",
+          "value": 700,
+          "source": "https://the-decoder.com/chatgpt-is-set-to-reach-700-million-weekly-users-this-week/",
+          "note": "Nick Turley: 'on track to reach 700M WAU this week'"
+        },
+        {
+          "date": "2025-10-06",
+          "value": 800,
+          "source": "https://techcrunch.com/2025/10/06/sam-altman-says-chatgpt-has-hit-800m-weekly-active-users/",
+          "note": "DevDay 2025, Altman: 'more than 800 million'"
+        },
+        {
+          "date": "2026-02-27",
+          "value": 900,
+          "source": "https://techcrunch.com/2026/02/27/chatgpt-reaches-900m-weekly-active-users",
+          "note": "'More than 900M', announced with the $110B funding round"
+        },
+        {
+          "date": "2026-08-06",
+          "value": 1000,
+          "source": "https://stocktwits.com/news-articles/markets/equity/chat-gpt-tops-1-b-weekly-users/cZoBI0hRJJF",
+          "note": "'1 billion people every week', with the GPT-5.6 update; date per secondary sources"
+        },
+        {
+          "date": "2026-09-29",
+          "value": 1200,
+          "source": "https://www.engadget.com/2271985/openai-dev-day-live-blog-chatgpt-news/",
+          "note": "DevDay 2026, Altman; some recaps call it weekly users across all OpenAI products"
+        }
+      ]
+    },
+    {
+      "id": "gemini-mau",
+      "lab": "Google",
+      "product": "Gemini app",
+      "metric": "Monthly active users",
+      "label": "Gemini (monthly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2025-04-23",
+          "value": 350,
+          "source": "https://techcrunch.com/2025/04/23/google-gemini-has-350m-monthly-users-reveals-court-hearing/",
+          "note": "Internal data shown in antitrust court, as of March 2025 (about 90M in Oct 2024)"
+        },
+        {
+          "date": "2025-05-20",
+          "value": 400,
+          "source": "https://techcrunch.com/snippet/3009662/400-million-and-counting",
+          "note": "Pichai, I/O 2025: 'over 400 million'"
+        },
+        {
+          "date": "2025-07-23",
+          "value": 450,
+          "source": "https://blog.google/inside-google/message-ceo/alphabet-earnings-q2-2025/",
+          "note": "Q2 2025 earnings: 'more than 450 million'"
+        },
+        {
+          "date": "2025-10-29",
+          "value": 650,
+          "source": "https://9to5google.com/2025/10/29/gemini-app-650-million-users/",
+          "note": "Q3 2025 earnings: 'over 650 million'"
+        },
+        {
+          "date": "2026-02-04",
+          "value": 750,
+          "source": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000012/googexhibit991q42025.htm",
+          "note": "Q4 2025 earnings release: 'over 750 million'"
+        },
+        {
+          "date": "2026-05-19",
+          "value": 900,
+          "source": "https://blog.google/intl/en-in/company-news/technology/sundar-pichai-io-2026/",
+          "note": "Pichai, I/O 2026: 'surpassed 900 million'"
+        },
+        {
+          "date": "2026-07-22",
+          "value": 950,
+          "source": "https://www.sec.gov/Archives/edgar/data/0001652044/000165204426000066/googexhibit991q22026.htm",
+          "note": "Q2 2026 earnings; daily users 'tripling in the last year'"
+        },
+        {
+          "date": "2026-08-11",
+          "value": 1000,
+          "source": "https://blog.google/innovation-and-ai/products/gemini-app/one-billion-monthly-users/",
+          "note": "'More than 1 billion people using the Gemini app every month'"
+        }
+      ]
+    },
+    {
+      "id": "meta-ai-mau",
+      "lab": "Meta",
+      "product": "Meta AI",
+      "metric": "Monthly active users",
+      "label": "Meta AI (monthly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2024-09-25",
+          "value": 500,
+          "source": "https://techcrunch.com/2024/09/25/mark-zuckerberg-says-meta-ai-has-nearly-500-million-users",
+          "note": "'Nearly' 500M, Zuckerberg at Connect 2024"
+        },
+        {
+          "date": "2024-12-06",
+          "value": 600,
+          "source": "https://techcompetition.netchoice.org/?p=639",
+          "note": "'Nearly' 600M, Zuckerberg (Llama 3.3 release)"
+        },
+        {
+          "date": "2025-01-29",
+          "value": 700,
+          "source": "https://s21.q4cdn.com/399680738/files/doc_financials/2024/q4/META-Q4-2024-Earnings-Call-Transcript.pdf",
+          "note": "Q4 2024 call: 'more than 700 million monthly actives'"
+        },
+        {
+          "date": "2025-05-28",
+          "value": 1000,
+          "source": "https://techcrunch.com/2025/05/29/meta-ai-now-has-1b-monthly-active-users/",
+          "note": "Zuckerberg at annual shareholder meeting"
+        },
+        {
+          "date": "2025-10-29",
+          "value": 1000,
+          "source": "https://s21.q4cdn.com/399680738/files/doc_financials/2025/q3/META-Q3-2025-Earnings-Call-Transcript.pdf",
+          "note": "Q3 2025 call: 'more than a billion monthly actives'. Last figure Meta gave; none in the Q4 2025 or 2026 calls"
+        }
+      ]
+    },
+    {
+      "id": "copilot-family-mau",
+      "lab": "Microsoft",
+      "product": "Copilot family (work + consumer)",
+      "metric": "Monthly active users",
+      "label": "Microsoft Copilots (monthly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2025-07-30",
+          "value": 100,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2025/earnings-fy-2025-q4",
+          "note": "Nadella: 'surpassed 100 million monthly active users across commercial and consumer'"
+        },
+        {
+          "date": "2025-10-29",
+          "value": 150,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q1",
+          "note": "Nadella: 'surpassed 150 million MAU'. Not updated since"
+        }
+      ]
+    },
+    {
+      "id": "grok-mau",
+      "lab": "xAI",
+      "product": "Grok",
+      "metric": "Monthly active users",
+      "label": "Grok (monthly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2025-09-19",
+          "value": 64,
+          "source": "https://the-decoder.com/musks-xai-reports-64-million-monthly-grok-users-far-behind-chatgpt/",
+          "note": "xAI figure reported by the NYT; not a formal disclosure"
+        },
+        {
+          "date": "2026-05-20",
+          "value": 117,
+          "source": "https://socialmediatoday.com/news/spacex-filing-provides-insight-into-x-grok-and-xai/820945/",
+          "note": "SpaceX S-1, as of March 2026; counts Grok use inside X. Same filing: about 1.9M SuperGrok subscribers"
+        }
+      ]
+    },
+    {
+      "id": "qwen-mau",
+      "lab": "Alibaba",
+      "product": "Qwen app",
+      "metric": "Monthly active users",
+      "label": "Qwen (monthly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2026-03-20",
+          "value": 300,
+          "source": "https://technode.com/2026/03/20/alibaba-reports-36-cloud-revenue-growth-highlights-ai-momentum-in-december-quarter/",
+          "note": "Alibaba results: 'surpassed 300M MAU across all platforms' as of Feb 2026"
+        }
+      ]
+    },
+    {
+      "id": "google-ai-mode-mau",
+      "lab": "Google",
+      "product": "AI Mode in Search",
+      "metric": "Monthly active users",
+      "label": "Google AI Mode (monthly)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2025-07-23",
+          "value": 100,
+          "source": "https://blog.google/inside-google/message-ceo/alphabet-earnings-q2-2025/",
+          "note": "'Over 100M MAU in the U.S. and India'"
+        },
+        {
+          "date": "2026-05-19",
+          "value": 1000,
+          "source": "https://blog.google/intl/en-in/company-news/technology/sundar-pichai-io-2026/",
+          "note": "'Surpassed 1 billion' MAU; built into Search, so not comparable to a standalone app"
+        }
+      ]
+    },
+    {
+      "id": "chatgpt-consumer-subs",
+      "lab": "OpenAI",
+      "product": "ChatGPT Plus/Pro",
+      "metric": "Paying consumer subscribers",
+      "label": "ChatGPT paid subscribers",
+      "group": "paid",
+      "points": [
+        {
+          "date": "2025-04-02",
+          "value": 20,
+          "source": "https://finance.yahoo.com/news/chatgpt-crosses-20m-paid-users-140519166.html",
+          "note": "'Surpassed 20M, up from 15.5M at end of 2024' (The Information, OpenAI figures)"
+        },
+        {
+          "date": "2026-02-27",
+          "value": 50,
+          "source": "https://9to5mac.com/2026/02/27/chatgpt-approaching-1-billion-weekly-active-users/",
+          "note": "'More than 50M consumer subscribers' (funding announcement)"
+        }
+      ]
+    },
+    {
+      "id": "chatgpt-business-users",
+      "lab": "OpenAI",
+      "product": "ChatGPT Enterprise/Team/Edu",
+      "metric": "Paying business users",
+      "label": "ChatGPT business seats",
+      "group": "paid",
+      "points": [
+        {
+          "date": "2024-04-01",
+          "value": 0.6,
+          "source": "https://theprint.in/tech/openai-hits-more-than-1-million-paid-business-users/2255190/",
+          "note": "About 600,000 in April 2024 (month only)"
+        },
+        {
+          "date": "2024-09-05",
+          "value": 1,
+          "source": "https://theprint.in/tech/openai-hits-more-than-1-million-paid-business-users/2255190/",
+          "note": "'More than 1M' (Reuters)"
+        },
+        {
+          "date": "2025-02-20",
+          "value": 2,
+          "source": "https://techcrunch.com/2025/02/20/openai-now-serves-400-million-users-every-week/",
+          "note": "'2 million paying enterprise users'"
+        },
+        {
+          "date": "2025-08-04",
+          "value": 5,
+          "source": "https://the-decoder.com/chatgpt-is-set-to-reach-700-million-weekly-users-this-week/",
+          "note": "5M paying business users (CNBC, as cited)"
+        },
+        {
+          "date": "2025-11-05",
+          "value": 7,
+          "source": "https://www.eweek.com/news/openai-one-million-business-customers/",
+          "note": "'Surpassing 7 million' seats; 1M business customers"
+        },
+        {
+          "date": "2026-02-27",
+          "value": 9,
+          "source": "https://fintechnews.ch/?p=82279",
+          "note": "'More than nine million paying business users'"
+        }
+      ]
+    },
+    {
+      "id": "m365-copilot-paid-seats",
+      "lab": "Microsoft",
+      "product": "Microsoft 365 Copilot",
+      "metric": "Paid seats",
+      "label": "M365 Copilot paid seats",
+      "group": "paid",
+      "points": [
+        {
+          "date": "2026-01-28",
+          "value": 15,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q2",
+          "note": "'15 million paid Microsoft 365 Copilot seats'"
+        },
+        {
+          "date": "2026-04-29",
+          "value": 20,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q3",
+          "note": "'Over 20 million'"
+        },
+        {
+          "date": "2026-07-29",
+          "value": 30,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4",
+          "note": "'Over 30 million'; net seat adds more than doubled quarter on quarter"
+        }
+      ]
+    },
+    {
+      "id": "github-copilot-users",
+      "lab": "Microsoft",
+      "product": "GitHub Copilot",
+      "metric": "Users (including free)",
+      "label": "GitHub Copilot users",
+      "group": "paid",
+      "points": [
+        {
+          "date": "2025-07-30",
+          "value": 20,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2025/earnings-fy-2025-q4",
+          "note": "'20 million GitHub Copilot users'"
+        },
+        {
+          "date": "2025-10-29",
+          "value": 26,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q1",
+          "note": "'Over 26 million users'"
+        },
+        {
+          "date": "2026-07-29",
+          "value": 50,
+          "source": "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4",
+          "note": "'GitHub Copilot now has 50 million users'; 4.7M paid at FY26 Q2"
+        }
+      ]
+    },
+    {
+      "id": "claude-business-customers",
+      "lab": "Anthropic",
+      "product": "Claude",
+      "metric": "Business customers (organizations)",
+      "label": "Claude business customers",
+      "group": "paid",
+      "points": [
+        {
+          "date": "2025-09-02",
+          "value": 0.3,
+          "source": "https://www.anthropic.com/news/anthropic-raises-series-f-at-usd183b-post-money-valuation",
+          "note": "'Over 300,000 business customers'. Anthropic publishes no user counts"
+        }
+      ]
+    },
+    {
+      "id": "perplexity-queries-monthly",
+      "lab": "Perplexity",
+      "product": "Perplexity",
+      "metric": "Queries per month",
+      "label": "Perplexity queries/month",
+      "group": "activity",
+      "points": [
+        {
+          "date": "2024-07-01",
+          "value": 250,
+          "source": "https://techcrunch.com/2024/10/25/perplexity-says-its-now-serving-100m-search-queries-a-week/",
+          "note": "250M queries in July 2024 (month only)"
+        },
+        {
+          "date": "2025-06-05",
+          "value": 780,
+          "source": "https://techcrunch.com/2025/06/05/perplexity-received-780-million-queries-last-month-ceo-says",
+          "note": "Srinivas: 780M queries in May 2025, over 20% month-on-month growth"
+        }
+      ]
+    },
+    {
+      "id": "chatgpt-mau-3p",
+      "lab": "OpenAI",
+      "product": "ChatGPT",
+      "metric": "Monthly users (Sensor Tower estimate)",
+      "label": "ChatGPT (Sensor Tower)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-06-16",
+          "value": 1100,
+          "source": "https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/",
+          "note": "Sensor Tower State of AI 2026; app plus web estimate"
+        }
+      ]
+    },
+    {
+      "id": "gemini-mau-3p",
+      "lab": "Google",
+      "product": "Gemini",
+      "metric": "Monthly users (Sensor Tower estimate)",
+      "label": "Gemini (Sensor Tower)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-06-16",
+          "value": 662,
+          "source": "https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/",
+          "note": "Sensor Tower State of AI 2026; app plus web estimate"
+        }
+      ]
+    },
+    {
+      "id": "claude-mau-3p",
+      "lab": "Anthropic",
+      "product": "Claude",
+      "metric": "Monthly users (Sensor Tower estimate)",
+      "label": "Claude (Sensor Tower)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-06-16",
+          "value": 245,
+          "source": "https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/",
+          "note": "Sensor Tower State of AI 2026; app plus web estimate"
+        }
+      ]
+    },
+    {
+      "id": "claude-app-dau-3p",
+      "lab": "Anthropic",
+      "product": "Claude mobile apps",
+      "metric": "Daily users (Similarweb estimate)",
+      "label": "Claude app daily (Similarweb)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-01-01",
+          "value": 4,
+          "source": "https://techcrunch.com/2026/03/06/claudes-consumer-growth-surge-continues-after-pentagon-deal-debacle/",
+          "note": "About 4M in early January 2026 (month only)"
+        },
+        {
+          "date": "2026-02-01",
+          "value": 5,
+          "source": "https://techcrunch.com/2026/03/06/claudes-consumer-growth-surge-continues-after-pentagon-deal-debacle/",
+          "note": "Start of February 2026 (month only)"
+        },
+        {
+          "date": "2026-03-02",
+          "value": 11.3,
+          "source": "https://techcrunch.com/2026/03/06/claudes-consumer-growth-surge-continues-after-pentagon-deal-debacle/",
+          "note": "Mobile daily users on Mar 2, 2026 (ChatGPT the same day: 250.5M). Anthropic said daily users 'more than tripled' since the start of 2026"
+        }
+      ]
+    },
+    {
+      "id": "doubao-mau-china-3p",
+      "lab": "ByteDance",
+      "product": "Doubao",
+      "metric": "Monthly users in China (QuestMobile)",
+      "label": "Doubao China (QuestMobile)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-04-21",
+          "value": 345,
+          "source": "https://chinabizinsider.com/chinas-ai-app-race-enters-new-phase-douyins-doubao-leads-with-345m-users/",
+          "note": "March 2026 data."
+        },
+        {
+          "date": "2026-07-14",
+          "value": 382,
+          "source": "https://technode.com/2026/07/14/questmobile-chinas-ai-native-apps-reach-499-million-monthly-active-users/",
+          "note": "May 2026 data."
+        }
+      ]
+    },
+    {
+      "id": "deepseek-mau-china-3p",
+      "lab": "DeepSeek",
+      "product": "DeepSeek",
+      "metric": "Monthly users in China (QuestMobile)",
+      "label": "DeepSeek China (QuestMobile)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-04-21",
+          "value": 127,
+          "source": "https://chinabizinsider.com/chinas-ai-app-race-enters-new-phase-douyins-doubao-leads-with-345m-users/",
+          "note": "March 2026 data. DeepSeek publishes no user figures."
+        },
+        {
+          "date": "2026-07-14",
+          "value": 130,
+          "source": "https://technode.com/2026/07/14/questmobile-chinas-ai-native-apps-reach-499-million-monthly-active-users/",
+          "note": "May 2026 data. DeepSeek publishes no user figures."
+        }
+      ]
+    },
+    {
+      "id": "qwen-mau-china-3p",
+      "lab": "Alibaba",
+      "product": "Qwen",
+      "metric": "Monthly users in China (QuestMobile)",
+      "label": "Qwen China (QuestMobile)",
+      "group": "3p",
+      "sourceType": "third-party",
+      "points": [
+        {
+          "date": "2026-04-21",
+          "value": 166,
+          "source": "https://chinabizinsider.com/chinas-ai-app-race-enters-new-phase-douyins-doubao-leads-with-345m-users/",
+          "note": "March 2026 data. China app only; Alibaba's own 300M counts all platforms."
+        },
+        {
+          "date": "2026-07-14",
+          "value": 167,
+          "source": "https://technode.com/2026/07/14/questmobile-chinas-ai-native-apps-reach-499-million-monthly-active-users/",
+          "note": "May 2026 data. China app only; Alibaba's own 300M counts all platforms."
+        }
+      ]
+    }
+  ]
+}

@@ -67,6 +67,21 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "The dot-com bust was mostly an equity loss: companies had raised money by selling stock, so banks came through. The housing bust was a debt loss: mortgages sat on bank and investor balance sheets, which is why it became a banking crisis. The AI buildout started on cash and equity and is now moving to debt.",
     watch: "Corporate debt and bank business loans rising toward or past their 2000 and 2008 peaks while AI capex keeps growing. That would mean an AI bust looks more like 2008 than 2000 for lenders.",
   },
+  aiUsers: {
+    what: "Users each AI lab says its assistant has, dated when announced: ChatGPT weekly active users, and monthly users for Gemini, Meta AI, Microsoft's Copilots, Grok and Qwen. Google AI Mode is built into Search, so its count reflects Search's reach more than demand for a standalone assistant.",
+    why: "The bull case for the buildout rests on adoption continuing to compound. Fast, still-compounding growth (see the 1-year growth column below) is the strongest counter-argument to the bubble view. When it slows while capex keeps rising, the gap has to be funded by debt and hope.",
+    watch: "Growth rates falling quarter after quarter; a company that used to announce a figure going quiet (Meta has given no Meta AI count since October 2025); new figures redefined to a broader measure, such as all products instead of one app.",
+  },
+  aiUsersPaid: {
+    what: "Paid consumer subscriptions and business seats: ChatGPT Plus/Pro subscribers, ChatGPT business seats, Microsoft 365 Copilot paid seats and GitHub Copilot users (which include free users).",
+    why: "Free users cost money to serve; paid ones fund the buildout. About 50M paying ChatGPT subscribers against roughly a billion weekly users is a 5% conversion rate, so revenue depends on converting more users, raising prices or adding ads.",
+    watch: "Paid seats flattening while free usage keeps climbing, or price cuts to win seats: usage that isn't turning into revenue.",
+  },
+  aiUsersTable: {
+    what: "The most recent figure for every series, with its growth against the last figure reported at least a year earlier and a link to the source. Third-party estimates (app and web panels) are shown in grey.",
+    why: "Company figures are mostly floors ('more than X') and are announced when they look good, so the gaps between announcements carry information too. Third-party panels fill in labs that publish nothing (Anthropic, DeepSeek) but can disagree widely with each other.",
+    watch: "A stale 'Reported' date on a lab that used to report every quarter.",
+  },
   dcCounts: {
     what: "Number of US data center facilities by stage from two public trackers: dcmap.us (facilities plus announced projects, with reported power) and Kadoa (only sites with building permits). Saved daily, since the trackers keep no history.",
     why: "Counts show how widespread the buildout is; capacity (the CBRE chart and the GW figures) shows how big. A single AI campus can be larger than a hundred older facilities, so read both. Paused projects are the first place a pullback would show.",
