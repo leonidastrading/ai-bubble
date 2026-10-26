@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-26",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -42,13 +42,13 @@
       "id": "GOOGL",
       "name": "Alphabet",
       "ticker": "GOOGL",
-      "shares": 12100000000
+      "shares": 12230000000
     },
     {
       "id": "META",
       "name": "Meta",
       "ticker": "META",
-      "shares": 2520000000
+      "shares": 2556200000
     },
     {
       "id": "ORCL",
@@ -84,19 +84,19 @@
       "id": "NBIS",
       "name": "Nebius",
       "ticker": "NBIS",
-      "shares": 250000000
+      "shares": 271900000
     },
     {
       "id": "IREN",
       "name": "IREN",
       "ticker": "IREN",
-      "shares": 330000000
+      "shares": 394100000
     },
     {
       "id": "SPCX",
       "name": "SpaceX / xAI",
       "ticker": "SPCX",
-      "shares": 13200000000,
+      "shares": 13581100000,
       "private": {
         "valueB": 1250,
         "asOf": "2026-02-02",
@@ -129,14 +129,23 @@
       "id": "MISTRAL",
       "name": "Mistral",
       "private": {
-        "valueB": 14,
-        "asOf": "2025-09-09",
-        "source": "https://tech.eu/2025/09/09/mistral-bags-1-7bn-funding-round-as-asml-takes-significant-stake/"
+        "valueB": 24.5,
+        "asOf": "2026-09-08",
+        "source": "https://www.orrick.com/en/News/2026/09/Orrick-Advises-Mistral-in-its-3B-Series-D-at-21B-Post-Money-Valuation"
       }
     },
     {
       "id": "VOLTA",
       "name": "Volta",
+      "private": {
+        "valueB": null,
+        "asOf": null,
+        "source": null
+      }
+    },
+    {
+      "id": "LAMBDA",
+      "name": "Lambda",
       "private": {
         "valueB": null,
         "asOf": null,
@@ -331,9 +340,9 @@
       "type": "services",
       "amountB": 44.6,
       "date": "2026-08-26",
-      "status": "reported",
-      "label": "Up to $44.6B for 460 MW at Nscale's Monarch campus, West Virginia (signed Aug 25); unfunded, as Nscale had not secured financing per its Sept 18 IPO filing",
-      "source": "https://cryptobriefing.com/nscale-103-billion-data-center-contracts-ipo/"
+      "status": "announced",
+      "label": "Up to $44.6B into 2033 for 460 MW at Nscale's Monarch campus, West Virginia (signed Aug 25; confirmed in Anthropic's S-1); Nscale must use best efforts to obtain financing",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
     },
     {
       "from": "NSCALE",
@@ -382,8 +391,8 @@
       "amountB": 40,
       "date": "2026-01-06",
       "status": "reported",
-      "label": "Colossus GPU clusters; ~$40B Apollo-led debt package (in talks, ~$30B bonds + $10B loans) to fund a new Nvidia chip order",
-      "source": "https://www.thestar.com.my/tech/tech-news/2026/10/07/spacex-seeks-40-billion-to-buy-nvidia-chips-ft-reports"
+      "label": "Colossus GPU clusters; ~$40B Apollo-led package (FT: ~$30B bonds + $10B loans) to fund a new Nvidia chip order. On Oct 24 SpaceX signed a binding commitment for a ~$40B GPU finance lease with an Apollo-managed lessor (8-K)",
+      "source": "https://investinglive.com/stocks/spacex-seeks-40-billion-in-debt-led-by-apollo-to-fund-nvidia-chip-order-ft-says/"
     },
     {
       "from": "NVDA",
@@ -409,11 +418,11 @@
       "from": "ANTHROPIC",
       "to": "MSFT",
       "type": "services",
-      "amountB": 30,
+      "amountB": 44.9,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "$30B of Azure compute",
-      "source": "https://www.cnbc.com/2025/11/18/anthropic-ai-azure-microsoft-nvidia.html"
+      "label": "At least $44.9B of Azure compute, Nov 2026 to May 2033 (S-1; was $30B in Nov 2025)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -439,11 +448,11 @@
       "from": "ANTHROPIC",
       "to": "AMZN",
       "type": "services",
-      "amountB": null,
+      "amountB": 110,
       "date": "2024-11-22",
       "status": "announced",
-      "label": "AWS as primary training partner (Trainium)",
-      "source": "https://sacra.com/c/anthropic/"
+      "label": "AWS as primary training partner (Trainium); at least $110B of commitments, May 2026 to Apr 2036 (S-1)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
     },
     {
       "from": "GOOGL",
@@ -459,21 +468,21 @@
       "from": "ANTHROPIC",
       "to": "GOOGL",
       "type": "services",
-      "amountB": null,
+      "amountB": 114.5,
       "date": "2025-10-23",
       "status": "announced",
-      "label": "Up to 1M TPUs, tens of billions of dollars; more TPU capacity via Broadcom from 2027",
-      "source": "https://www.cloudcomputing-news.net/news/anthropic-ai-infrastructure-518-billion/"
+      "label": "At least $114.5B of Google Cloud commitments, Apr 2026 to Jul 2033, owed regardless of usage (S-1); up to 1M TPUs",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
     },
     {
       "from": "ANTHROPIC",
       "to": "AVGO",
       "type": "hardware",
-      "amountB": 161,
+      "amountB": 161.2,
       "date": "2026-09-01",
-      "status": "reported",
-      "label": "$161B of equipment leases, per draft IPO prospectus",
-      "source": "https://ai-circular-economy.com/"
+      "status": "announced",
+      "label": "~$161.2B rent under five-year master equipment leases for Google TPU hardware (S-1); Broadcom has assigned part of one lease to a third party",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -554,6 +563,76 @@
       "status": "announced",
       "label": "18,000 Grace Blackwell chips for Mistral Compute",
       "source": "https://www.fierce-network.com/cloud/fierce-networks-encyclopedia-ai-deals"
+    },
+    {
+      "from": "AVGO",
+      "to": "ANTHROPIC",
+      "type": "credit",
+      "amountB": 42,
+      "date": "2026-10-01",
+      "status": "announced",
+      "label": "Up to $42B of convertible notes to finance about a third of Anthropic's $125.2B TPU lease; convertible into Anthropic shares; none sold before the IPO (S-1)",
+      "source": "https://www.thestar.com.my/tech/tech-news/2026/10/01/exclusive-broadcom-to-lend-anthropic-up-to-42-billion-to-lease-its-chips-filing-says"
+    },
+    {
+      "from": "ANTHROPIC",
+      "to": "SPCX",
+      "type": "services",
+      "amountB": 120.5,
+      "date": "2026-05-06",
+      "status": "announced",
+      "label": "Up to $120.5B into 2029 for Nvidia GPU compute (Colossus 1, then Colossus 2); either side can exit on 90 days' notice",
+      "source": "https://cryptobriefing.com/anthropic-spacex-120-billion-compute-deal/"
+    },
+    {
+      "from": "ANTHROPIC",
+      "to": "LAMBDA",
+      "type": "services",
+      "amountB": 41.3,
+      "date": "2026-08-31",
+      "status": "announced",
+      "label": "~$41.3B into 2034 across three agreements (May, June, Aug 2026) for Nvidia GPU capacity; the ~$35B August deal is for a Nueces County, Texas site (S-1)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+    },
+    {
+      "from": "AMD",
+      "to": "ANTHROPIC",
+      "type": "investment",
+      "amountB": 5,
+      "date": "2026-07-22",
+      "status": "announced",
+      "label": "Up to $5B strategic equity investment",
+      "source": "https://ir.amd.com/news-events/press-releases/detail/1292"
+    },
+    {
+      "from": "ANTHROPIC",
+      "to": "AMD",
+      "type": "hardware",
+      "amountB": 20,
+      "date": "2026-07-22",
+      "status": "announced",
+      "label": "Up to 2 GW of MI450 GPUs in Helios racks from H1 2027; S-1 expects more than $20B",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+    },
+    {
+      "from": "META",
+      "to": "NBIS",
+      "type": "services",
+      "amountB": 27,
+      "date": "2026-03-16",
+      "status": "announced",
+      "label": "Up to $27B over five years ($12B dedicated Vera Rubin capacity + up to $15B from upcoming clusters), from early 2027",
+      "source": "https://thenextweb.com/news/meta-nebius-27-billion-ai-infrastructure-deal"
+    },
+    {
+      "from": "META",
+      "to": "CRWV",
+      "type": "services",
+      "amountB": 21,
+      "date": "2026-04-09",
+      "status": "announced",
+      "label": "Expanded ~$21B agreement for capacity through Dec 2032, including early Vera Rubin deployments",
+      "source": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000154/ex991.htm"
     }
   ]
 }

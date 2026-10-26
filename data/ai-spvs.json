@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-26",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -30,13 +30,23 @@
       "terms": "Meta leases all facilities on an initial four-year term with extension options; Meta's residual value guarantee covers the first 16 years if a lease isn't renewed or is terminated",
       "date": "2025-10-22",
       "status": "closed",
-      "stress": null,
+      "stress": {
+        "price": 91,
+        "asOf": "2026-10-07",
+        "note": "Hyperion bonds (6.581% notes due 2049) fell to a record low near 91 cents",
+        "source": "https://www.tokenpost.com/news/technology/27470"
+      },
       "source": "https://www.bisnow.com/national/news/data-center-capital-markets/meta-pushes-its-largest-data-center-project-off-its-books-with-27b-joint-venture-131490",
       "events": [
         {
           "date": "2025-10-22",
           "text": "PIMCO-issued investment-grade bonds ($27B) backed by project assets; Blue Owl ~$7B equity for 80% of the JV",
           "source": "https://www.bisnow.com/national/news/data-center-capital-markets/meta-pushes-its-largest-data-center-project-off-its-books-with-27b-joint-venture-131490"
+        },
+        {
+          "date": "2026-10-07",
+          "text": "Bonds hit a record low near 91 cents on the dollar",
+          "source": "https://www.tokenpost.com/news/technology/27470"
         }
       ]
     },
@@ -365,17 +375,30 @@
         }
       ],
       "lenders": [
+        "Morgan Stanley",
+        "MUFG",
         "Term loan B investors"
       ],
       "debtB": 0.926,
       "equityB": null,
-      "rating": null,
-      "terms": "Asset-backed SPV funding GPUs for an investment-grade customer; amortises with contracted cash flows and hardware life",
+      "rating": "Baa2 (Moody's)",
+      "terms": "Asset-backed SPV funding GPUs for an investment-grade customer; fully amortizing, matures Dec 31, 2030; issued at 99.5",
       "date": "2026-09-22",
       "status": "closed",
       "stress": null,
       "source": "https://www.storagenewsletter.com/2026/09/22/lambda-closes-926-million-senior-secured-term-loan-b-facility-backing-gpu-deployment-for-an-investment-grade-customer/",
-      "events": []
+      "events": [
+        {
+          "date": "2026-08-27",
+          "text": "Closed after pricing on Aug 12 at SOFR + 3.00% and 99.5 (Moody's Baa2)",
+          "source": "https://lambda.ai/blog/lambda-closes-926-million-senior-secured-term-loan-b-facility"
+        }
+      ],
+      "pricing": {
+        "spreadBps": 300,
+        "note": "SOFR + 3.00% at 99.5; Baa2",
+        "source": "https://lambda.ai/blog/lambda-closes-926-million-senior-secured-term-loan-b-facility"
+      }
     },
     {
       "id": "volta-tydal",
@@ -398,7 +421,7 @@
       "debtB": 5.0,
       "equityB": null,
       "rating": "Unrated",
-      "terms": "$1.3B first-lien term loan C plus a $3.7B term loan backed by GPUs, six years; SOFR + 6.25–6.50% at 97–98 cents (about 11–11.75% yield); no corporate guarantee. JPMorgan and Goldman underwrote only the $1.3B term loan C; the $3.7B GPU loan (about 36,000 Nvidia GPUs) is offered on a best-efforts basis. Funds GPUs and a letter of credit for the data-center lease. Anthropic has a reported six-year, ~$10B compute contract at the site",
+      "terms": "$1.3B first-lien term loan C plus a ~$3.7B term loan backed by GPUs, six years; priced at SOFR + 6.50% and 95 cents (borrowing cost above 11%), below the 97–98 cents marketed; no corporate guarantee. JPMorgan and Goldman underwrote only the $1.3B term loan C; the GPU loan (about 36,000 Nvidia GPUs) was sold best-efforts. Two-year non-call and a rate step-down if Anthropic gets an investment-grade rating. Funds GPUs and a letter of credit for the data-center lease. Anthropic has a reported six-year, ~$10B compute contract at the site",
       "date": "2026-10-05",
       "status": "raising",
       "stress": null,
@@ -423,11 +446,17 @@
           "date": "2026-10-15",
           "text": "Missed its Oct 14 pricing deadline; not yet priced as investors asked for further changes, though a source called it oversubscribed",
           "source": "https://octus.com/?p=46338"
+        },
+        {
+          "date": "2026-10-16",
+          "text": "Priced at 95 cents and SOFR + 6.50%, the wide end of talk, with borrowing costs above 11%; the GPU tranche finished at about $3.7B. Closing/allocation not yet reported",
+          "source": "https://www.tokenpost.com/news/business/33175"
         }
       ],
       "pricing": {
-        "spreadBps": 637.5,
-        "note": "SOFR + 6.25–6.50% at 97–98 cents (marketed)"
+        "spreadBps": 650,
+        "note": "SOFR + 6.50% at 95 cents (marketed at 6.25–6.50% and 97–98 cents)",
+        "source": "https://www.tokenpost.com/news/business/33175"
       }
     },
     {
@@ -451,7 +480,7 @@
       "debtB": 0.356,
       "equityB": null,
       "rating": null,
-      "terms": "Senior secured facility backed by GPUs and their cash flows; SharonAI (NASDAQ: SHAZ) has a June 2026 agreement with Nvidia for a 72 MW AI factory of up to 40,000 GB300 GPUs with revenue sharing and credit support. Rate not confirmed in a source we could open",
+      "terms": "Senior secured facility through an SPV, backed by GPUs and their cash flows; 9.95% fixed rate before fees; SharonAI's first committed SPV debt facility. SharonAI (NASDAQ: SHAZ) has a June 2026 agreement with Nvidia for a 72 MW AI factory of up to 40,000 GB300 GPUs with revenue sharing and credit support",
       "date": "2026-10-06",
       "status": "closed",
       "stress": null,
@@ -461,8 +490,121 @@
           "date": "2026-10-06",
           "text": "US$356M GPU-backed facility signed; Goldman Sachs among lenders (reported)",
           "source": "https://thetechcapital.com/sharon-ai-secures-356-million-gpu-backed-debt-facility/"
+        },
+        {
+          "date": "2026-10-01",
+          "text": "Terms reported: 9.95% fixed rate before fees; lenders include Goldman Sachs, Australian and Asian investors and private credit funds",
+          "source": "https://www.diariobitcoin.com/tecnologia/sharon-ai-obtiene-usd-356-millones-respaldados-por-gpu-para-ampliar-sus-centros-de-computo/"
         }
       ]
+    },
+    {
+      "id": "anthropic-tpu-lease",
+      "name": "Anthropic TPU lease financing (Broadcom-backed)",
+      "project": "Google TPU hardware leased to Anthropic under five-year master equipment leases",
+      "type": "gpu",
+      "tenants": [
+        "Anthropic"
+      ],
+      "equity": [],
+      "lenders": [
+        "Bank of America",
+        "Citigroup",
+        "Morgan Stanley",
+        "Blackstone"
+      ],
+      "debtB": 60,
+      "equityB": null,
+      "rating": null,
+      "terms": "SPV buys the chips and leases them to Anthropic; $42B Class A senior secured tranche (banks) with a partial residual value guarantee from Broadcom (A-), and an $18B Class B junior tranche led by Blackstone ($9B of its own money). Covers roughly half of the $125.2B five-year TPU lease; payments start on delivery. Separate from Broadcom's up-to-$42B convertible note facility to Anthropic",
+      "date": "2026-10-02",
+      "status": "raising",
+      "stress": null,
+      "source": "https://www.techtimes.com/articles/328625/20261006/broadcom-anthropics-chip-supplier-lender-debt-guarantor-60-billion-syndication-begins.htm",
+      "events": [
+        {
+          "date": "2026-10-02",
+          "text": "Bloomberg: banks begin syndicating the $60B package; Blackstone leads the $18B junior tranche",
+          "source": "https://cryptobriefing.com/wall-street-60-billion-anthropic-broadcom-deal/"
+        }
+      ]
+    },
+    {
+      "id": "spacex-apollo-gpu",
+      "name": "SpaceX GPU master finance lease (Apollo)",
+      "project": "GPU pods for SpaceX/xAI data centers",
+      "type": "gpu",
+      "tenants": [
+        "SpaceX"
+      ],
+      "equity": [
+        {
+          "name": "Apollo",
+          "share": null
+        }
+      ],
+      "lenders": [
+        "Apollo",
+        "PIMCO (in talks, FT)"
+      ],
+      "debtB": 40,
+      "equityB": null,
+      "rating": null,
+      "terms": "Apollo-managed lessor buys GPU pods and leases them to SpaceX in tranches of about five to five and a quarter years; quarterly rent of 1/20 of financed cost plus a fixed rate set at pricing; ~$40B aggregate principal; expected to close before year-end, with leases starting in H1 2027 as GPUs are delivered. FT reported the package as ~$30B of investment-grade bonds plus ~$10B of loans",
+      "date": "2026-10-24",
+      "status": "raising",
+      "stress": null,
+      "source": "https://www.sec.gov/Archives/edgar/data/1181412/000110465926118614/tm2628247d1_8k.htm",
+      "events": [
+        {
+          "date": "2026-10-06",
+          "text": "FT: SpaceX seeks ~$40B led by Apollo (~$10B bank loans, ~$30B investment-grade debt) to buy Nvidia chips; PIMCO among lenders in talks",
+          "source": "https://investinglive.com/stocks/spacex-seeks-40-billion-in-debt-led-by-apollo-to-fund-nvidia-chip-order-ft-says/"
+        },
+        {
+          "date": "2026-10-24",
+          "text": "SpaceX signs a binding commitment letter for a ~$40B master finance lease with an Apollo-managed lessor (8-K filed Oct 26)",
+          "source": "https://www.sec.gov/Archives/edgar/data/1181412/000110465926118614/tm2628247d1_8k.htm"
+        }
+      ]
+    },
+    {
+      "id": "nebius-citi-bridge",
+      "name": "Nebius bridge facility (Citi)",
+      "project": "GPU infrastructure buildout",
+      "type": "gpu",
+      "tenants": [
+        "Nebius"
+      ],
+      "equity": [
+        {
+          "name": "Nebius",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "Citigroup"
+      ],
+      "debtB": 3.5,
+      "equityB": null,
+      "rating": null,
+      "terms": "Corporate-level senior secured 364-day bridge term loan (not an SPV), secured by substantially all assets of Nebius Group N.V., Nebius Inc. and Nebius B.V.; matures Oct 16, 2027; minimum liquidity covenant; prepayable without penalty",
+      "date": "2026-10-17",
+      "status": "closed",
+      "stress": null,
+      "source": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm",
+      "events": [
+        {
+          "date": "2026-10-17",
+          "text": "$3.5B bridge facility signed with Citi (announced Oct 22 in a 6-K)",
+          "source": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm"
+        }
+      ],
+      "pricing": {
+        "spreadBps": 275,
+        "note": "Term SOFR + 2.75%, rising 0.25% every 90 days after signing to a 3.50% cap",
+        "source": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm"
+      }
     }
   ]
 }
