@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-26",
   "notes": "Reported market prices of AI borrowers' credit: 5-year credit default swap (CDS) spreads in basis points and bond prices in cents on the dollar, each from a dated report. Curated weekly; CDS data itself is behind paywalls (ICE, S&P, Bloomberg).",
   "borrowers": [
     {
@@ -45,6 +45,12 @@
           "bps": 288,
           "note": "Record; automated GuruFocus market report",
           "source": "https://www.gurufocus.com/news/9124975/credit-default-swaps-surge-for-us-tech-firms-amid-ai-sector-strain-oracle-orcl-spreads-hit-record-high"
+        },
+        {
+          "date": "2026-10-19",
+          "bps": 322,
+          "note": "Record, 'on Monday'; Financial Times via Hedgeweek, data provider not named",
+          "source": "https://hedgeweek.com/news/ai-debt-concerns-fuel-surge-in-credit-default-swap-trading"
         }
       ],
       "bonds": []
@@ -59,6 +65,32 @@
           "bps": 424,
           "note": "Automated GuruFocus market report",
           "source": "https://www.gurufocus.com/news/9124975/credit-default-swaps-surge-for-us-tech-firms-amid-ai-sector-strain-oracle-orcl-spreads-hit-record-high"
+        },
+        {
+          "date": "2026-10-20",
+          "bps": 432,
+          "note": "Widest since Nov 2022; Bloomberg data via The Edge Malaysia. More than 130 bps above Nissan, the next-widest major Japanese company",
+          "source": "https://theedgemalaysia.com/node/822480"
+        }
+      ],
+      "bonds": []
+    },
+    {
+      "name": "SpaceX (xAI)",
+      "ticker": "SPCX",
+      "rating": null,
+      "cds": [
+        {
+          "date": "2026-10-07",
+          "bps": 197.6,
+          "note": "Intraday record on $40B chip-financing talks, ICE Data Services via Bloomberg; reported by Seoul Economic Daily Oct 8 (KST)",
+          "source": "https://en.sedaily.com/international/2026/10/08/spacex-seeks-40-billion-for-ai-chips-as-default-risk-hits"
+        },
+        {
+          "date": "2026-10-22",
+          "bps": 232.6,
+          "note": "ICE Data Services; Seoul Economic Daily report of Oct 22 (KST), session not stated. Same report: 6.6% 2046 bonds' spread widened to 2.64 pts on Oct 21 (Bloomberg)",
+          "source": "https://en.sedaily.com/international/2026/10/22/spacex-bonds-weaken-despite-profit-beat-as-ai-spending"
         }
       ],
       "bonds": []

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-10-26",
   "notes": "Millions. Dates are when the figure was announced (day 01 = month only, as noted). Each series is one metric; weekly, monthly and daily users, paid seats and queries are never mixed. Most company figures are floors ('more than X'). Definitions differ: Gemini = app plus web, excluding Search; Meta AI = use across all Meta apps; Microsoft = all first-party Copilots; Grok includes use inside X. Third-party estimates are tagged sourceType third-party. Revenue is excluded.",
   "series": [
     {
@@ -249,6 +249,22 @@
           "value": 1000,
           "source": "https://blog.google/intl/en-in/company-news/technology/sundar-pichai-io-2026/",
           "note": "'Surpassed 1 billion' MAU; built into Search, so not comparable to a standalone app"
+        }
+      ]
+    },
+    {
+      "id": "meta-muse-setups",
+      "lab": "Meta",
+      "product": "Muse",
+      "metric": "People who have set up Muse (cumulative, US and Canada)",
+      "label": "Muse set-ups (cumulative)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2026-10-21",
+          "value": 10,
+          "source": "https://s21.q4cdn.com/399680738/files/content_files/META-Q3-2026-Earnings-Call-Transcript.pdf",
+          "note": "Q3 2026 call, Zuckerberg: 'In just a month and a half, more than 10 million people in the US and Canada have set up Muse personal agents'; about 25% use it on any given day. Not a monthly-active count; no Meta AI MAU given on the call"
         }
       ]
     },
