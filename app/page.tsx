@@ -4,11 +4,13 @@ import { ResetSettings } from "@/components/reset-settings";
 import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { stressColor, toScore } from "@/lib/stress-color";
-import { HBarChart, HistoryChart, MultiSeriesChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
+import { HBarChart, HistoryChart, MultiSeriesChart, PeriodBarChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import softwareData from "@/data/bdc-software.json";
 import dcData from "@/data/datacenters.json";
 import usersData from "@/data/ai-users.json";
+import anthropicData from "@/data/anthropic.json";
+import dealsData from "@/data/ai-deals.json";
 import { creditStress, impliedDefault5y, latestCds } from "@/lib/credit-stress";
 import { getDashboardData } from "@/lib/data";
 import { historyEnabled } from "@/lib/history";
@@ -39,6 +41,7 @@ const SECTIONS = [
   ...TICKER_GROUPS.map((g) => ({ id: g.id, label: g.title.split(" (")[0] })),
   { id: "capex", label: "Capex vs revenue" },
   { id: "users", label: "AI users" },
+  { id: "anthropic", label: "Anthropic" },
   { id: "circular", label: "Circular financing" },
   { id: "web", label: "AI money web" },
   { id: "spv", label: "SPV tracker" },
@@ -297,6 +300,54 @@ export default async function Page() {
   const usersChatgpt = usersLatest("chatgpt-wau");
   const usersGemini = usersLatest("gemini-mau");
   const usersMeta = usersLatest("meta-ai-mau");
+
+  // Anthropic financials (S-1 now; 10-Qs after the IPO). $ millions.
+  const anQ = anthropicData.quarters;
+  const anLast = anQ[anQ.length - 1];
+  const anPrev = anQ[anQ.length - 2];
+  const anYearAgo = anQ.find((q) => q.end === `${Number(anLast.end.slice(0, 4)) - 1}${anLast.end.slice(4)}`);
+  const anRevOpex = anQ.map((q) => ({ period: q.period, Revenue: q.revenue, "Operating expenses": q.opex }));
+  const anCosts = anQ.map((q) => ({
+    period: q.period,
+    "Compute & infrastructure": q.compute,
+    Personnel: q.personnel,
+    "Sales & marketing": q.sales,
+    "Other & admin": q.other,
+    "Copyright settlement": q.settlement || null,
+  }));
+  const anProfit = anQ.map((q) => ({ period: q.period, "Operating income": q.operatingIncome, "Net income": q.netIncome }));
+  const anComputePct = anQ.map((q) => ({ period: q.period, "Compute cost as % of revenue": Math.round((q.compute / q.revenue) * 100) }));
+  const anCustomers = anthropicData.customers100k.map((c) => ({
+    period: new Date(`${c.date}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" }),
+    "Customers paying $100K+ a year": c.value,
+  }));
+  const fmtM = (v: number) => (Math.abs(v) >= 1000 ? `${v < 0 ? "−" : ""}$${(Math.abs(v) / 1000).toFixed(1)}B` : `${v < 0 ? "−" : ""}$${Math.abs(v)}M`);
+  const dealNames = Object.fromEntries(dealsData.nodes.map((n) => [n.id, n.name]));
+  const anCommitments = dealsData.edges
+    .filter((e) => e.from === "ANTHROPIC" && e.amountB != null && e.type !== "investment")
+    .map((e) => ({ label: dealNames[e.to] ?? e.to, value: e.amountB as number }))
+    .sort((a, b) => b.value - a.value);
+  const anCommitTotal = anCommitments.reduce((a, b) => a + b.value, 0);
+
+  // Two-way deals: a company that funds a buyer that also buys from it.
+  const dealLoops = (() => {
+    const out: { a: string; b: string; out: typeof dealsData.edges; back: typeof dealsData.edges }[] = [];
+    const seen = new Set<string>();
+    for (const e of dealsData.edges) {
+      const key = [e.from, e.to].sort().join("|");
+      if (seen.has(key)) continue;
+      const fwd = dealsData.edges.filter((x) => x.from === e.from && x.to === e.to);
+      const rev = dealsData.edges.filter((x) => x.from === e.to && x.to === e.from);
+      if (!rev.length) continue;
+      seen.add(key);
+      // Orient each loop as supplier -> customer: the side whose money comes back as a purchase.
+      const funds = (xs: typeof fwd) => xs.some((x) => x.type === "investment" || x.type === "credit" || x.type === "vc");
+      const [give, take] = funds(fwd) && !funds(rev) ? [fwd, rev] : funds(rev) && !funds(fwd) ? [rev, fwd] : [fwd, rev];
+      out.push({ a: give[0].from, b: give[0].to, out: give, back: take });
+    }
+    const total = (xs: typeof dealsData.edges) => xs.reduce((s, x) => s + (x.amountB ?? 0), 0);
+    return out.sort((x, y) => total(y.back) - total(x.back));
+  })();
 
   // US data center capacity: operating vs under construction (CBRE, semiannual).
   const dcEditions = dcData.editions as {
@@ -728,6 +779,128 @@ export default async function Page() {
         </div>
       </section>
 
+      <section id="anthropic">
+        <h2>Anthropic: the financials</h2>
+        <p className="blurb">
+          The first frontier lab to open its books. From its S-1 (filed {anthropicData.filed}, proposed ticker{" "}
+          {anthropicData.ticker}); after the IPO, each quarter is added from its 10-Q. US$, quarters unaudited.{" "}
+          <a href={anthropicData.source} target="_blank" rel="noreferrer">
+            Filing
+          </a>
+        </p>
+        <div className="grid g2">
+          <div className="card">
+            <h3>Quarterly revenue vs operating costs</h3>
+            <p className="sub">
+              {anLast.period}: revenue <span style={{ color: "var(--text)", fontWeight: 600 }}>{fmtM(anLast.revenue)}</span> (+
+              {((anLast.revenue / anPrev.revenue - 1) * 100).toFixed(0)}% on the quarter
+              {anYearAgo && `, ${(anLast.revenue / anYearAgo.revenue).toFixed(0)}× a year earlier`}) · costs {fmtM(anLast.opex)}
+            </p>
+            <PeriodBarChart rows={anRevOpex} keys={["Revenue", "Operating expenses"]} storageKey="an:rev" />
+            <Explain id="anRevenue" />
+          </div>
+          <div className="card">
+            <h3>Where the money goes</h3>
+            <p className="sub">Operating expenses by type; compute is {Math.round((anLast.compute / anLast.opex) * 100)}% of the latest quarter</p>
+            <PeriodBarChart
+              rows={anCosts}
+              keys={["Compute & infrastructure", "Personnel", "Sales & marketing", "Other & admin", "Copyright settlement"]}
+              stacked
+              storageKey="an:costs"
+            />
+            <Explain id="anCosts" />
+          </div>
+          <div className="card">
+            <h3>Operating income vs net income</h3>
+            <p className="sub">
+              {anLast.period}: operating income {fmtM(anLast.operatingIncome)}, net {fmtM(anLast.netIncome)} after{" "}
+              {fmtM(anLast.fairValueChange)} of non-cash fair-value charges. Hide net income in the legend to see operating income.
+            </p>
+            <PeriodBarChart rows={anProfit} keys={["Operating income", "Net income"]} storageKey="an:profit" />
+            <Explain id="anProfit" />
+          </div>
+          <div className="card">
+            <h3>Compute cost as % of revenue</h3>
+            <p className="sub">
+              {anComputePct[0].period} {anComputePct[0]["Compute cost as % of revenue"]}% → {anLast.period}{" "}
+              {anComputePct[anComputePct.length - 1]["Compute cost as % of revenue"]}%; below 100% means revenue covers the compute
+            </p>
+            <PeriodBarChart rows={anComputePct} keys={["Compute cost as % of revenue"]} unit="%" />
+            <Explain id="anComputePct" />
+          </div>
+          <div className="card">
+            <h3>Compute commitments vs revenue</h3>
+            <p className="sub">
+              About <span style={{ color: "var(--text)", fontWeight: 600 }}>${anCommitTotal.toFixed(0)}B</span> committed to
+              suppliers, mostly through the early-to-mid 2030s, vs {fmtM(anLast.revenue * 4)} of annualized revenue (latest
+              quarter × 4). From the money web.
+            </p>
+            <HBarChart rows={anCommitments} format="usdB" />
+            <Explain id="anCommitments" />
+          </div>
+          <div className="card">
+            <h3>Customers paying $100K+ a year</h3>
+            <p className="sub">
+              More than {anthropicData.facts.customers1m.value.toLocaleString("en-US")} pay $1M+ and about{" "}
+              {anthropicData.facts.customers10m.value} pay $10M+ ({anthropicData.facts.customers1m.asOf})
+            </p>
+            <PeriodBarChart rows={anCustomers} keys={["Customers paying $100K+ a year"]} unit="num" />
+            <Explain id="anCustomers" />
+          </div>
+        </div>
+        <div className="grid g2" style={{ marginTop: 14 }}>
+          <div className="card" style={{ gridColumn: "1 / -1" }}>
+            <h3>Annual and half-year results</h3>
+            <SortableTable
+              storageKey="table:anPeriods"
+              columns={[
+                { label: "Period" },
+                { label: "Revenue", firstDir: "desc" },
+                { label: "Operating income", firstDir: "desc" },
+                { label: "Adjusted", title: "Operating income excluding stock compensation, non-cash donations and the Bartz settlement", firstDir: "desc" },
+                { label: "Net income", firstDir: "desc" },
+                { label: "Operating cash flow", firstDir: "desc" },
+              ]}
+              rows={anthropicData.periods.map((p) => ({
+                key: p.period,
+                sort: [p.period, p.revenue, p.operatingIncome, p.adjOperatingIncome, p.netIncome, p.operatingCashFlow],
+                cells: [p.period, fmtM(p.revenue), fmtM(p.operatingIncome), fmtM(p.adjOperatingIncome), fmtM(p.netIncome), fmtM(p.operatingCashFlow)],
+              }))}
+            />
+            <Explain id="anPeriods" />
+          </div>
+          <div className="card" style={{ gridColumn: "1 / -1" }}>
+            <h3>Other numbers from the filing</h3>
+            <ul className="facts">
+              <li>
+                Cash ${anthropicData.facts.cashB}B plus ${anthropicData.facts.shortTermInvestmentsB}B of short-term investments (
+                {anthropicData.facts.asOf}), after raising ${anthropicData.facts.capitalRaisedB}B in total.
+              </li>
+              <li>
+                Contracted revenue not yet recognized (remaining performance obligations): ${anthropicData.facts.rpoB}B.
+              </li>
+              <li>
+                Net revenue retention about {anthropicData.facts.netRevenueRetentionPct.value}%: existing customers spent about 9× what
+                they did a year earlier.
+              </li>
+              <li>
+                Top five customers: {anthropicData.facts.top5SharePct.value}% of revenue in Q3 2026, down from{" "}
+                {anthropicData.facts.top5SharePct.prior}% in Q1 2026; none over 10%.
+              </li>
+              <li>
+                {anthropicData.facts.cspMarketplaceSharePct.value}% of revenue ({anthropicData.facts.cspMarketplaceSharePct.period}) is
+                sold through the AWS, Google Cloud and Azure marketplaces (11% in 2023), the same companies it buys most compute from.
+              </li>
+              <li>
+                Revenue per employee ${anthropicData.facts.revenuePerEmployeeM.value}M a year (TTM to Sep 2026), up from $
+                {anthropicData.facts.revenuePerEmployeeM.prior}M.
+              </li>
+            </ul>
+            <Explain id="anFacts" />
+          </div>
+        </div>
+      </section>
+
       <section id="circular">
         <h2>Circular financing</h2>
         <p className="blurb">
@@ -777,6 +950,41 @@ export default async function Page() {
               </li>
             </ul>
           </div>
+        </div>
+        <div className="card" style={{ marginTop: 14 }}>
+          <h3>Two-way deals: suppliers funding their own customers</h3>
+          <p className="sub">
+            Every pair in the money web where money flows both ways: one side invests or lends, the other buys chips or cloud
+            capacity back. {dealLoops.length} loops today.
+          </p>
+          <SortableTable
+            storageKey="table:dealLoops"
+            columns={[
+              { label: "Funder" },
+              { label: "Puts in", align: "left" },
+              { label: "Customer" },
+              { label: "Buys back", align: "left" },
+              { label: "Back per $1 in", title: "Headline purchases divided by headline funding, where both are disclosed", firstDir: "desc" },
+            ]}
+            rows={dealLoops.map((l) => {
+              const sum = (xs: typeof l.out) => xs.reduce((s, x) => s + (x.amountB ?? 0), 0);
+              const desc = (xs: typeof l.out) =>
+                xs.map((x) => `${x.type}${x.amountB != null ? ` $${x.amountB}B` : " (undisclosed)"}`).join(" + ");
+              const ratio = sum(l.out) && sum(l.back) ? sum(l.back) / sum(l.out) : null;
+              return {
+                key: `${l.a}-${l.b}`,
+                sort: [dealNames[l.a] ?? l.a, sum(l.out), dealNames[l.b] ?? l.b, sum(l.back), ratio],
+                cells: [
+                  dealNames[l.a] ?? l.a,
+                  <span title={l.out.map((x) => x.label).join(" · ")}>{desc(l.out)}</span>,
+                  dealNames[l.b] ?? l.b,
+                  <span title={l.back.map((x) => x.label).join(" · ")}>{desc(l.back)}</span>,
+                  ratio != null ? `$${ratio.toFixed(1)}` : "—",
+                ],
+              };
+            })}
+          />
+          <Explain id="dealLoops" />
         </div>
       </section>
 

@@ -1,0 +1,246 @@
+{
+  "updated": "2026-10-28",
+  "ticker": "ANT",
+  "filed": "2026-10-26",
+  "status": "S-1 filed; not yet public",
+  "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+  "notes": "US$ millions from Anthropic's S-1 (unaudited quarters). Net loss is dominated by non-cash changes in the fair value of convertible notes, derivatives and SAFEs, which grow as the company's valuation rises. Adjusted operating income excludes stock-based compensation, non-cash charitable contributions and the $1.5B Bartz copyright settlement (Q3 2025). After the IPO, append each quarter from the 10-Q.",
+  "quarters": [
+    {
+      "period": "Q1 2025",
+      "end": "2025-03-31",
+      "revenue": 376,
+      "compute": 944,
+      "personnel": 218,
+      "settlement": 0,
+      "sales": 24,
+      "other": 125,
+      "opex": 1311,
+      "operatingIncome": -935,
+      "interestIncome": 51,
+      "fairValueChange": -5701,
+      "otherIncome": 0,
+      "netIncome": -6592,
+      "sbc": 105,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "filing": "S-1"
+    },
+    {
+      "period": "Q2 2025",
+      "end": "2025-06-30",
+      "revenue": 787,
+      "compute": 1390,
+      "personnel": 320,
+      "settlement": 0,
+      "sales": 96,
+      "other": 181,
+      "opex": 1987,
+      "operatingIncome": -1200,
+      "interestIncome": 64,
+      "fairValueChange": -5241,
+      "otherIncome": 0,
+      "netIncome": -6377,
+      "sbc": 181,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "filing": "S-1"
+    },
+    {
+      "period": "Q3 2025",
+      "end": "2025-09-30",
+      "revenue": 1382,
+      "compute": 2047,
+      "personnel": 489,
+      "settlement": 1500,
+      "sales": 202,
+      "other": 233,
+      "opex": 4471,
+      "operatingIncome": -3089,
+      "interestIncome": 124,
+      "fairValueChange": -9165,
+      "otherIncome": -3,
+      "netIncome": -12138,
+      "sbc": 305,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "filing": "S-1"
+    },
+    {
+      "period": "Q4 2025",
+      "end": "2025-12-31",
+      "revenue": 2040,
+      "compute": 2945,
+      "personnel": 812,
+      "settlement": 0,
+      "sales": 246,
+      "other": 873,
+      "opex": 4876,
+      "operatingIncome": -2836,
+      "interestIncome": 192,
+      "fairValueChange": -14201,
+      "otherIncome": -5,
+      "netIncome": -16858,
+      "sbc": 574,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "filing": "S-1"
+    },
+    {
+      "period": "Q1 2026",
+      "end": "2026-03-31",
+      "revenue": 4731,
+      "compute": 3387,
+      "personnel": 1295,
+      "settlement": 0,
+      "sales": 1033,
+      "other": 683,
+      "opex": 6398,
+      "operatingIncome": -1667,
+      "interestIncome": 349,
+      "fairValueChange": -12791,
+      "otherIncome": -309,
+      "netIncome": -14439,
+      "sbc": 924,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "filing": "S-1"
+    },
+    {
+      "period": "Q2 2026",
+      "end": "2026-06-30",
+      "revenue": 11555,
+      "compute": 5558,
+      "personnel": 1857,
+      "settlement": 0,
+      "sales": 2135,
+      "other": 1031,
+      "opex": 10581,
+      "operatingIncome": 974,
+      "interestIncome": 762,
+      "fairValueChange": -59597,
+      "otherIncome": -8448,
+      "netIncome": -66309,
+      "sbc": 1300,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "filing": "S-1"
+    }
+  ],
+  "periods": [
+    {
+      "period": "2023",
+      "revenue": 41,
+      "operatingIncome": -551,
+      "adjOperatingIncome": -522,
+      "pretaxIncome": -1529,
+      "operatingCashFlow": -1627,
+      "netIncome": -1531
+    },
+    {
+      "period": "2024",
+      "revenue": 386,
+      "operatingIncome": -2980,
+      "adjOperatingIncome": -2788,
+      "pretaxIncome": -8308,
+      "operatingCashFlow": -5692,
+      "netIncome": -8309
+    },
+    {
+      "period": "2025",
+      "revenue": 4585,
+      "operatingIncome": -8060,
+      "adjOperatingIncome": -4854,
+      "pretaxIncome": -41945,
+      "operatingCashFlow": -2637,
+      "netIncome": -41965
+    },
+    {
+      "period": "H1 2025",
+      "revenue": 1163,
+      "operatingIncome": -2135,
+      "adjOperatingIncome": -1849,
+      "pretaxIncome": -12962,
+      "operatingCashFlow": -1513,
+      "netIncome": -12969
+    },
+    {
+      "period": "H1 2026",
+      "revenue": 16286,
+      "operatingIncome": -693,
+      "adjOperatingIncome": 1618,
+      "pretaxIncome": -80727,
+      "operatingCashFlow": 3929,
+      "netIncome": -80748
+    }
+  ],
+  "customers100k": [
+    {
+      "date": "2025-03-31",
+      "value": 400,
+      "note": "approximately 400"
+    },
+    {
+      "date": "2025-09-30",
+      "value": 950,
+      "note": "more than 950"
+    },
+    {
+      "date": "2026-06-30",
+      "value": 6000,
+      "note": "more than 6,000"
+    },
+    {
+      "date": "2026-09-30",
+      "value": 11900,
+      "note": "more than 11,900"
+    }
+  ],
+  "facts": {
+    "asOf": "2026-06-30",
+    "cashB": 112.4,
+    "shortTermInvestmentsB": 19.3,
+    "creditFacilityB": 3.2,
+    "capitalRaisedB": 141.1,
+    "rpoB": 10.8,
+    "customers1m": {
+      "value": 1900,
+      "asOf": "2026-09-30",
+      "note": "more than 1,900"
+    },
+    "customers10m": {
+      "value": 250,
+      "asOf": "2026-09-30",
+      "note": "approximately 250"
+    },
+    "netRevenueRetentionPct": {
+      "value": 900,
+      "asOf": "2026-09-30"
+    },
+    "top5SharePct": {
+      "value": 21,
+      "asOf": "2026-09-30",
+      "prior": 36,
+      "priorAsOf": "2026-03-31",
+      "note": "79% of Q3 2026 revenue came from outside the top five customers, up from 64% in Q1 2026; no customer over 10% of revenue in the nine months to Sep 30, 2026"
+    },
+    "cspMarketplaceSharePct": {
+      "value": 48,
+      "period": "H1 2026",
+      "history": [
+        {
+          "period": "2023",
+          "value": 11
+        },
+        {
+          "period": "2024",
+          "value": 32
+        },
+        {
+          "period": "2025",
+          "value": 47
+        }
+      ]
+    },
+    "revenuePerEmployeeM": {
+      "value": 6.6,
+      "asOf": "2026-09-30",
+      "prior": 1.4,
+      "note": "TTM revenue per employee"
+    }
+  }
+}

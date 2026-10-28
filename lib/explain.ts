@@ -67,6 +67,51 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "The dot-com bust was mostly an equity loss: companies had raised money by selling stock, so banks came through. The housing bust was a debt loss: mortgages sat on bank and investor balance sheets, which is why it became a banking crisis. The AI buildout started on cash and equity and is now moving to debt.",
     watch: "Corporate debt and bank business loans rising toward or past their 2000 and 2008 peaks while AI capex keeps growing. That would mean an AI bust looks more like 2008 than 2000 for lenders.",
   },
+  anRevenue: {
+    what: "Anthropic's revenue and total operating expenses each quarter, from its S-1 (and, after the IPO, its 10-Qs). Most revenue is usage-based API billing, metered in tokens.",
+    why: "This is the first frontier lab whose books are public. Revenue overtaking operating costs in Q2 2026 is the clearest evidence so far that AI demand can pay for itself at a lab level.",
+    watch: "Quarter-on-quarter growth slowing sharply after a model launch cycle; costs growing faster than revenue again once new committed compute comes online.",
+  },
+  anCosts: {
+    what: "Operating expenses by type, stacked. Compute & infrastructure is cloud and data-center capacity; sales & marketing includes fees paid to the cloud marketplaces that resell Claude. The one-off copyright settlement (Bartz, $1.5B) is in Q3 2025.",
+    why: "Compute is bought 12–18 months ahead under fixed multi-year contracts, so this cost arrives on schedule whether or not demand does. That fixed-cost wall is the main risk in a slowdown.",
+    watch: "Compute cost jumping as large contracts start delivering capacity (Google, Amazon, Microsoft, the Broadcom TPU leases) without matching revenue.",
+  },
+  anProfit: {
+    what: "Operating income (revenue minus operating costs) and net income. The gap is mostly non-cash: changes in the fair value of convertible notes, derivatives and SAFEs that rise as Anthropic's valuation rises.",
+    why: "Net losses of tens of billions look alarming, but they reflect investors' claims becoming more valuable, not cash going out. Operating income and cash flow are the better guide to whether the business works.",
+    watch: "Operating income turning negative again; after the IPO, these fair-value charges should largely stop as the instruments convert to stock.",
+  },
+  anComputePct: {
+    what: "Compute and infrastructure expense divided by revenue, each quarter.",
+    why: "It's the core unit-economics test for an AI lab: above 100% means every dollar of revenue needs more than a dollar of compute. It fell from 251% to 48% in six quarters as revenue outgrew committed capacity.",
+    watch: "The ratio rising again, which would mean new capacity arriving faster than customers use it: the overbuild scenario at the lab level.",
+  },
+  anCommitments: {
+    what: "Headline compute and hardware commitments Anthropic disclosed, from the money web (S-1 and company announcements): cloud spend commitments, chip leases and GPU services. Investments into Anthropic are excluded.",
+    why: "These contracts run into the 2030s and total several times current annual revenue. They are what the suppliers' own revenue forecasts and debt (including the SPVs) rest on.",
+    watch: "Commitments growing faster than revenue, renegotiations, or suppliers' financing for these contracts getting more expensive.",
+  },
+  anCustomers: {
+    what: "Customers contributing $100K or more of revenue over the trailing twelve months, Anthropic's own measure of enterprise adoption.",
+    why: "Broad enterprise adoption is harder to reverse than a few large API customers. A rising count shows the revenue isn't just a handful of AI startups reselling compute.",
+    watch: "The count flattening while revenue still grows, which would mean growth concentrated in a few large accounts.",
+  },
+  anPeriods: {
+    what: "Full-year and half-year results: revenue, operating income, adjusted operating income (excluding stock compensation, non-cash donations and the Bartz settlement), net income and operating cash flow.",
+    why: "Operating cash flow turned positive ($3.9B) in the first half of 2026, which matters more than the headline net loss.",
+    watch: "Cash flow turning negative again as prepayments for compute grow.",
+  },
+  anFacts: {
+    what: "Other figures from the S-1: cash, contracted future revenue, net revenue retention, customer concentration, the share sold through cloud marketplaces, and revenue per employee.",
+    why: "Half the revenue arrives through the same three clouds Anthropic buys most compute from, part of the circular-flow question: the clouds are suppliers, investors, lenders and distributors at once.",
+    watch: "Rising customer concentration, or retention falling quickly from its very high level.",
+  },
+  dealLoops: {
+    what: "Pairs of companies in the money web with money flowing both ways: one invests, lends or guarantees, the other buys chips, cloud capacity or services back. Hover a cell for the deal details.",
+    why: "Vendor financing lets a supplier book revenue funded partly by its own balance sheet. In 2000, telecom equipment makers lent to carriers who bought their gear; when the carriers failed, both the revenue and the loans disappeared.",
+    watch: "Purchases far larger than the funding are normal (the supplier is a minority funder). Worry when loops multiply, funding is restructured into guarantees, or the customer's ability to pay rests on the next round from the same supplier.",
+  },
   aiUsers: {
     what: "Users each AI lab says its assistant has, dated when announced: ChatGPT weekly active users, and monthly users for Gemini, Meta AI, Microsoft's Copilots, Grok and Qwen. Google AI Mode is built into Search, so its count reflects Search's reach more than demand for a standalone assistant.",
     why: "The bull case for the buildout rests on adoption continuing to compound. Fast, still-compounding growth (see the 1-year growth column below) is the strongest counter-argument to the bubble view. When it slows while capex keeps rising, the gap has to be funded by debt and hope.",

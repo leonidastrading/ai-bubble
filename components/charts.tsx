@@ -334,6 +334,98 @@ export function HBarChart({
   );
 }
 
+/** Grouped (or stacked) bars per reporting period, e.g. quarterly revenue and costs. Values in $ millions or %. */
+export function PeriodBarChart({
+  rows,
+  keys,
+  unit = "$M",
+  stacked = false,
+  storageKey,
+}: {
+  rows: Record<string, number | string | null>[];
+  keys: string[];
+  unit?: "$M" | "%" | "num";
+  stacked?: boolean;
+  storageKey?: string;
+}) {
+  const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
+  const fmt = (v: number) =>
+    unit === "%"
+      ? `${v.toFixed(0)}%`
+      : unit === "num"
+        ? v.toLocaleString("en-US")
+        : Math.abs(v) >= 1000
+          ? `${v < 0 ? "−" : ""}$${(Math.abs(v) / 1000).toFixed(1)}B`
+          : `${v < 0 ? "−" : ""}$${Math.abs(v).toFixed(0)}M`;
+  const tick = (v: number) => (unit === "$M" ? `${v < 0 ? "−" : ""}$${+(Math.abs(v) / 1000).toFixed(1)}B` : fmt(v));
+  const shown = keys.filter((k) => !hidden.has(k));
+  return (
+    <div>
+      <div style={{ height: 240 }}>
+        <ResponsiveContainer>
+          <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke="var(--grid)" vertical={false} />
+            <XAxis dataKey="period" interval={0} {...axisProps} />
+            <YAxis width={48} tickFormatter={tick} {...axisProps} />
+            <ReferenceLine y={0} stroke="var(--faint)" />
+            <Tooltip
+              cursor={{ fill: "var(--panel-2)" }}
+              content={({ active, payload, label }) =>
+                active && payload?.length ? (
+                  <div className="tt">
+                    <div className="tt-date">{String(label)}</div>
+                    {payload
+                      .filter((p) => p.value != null)
+                      .map((p) => (
+                        <div className="tt-row" key={String(p.dataKey)}>
+                          <span style={{ color: p.color }}>{String(p.dataKey)}</span>
+                          <span>{fmt(Number(p.value))}</span>
+                        </div>
+                      ))}
+                  </div>
+                ) : null
+              }
+            />
+            {keys.map((k, i) =>
+              hidden.has(k) ? null : (
+                <Bar
+                  key={k}
+                  dataKey={k}
+                  stackId={stacked ? "s" : undefined}
+                  fill={PALETTE[i % PALETTE.length]}
+                  radius={stacked ? (k === shown[shown.length - 1] ? [3, 3, 0, 0] : 0) : [3, 3, 0, 0]}
+                  isAnimationActive={false}
+                />
+              ),
+            )}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      {keys.length > 1 && (
+        <div className="legend">
+          {keys.map((k, i) => (
+            <button
+              key={k}
+              aria-pressed={!hidden.has(k)}
+              onClick={() =>
+                setHidden((h) => {
+                  const n = new Set(h);
+                  if (n.has(k)) n.delete(k);
+                  else n.add(k);
+                  return n;
+                })
+              }
+            >
+              <i style={{ background: PALETTE[i % PALETTE.length] }} />
+              {k}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Stored daily snapshots: composite score plus any extra numeric series. */
 export function HistoryChart({
   rows,
