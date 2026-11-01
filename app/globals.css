@@ -219,3 +219,29 @@ table.sortable th button.active .sort-ind { opacity: 1; }
   .gauge-row { grid-template-columns: 78px 1fr; }
   .gauge-val, .gauge-rule { grid-column: 2; }
 }
+
+/* Back-to-top button: phones only. */
+.to-top { display: none; }
+@media (max-width: 720px) {
+  .to-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 50;
+  }
+  .to-top.show { opacity: 0.92; pointer-events: auto; }
+}

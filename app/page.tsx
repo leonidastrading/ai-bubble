@@ -1,5 +1,6 @@
 import { Explain, FilingsTable, Gauge, NewsList, Pct, QuoteTable, SignalTable } from "@/components/blocks";
 import { NetworkGraph } from "@/components/network";
+import { BackToTop } from "@/components/back-to-top";
 import { ResetSettings } from "@/components/reset-settings";
 import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
@@ -462,6 +463,7 @@ export default async function Page() {
 
   return (
     <main className="wrap">
+      <BackToTop />
       <header className="top">
         <div>
           <h1>AI Bubble Monitor</h1>
