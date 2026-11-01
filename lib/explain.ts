@@ -112,6 +112,26 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Vendor financing lets a supplier book revenue funded partly by its own balance sheet. In 2000, telecom equipment makers lent to carriers who bought their gear; when the carriers failed, both the revenue and the loans disappeared.",
     watch: "Purchases far larger than the funding are normal (the supplier is a minority funder). Worry when loops multiply, funding is restructured into guarantees, or the customer's ability to pay rests on the next round from the same supplier.",
   },
+  rampAdoption: {
+    what: "Share of US businesses on Ramp (85,000+ firms) with a paid AI product, subscription or API charge in the month, from card, invoice and ACH transactions. Overall and by vendor. Free tools and personal accounts aren't counted, so it understates use.",
+    why: "It measures real spending rather than survey answers, monthly and with history back to mid-2023. Company adoption is the demand that has to keep growing to justify the buildout.",
+    watch: "Monthly gains shrinking toward zero (adoption saturating), or the overall rate falling: firms cancelling AI tools to cut costs would show here before it shows in the labs' revenue.",
+  },
+  rampSize: {
+    what: "Ramp's adoption rate split by business size (small, medium-sized and large firms).",
+    why: "Large firms adopt first; broad adoption among small businesses is what turns a technology into an economy-wide spend line.",
+    watch: "Small-business adoption stalling while large firms keep rising: spending concentrating in the firms that can afford experiments.",
+  },
+  rampSpend: {
+    what: "Monthly AI spend per employee among firms paying for AI: the median firm and the median of the top 10% of spenders, from Ramp's transaction data.",
+    why: "Adoption counts firms; spend per employee shows depth. A widening gap between the median and the top spenders means a few heavy users drive most of the money.",
+    watch: "The median flattening while the top decile keeps climbing, or the top decile dropping (heavy users cutting back first).",
+  },
+  rampTokens: {
+    what: "Shares of business spending on AI tokens (API usage) by provider for the latest week on Ramp, versus the same week a month earlier, with token volume shares and blended price per million tokens. Ramp publishes only the latest week, so the dashboard saves each week to build a history.",
+    why: "Token spend is the usage-based revenue the labs' valuations depend on. Volume growing much faster than spend means prices falling, so revenue needs ever more usage.",
+    watch: "Total token spend falling week over week, or prices per million tokens falling faster than volume grows.",
+  },
   aiUsers: {
     what: "Users each AI lab says its assistant has, dated when announced: ChatGPT weekly active users, and monthly users for Gemini, Meta AI, Microsoft's Copilots, Grok and Qwen. Google AI Mode is built into Search, so its count reflects Search's reach more than demand for a standalone assistant.",
     why: "The bull case for the buildout rests on adoption continuing to compound. Fast, still-compounding growth (see the 1-year growth column below) is the strongest counter-argument to the bubble view. When it slows while capex keeps rising, the gap has to be funded by debt and hope.",

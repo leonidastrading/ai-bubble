@@ -21,6 +21,8 @@ export type Snapshot = {
     dcmap?: { operational: number; construction: number; planned: number; paused: number };
     kadoa?: { operational: number; construction: number };
   };
+  /** Ramp AI Index: latest weekly token-spend shares and AI share of business spend (added Nov 2026). */
+  ramp?: { week: string; tokenSpend: Record<string, number>; aiShareOfSpend: number | null };
   signals: Record<string, number>;
 };
 

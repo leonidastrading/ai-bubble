@@ -14,6 +14,7 @@ import { compositeScore, computeSignals, type Signal } from "./signals";
 import { fetchTrends, type TrendsData } from "./trends";
 import { fetchDcMap, fetchKadoa, type DcMapCounts, type KadoaCounts } from "./dccount";
 import { fetchUsdAiDeposits } from "./onchain";
+import { fetchRamp, type RampIndex } from "./ramp";
 import { fetchPolymarket, type PolyEvent } from "./polymarket";
 import { computeValuation, fetchMarginDebt, fetchMultpl, type Valuation } from "./valuation";
 import { fetchQuote, type Point, type Quote } from "./yahoo";
@@ -70,6 +71,8 @@ export type DashboardData = {
   usdAi: Point[] | null;
   polymarket: PolyEvent[];
   dcCounts: { dcmap: DcMapCounts | null; kadoa: KadoaCounts | null };
+  /** Ramp AI Index: business AI adoption and spend (85,000+ US firms). */
+  ramp: RampIndex | null;
   /** Blob contents as read, so the refresh can write back without reading again. */
   saved: { trends: Record<string, TrendsData>; gpuArchive: GpuWeek[] };
   history: Snapshot[];
@@ -190,7 +193,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -209,7 +212,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     fetchPolymarket(errors),
     settle(fetchDcMap()),
     settle(fetchKadoa()),
+    settle(fetchRamp()),
   ]);
+  if (!rampR.ok) errors.push(`Ramp AI Index: ${rampR.error}`);
   if (!dcMapR.ok) errors.push(`Data center counts (dcmap.us): ${dcMapR.error}`);
   if (!kadoaR.ok) errors.push(`Data center counts (Kadoa): ${kadoaR.error}`);
   if (!usdAiR.ok) errors.push(`USD.AI deposits (DefiLlama): ${usdAiR.error}`);
@@ -286,6 +291,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     usdAi: usdAiR.ok ? usdAiR.data : null,
     polymarket,
     dcCounts: { dcmap: dcMapR.ok ? dcMapR.data : null, kadoa: kadoaR.ok ? kadoaR.data : null },
+    ramp: rampR.ok ? rampR.data : null,
     saved: { trends: savedTrends, gpuArchive },
     history,
     errors,
@@ -320,6 +326,13 @@ export function toSnapshot(d: DashboardData): Snapshot {
       }),
       ...(d.dcCounts.kadoa && { kadoa: { operational: d.dcCounts.kadoa.operational, construction: d.dcCounts.kadoa.construction } }),
     },
+    ramp: d.ramp?.tokens.week
+      ? {
+          week: d.ramp.tokens.week,
+          tokenSpend: Object.fromEntries(d.ramp.tokens.spendShare.map((x) => [x.name, x.now])),
+          aiShareOfSpend: d.ramp.aiShareOfSpend?.now ?? null,
+        }
+      : undefined,
     gpuList: Object.fromEntries(
       (
         [

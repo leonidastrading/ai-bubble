@@ -703,7 +703,7 @@ export function TimeLinesChart({
   storageKey?: string;
   ranges?: RangeKey[];
   defaultRange?: RangeKey;
-  unit?: "$" | "pts" | "%" | "num" | "$B" | "MW" | "M";
+  unit?: "$" | "pts" | "%" | "num" | "$B" | "MW" | "M" | "usd";
   dateLabel?: string;
   /** Dashed reference lines, e.g. normal and danger levels. */
   refs?: { y: number; label: string; tone?: "calm" | "watch" | "stress" }[];
@@ -716,7 +716,7 @@ export function TimeLinesChart({
   const [hidden, setHidden] = usePersistedSet(storageKey && `${storageKey}:hidden`);
   const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
   const fmt = (v: number) =>
-    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : unit === "MW" ? `${v.toLocaleString("en-US", { maximumFractionDigits: 0 })} MW` : unit === "M" ? millions(v) : v.toFixed(1);
+    unit === "$" ? `$${v.toFixed(2)}` : unit === "%" ? `${v.toFixed(1)}%` : unit === "$B" ? `$${v.toFixed(0)}B` : unit === "MW" ? `${v.toLocaleString("en-US", { maximumFractionDigits: 0 })} MW` : unit === "M" ? millions(v) : unit === "usd" ? `$${v.toLocaleString("en-US", { maximumFractionDigits: v < 100 ? 2 : 0 })}` : v.toFixed(1);
   const suffix = unit === "$" ? "/hr" : "";
   return (
     <div>

@@ -301,6 +301,26 @@ export default async function Page() {
   const usersGemini = usersLatest("gemini-mau");
   const usersMeta = usersLatest("meta-ai-mau");
 
+  // Ramp AI Index: monthly business adoption (live), weekly token shares (saved daily).
+  const ramp = d.ramp;
+  const rampMerge = (groups: Record<string, { t: string; v: number }[]>) => {
+    const dates = [...new Set(Object.values(groups).flatMap((g) => g.map((p) => p.t)))].sort();
+    return dates.map((t) => ({ t, ...Object.fromEntries(Object.entries(groups).map(([k, g]) => [k, g.find((p) => p.t === t)?.v ?? null])) }));
+  };
+  const rampAdoptRows = ramp
+    ? rampMerge({ "All businesses": ramp.overall, Anthropic: ramp.vendors.Anthropic ?? [], OpenAI: ramp.vendors.OpenAI ?? [], xAI: ramp.vendors.xAI ?? [] })
+    : [];
+  const rampSizeRows = ramp ? rampMerge(ramp.sizes) : [];
+  const rampSpendRows = ramp?.spend.map((p) => ({ t: p.t, "Median firm": p.median, "Top 10% (median)": p.top10 })) ?? [];
+  const rampLast = ramp?.overall[ramp.overall.length - 1];
+  const rampYearAgo = ramp && rampLast ? ramp.overall.find((p) => p.t === `${Number(rampLast.t.slice(0, 4)) - 1}${rampLast.t.slice(4)}`) : undefined;
+  const rampMonth = (t: string) => new Date(`${t}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+  const rampTokenRows = (() => {
+    const byWeek = new Map<string, Record<string, number>>();
+    for (const h of d.history) if (h.ramp) byWeek.set(h.ramp.week, h.ramp.tokenSpend);
+    return [...byWeek].sort(([a], [b]) => a.localeCompare(b)).map(([t, v]) => ({ t, Anthropic: v.Anthropic ?? null, OpenAI: v.OpenAI ?? null, xAI: v.xAI ?? null, Google: v.Google ?? null }));
+  })();
+
   // Anthropic financials (S-1 now; 10-Qs after the IPO). $ millions.
   const anQ = anthropicData.quarters;
   const anLast = anQ[anQ.length - 1];
@@ -740,6 +760,85 @@ export default async function Page() {
             <Explain id="aiUsersPaid" />
           </div>
         </div>
+        {ramp && (
+          <>
+            <div className="grid g2" style={{ marginTop: 14 }}>
+              <div className="card">
+                <h3>Businesses paying for AI (Ramp AI Index)</h3>
+                <p className="sub">
+                  {rampLast && (
+                    <>
+                      {rampMonth(rampLast.t)}:{" "}
+                      <span style={{ color: "var(--text)", fontWeight: 600 }}>{rampLast.v.toFixed(1)}%</span> of US businesses on Ramp
+                      {rampYearAgo && ` (+${(rampLast.v - rampYearAgo.v).toFixed(1)} pts in a year)`} · Anthropic{" "}
+                      {ramp.vendors.Anthropic?.at(-1)?.v.toFixed(1)}%, OpenAI {ramp.vendors.OpenAI?.at(-1)?.v.toFixed(1)}%
+                    </>
+                  )}
+                </p>
+                <TimeLinesChart rows={rampAdoptRows} keys={["All businesses", "Anthropic", "OpenAI", "xAI"]} unit="%" dateLabel="Month of" ranges={["1Y", "2Y", "All"]} defaultRange="All" storageKey="ramp:adopt" />
+                <Explain id="rampAdoption" />
+              </div>
+              <div className="card">
+                <h3>Adoption by business size</h3>
+                <p className="sub">Share of businesses with a paid AI product or API in the month</p>
+                <TimeLinesChart rows={rampSizeRows} keys={["Large businesses", "Medium-sized businesses", "Small businesses"]} unit="%" dateLabel="Month of" ranges={["1Y", "2Y", "All"]} defaultRange="All" storageKey="ramp:size" />
+                <Explain id="rampSize" />
+              </div>
+              <div className="card">
+                <h3>AI spend per employee per month</h3>
+                <p className="sub">
+                  {ramp.spend.at(-1) &&
+                    `${rampMonth(ramp.spend.at(-1)!.t)}: median firm paying for AI $${ramp.spend.at(-1)!.median.toFixed(2)}, top 10% $${ramp.spend.at(-1)!.top10.toFixed(0)}, top 1% $${ramp.spend.at(-1)!.top1.toLocaleString("en-US", { maximumFractionDigits: 0 })}`}
+                </p>
+                <TimeLinesChart rows={rampSpendRows} keys={["Median firm", "Top 10% (median)"]} unit="usd" dateLabel="Month of" ranges={["1Y", "2Y", "All"]} defaultRange="All" storageKey="ramp:spend" />
+                <Explain id="rampSpend" />
+              </div>
+              <div className="card">
+                <h3>Who businesses pay for tokens</h3>
+                <p className="sub">
+                  Week ending {ramp.tokens.week ?? "—"} vs {ramp.tokens.prevWeek ?? "—"}
+                  {ramp.tokens.spendChangePct != null && ` · total token spend ${ramp.tokens.spendChangePct >= 0 ? "+" : ""}${ramp.tokens.spendChangePct}%`}
+                  {ramp.tokens.volumeChangePct != null && `, volume ${ramp.tokens.volumeChangePct >= 0 ? "+" : ""}${ramp.tokens.volumeChangePct}%`}
+                  {ramp.aiShareOfSpend && ` · AI is ${ramp.aiShareOfSpend.now}% of non-payroll business spend`}
+                </p>
+                <SortableTable
+                  storageKey="table:rampTokens"
+                  columns={[
+                    { label: "Provider" },
+                    { label: "Share of spend", firstDir: "desc" },
+                    { label: "Month earlier", firstDir: "desc" },
+                    { label: "Share of tokens", firstDir: "desc" },
+                    { label: "$ per M tokens", title: "Blended price per million tokens", firstDir: "desc" },
+                  ]}
+                  rows={ramp.tokens.spendShare.map((x) => {
+                    const vol = ramp.tokens.volumeShare.find((v) => v.name === x.name);
+                    const price = ramp.tokens.pricePerM.find((v) => v.name === x.name);
+                    return {
+                      key: x.name,
+                      sort: [x.name, x.now, x.prev, vol?.now ?? null, price?.now ?? null],
+                      cells: [
+                        x.name,
+                        <span style={{ color: "var(--text)", fontWeight: 600 }}>{x.now.toFixed(1)}%</span>,
+                        `${x.prev.toFixed(1)}%`,
+                        vol ? `${vol.now.toFixed(1)}%` : "—",
+                        price ? <span title={`Month earlier: $${price.prev.toFixed(2)}`}>${price.now.toFixed(2)}</span> : "—",
+                      ],
+                    };
+                  })}
+                />
+                {rampTokenRows.length >= 2 ? (
+                  <TimeLinesChart rows={rampTokenRows} keys={["Anthropic", "OpenAI", "xAI", "Google"]} unit="%" dateLabel="Week ending" ranges={["3M", "6M", "1Y", "2Y"]} defaultRange="1Y" dots storageKey="ramp:tokens" />
+                ) : (
+                  <p className="sub" style={{ marginTop: 8 }}>
+                    Ramp only publishes the latest week, so the dashboard saves each week&apos;s shares; the trend chart appears after
+                    the second week.
+                  </p>
+                )}
+                <Explain id="rampTokens" />
+              </div>
+            </div>
+          </>
+        )}
         <div className="card" style={{ marginTop: 14 }}>
           <h3>Latest figure per lab</h3>
           <p className="sub">Company-reported first; third-party estimates (Sensor Tower, Similarweb, QuestMobile) are marked. Hover a value for the exact wording.</p>
