@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-11-02",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -401,6 +401,40 @@
       }
     },
     {
+      "id": "lambda-ddtl-fixed",
+      "name": "Lambda fixed-rate delayed-draw term loan",
+      "project": "GPU servers for three deployments with two investment-grade hyperscale customers",
+      "type": "gpu",
+      "tenants": [
+        "Lambda"
+      ],
+      "equity": [
+        {
+          "name": "Lambda",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "JPMorgan (sole lead arranger)",
+        "Institutional investors"
+      ],
+      "debtB": 1.008,
+      "equityB": null,
+      "rating": "Baa1 (Moody's) / A (low) (DBRS)",
+      "terms": "Senior secured delayed-draw term loan, drawn as clusters enter service; secured by the GPU servers and related equipment plus contracted cash flows; 6.78% fixed, paid semi-annually; fully amortizing, matures May 30, 2033. Lambda's first fixed-rate financing",
+      "date": "2026-10-01",
+      "status": "closed",
+      "stress": null,
+      "source": "https://lambda.ai/blog/lambda-closes-1-billion-senior-secured-fixed-rate-financing",
+      "events": [
+        {
+          "date": "2026-10-01",
+          "text": "$1.008B financing closed at a 6.78% fixed rate (Baa1 / A (low))",
+          "source": "https://lambda.ai/blog/lambda-closes-1-billion-senior-secured-fixed-rate-financing"
+        }
+      ]
+    },
+    {
       "id": "volta-tydal",
       "name": "Volta Infrastructure GPU loan",
       "project": "Tydal, Norway (121 MW, leased from Bitdeer)",
@@ -513,19 +547,39 @@
         "Morgan Stanley",
         "Blackstone"
       ],
-      "debtB": 60,
+      "debtB": 63,
       "equityB": null,
       "rating": null,
-      "terms": "SPV buys the chips and leases them to Anthropic; $42B Class A senior secured tranche (banks) with a partial residual value guarantee from Broadcom (A-), and an $18B Class B junior tranche led by Blackstone ($9B of its own money). Covers roughly half of the $125.2B five-year TPU lease; payments start on delivery. Separate from Broadcom's up-to-$42B convertible note facility to Anthropic",
+      "terms": "Newly formed SPV buys Broadcom XPU AI racks and networking gear and leases them to Anthropic under part of the five-year 2026 TPU lease; deliveries from 2027. $63B of committed financing: first-lien portion (~$43.5B, about 69%, per Reuters) arranged by Bank of America, Citi and Morgan Stanley; Blackstone sole provider of the second lien. Broadcom gives the SPV residual value support covering any shortfall between 72.5% of the lease balance and the resale value of the racks, up to ~$43B undiscounted (8-K); remedies include assuming the lease or reselling racks to the seller at a fixed price. Banks agreed only after Broadcom offered higher rates and stronger protections (WSJ). Separate from Broadcom's up-to-$42B convertible note facility to Anthropic",
       "date": "2026-10-02",
-      "status": "raising",
+      "status": "closed",
       "stress": null,
-      "source": "https://www.techtimes.com/articles/328625/20261006/broadcom-anthropics-chip-supplier-lender-debt-guarantor-60-billion-syndication-begins.htm",
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526434271/d148323d8k.htm",
       "events": [
         {
           "date": "2026-10-02",
           "text": "Bloomberg: banks begin syndicating the $60B package; Blackstone leads the $18B junior tranche",
           "source": "https://cryptobriefing.com/wall-street-60-billion-anthropic-broadcom-deal/"
+        },
+        {
+          "date": "2026-10-26",
+          "text": "Bank of America, Blackstone, Citi and Morgan Stanley announce $63B of committed financing for the SPV; Blackstone provides the second lien",
+          "source": "https://www.investing.com/news/stock-market-news/broadcom-secures-63-billion-from-banks-to-finance-ai-compute-sales-to-anthropic-4973623"
+        },
+        {
+          "date": "2026-10-26",
+          "text": "Broadcom 8-K: residual value support ('Backstop') to the SPV, max ~$43B undiscounted once racks are deployed; covers shortfall below 72.5% of amounts owed on the lease",
+          "source": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526434271/d148323d8k.htm"
+        },
+        {
+          "date": "2026-10-27",
+          "text": "Reuters: first-lien debt ~$43.5B (69%); WSJ: Hock Tan agreed to higher interest rates and stronger guarantees after banks wavered over the weekend",
+          "source": "https://www.khaleejtimes.com/business/wall-street-banks-blackstone-line-up-63-billion-to-finance-broadcom-ai-chips-for-anthropic"
+        },
+        {
+          "date": "2026-11-02",
+          "text": "Anthropic S-1/A: in October Broadcom assigned to a newly formed special purpose financing entity its rights and obligations for part of the equipment under the 2026 lease; aggregate rent unchanged",
+          "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
         }
       ]
     },
@@ -545,12 +599,15 @@
       ],
       "lenders": [
         "Apollo",
-        "PIMCO (in talks, FT)"
+        "Goldman Sachs (sole structuring agent)",
+        "BlackRock",
+        "Goldman Sachs Asset Management",
+        "KKR"
       ],
       "debtB": 40,
       "equityB": null,
       "rating": null,
-      "terms": "Apollo-managed lessor buys GPU pods and leases them to SpaceX in tranches of about five to five and a quarter years; quarterly rent of 1/20 of financed cost plus a fixed rate set at pricing; ~$40B aggregate principal; expected to close before year-end, with leases starting in H1 2027 as GPUs are delivered. FT reported the package as ~$30B of investment-grade bonds plus ~$10B of loans",
+      "terms": "Apollo-managed lessor buys GPU pods (Nvidia Vera Rubin) and leases them to SpaceX in tranches of about five to five and a quarter years; quarterly rent of 1/20 of financed cost plus a fixed rate set at pricing; ~$40B aggregate principal; committed by financing parties led by Apollo and Goldman Sachs, with anchor commitments from BlackRock, Goldman Sachs Asset Management and KKR-advised accounts; expected to close before year-end, with leases starting in H1 2027 as GPUs are delivered. FT had reported the package as ~$30B of investment-grade bonds plus ~$10B of loans",
       "date": "2026-10-24",
       "status": "raising",
       "stress": null,
@@ -565,6 +622,11 @@
           "date": "2026-10-24",
           "text": "SpaceX signs a binding commitment letter for a ~$40B master finance lease with an Apollo-managed lessor (8-K filed Oct 26)",
           "source": "https://www.sec.gov/Archives/edgar/data/1181412/000110465926118614/tm2628247d1_8k.htm"
+        },
+        {
+          "date": "2026-10-26",
+          "text": "SpaceX/Apollo release: financing led by Apollo and Goldman Sachs (sole structuring agent); BlackRock, GSAM and KKR-advised accounts made anchor commitments; for Nvidia Vera Rubin chips",
+          "source": "https://www.apollo.com/insights-news/pressreleases/2026/10/spacex-secures--40-billion-in-the-largest-gpu-financing-ever"
         }
       ]
     },
@@ -598,6 +660,11 @@
           "date": "2026-10-17",
           "text": "$3.5B bridge facility signed with Citi (announced Oct 22 in a 6-K)",
           "source": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm"
+        },
+        {
+          "date": "2026-10-31",
+          "text": "WSJ: CoreWeave, Nebius and Nscale effectively shut out of the bond market in recent weeks as lenders and investors demand tougher terms; Nebius reportedly dropped a planned debut high-yield bond",
+          "source": "https://aiweekly.co/alerts/wsj-coreweave-nebius-and-nscale-effectively-shut-out-of-bond-market-as-lenders"
         }
       ],
       "pricing": {

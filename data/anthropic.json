@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-28",
+  "updated": "2026-11-02",
   "ticker": "ANT",
   "filed": "2026-10-26",
-  "status": "S-1 filed; not yet public",
-  "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+  "status": "S-1/A filed 2026-11-02 with Q3 2026 results; price range and share count still blank; not yet public",
+  "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
   "notes": "US$ millions from Anthropic's S-1 (unaudited quarters). Net loss is dominated by non-cash changes in the fair value of convertible notes, derivatives and SAFEs, which grow as the company's valuation rises. Adjusted operating income excludes stock-based compensation, non-cash charitable contributions and the $1.5B Bartz copyright settlement (Q3 2025). After the IPO, append each quarter from the 10-Q.",
   "quarters": [
     {
@@ -119,6 +119,25 @@
       "sbc": 1300,
       "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
       "filing": "S-1"
+    },
+    {
+      "period": "Q3 2026",
+      "end": "2026-09-30",
+      "revenue": 16956,
+      "compute": 9863,
+      "personnel": 1711,
+      "settlement": 0,
+      "sales": 2361,
+      "other": 3588,
+      "opex": 17523,
+      "operatingIncome": -567,
+      "interestIncome": 1248,
+      "fairValueChange": -21936,
+      "otherIncome": -1640,
+      "netIncome": -23291,
+      "sbc": 1100,
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+      "filing": "S-1/A"
     }
   ],
   "periods": [
@@ -166,6 +185,24 @@
       "pretaxIncome": -80727,
       "operatingCashFlow": 3929,
       "netIncome": -80748
+    },
+    {
+      "period": "9M 2025",
+      "revenue": 2545,
+      "operatingIncome": -5224,
+      "adjOperatingIncome": -3133,
+      "pretaxIncome": -25095,
+      "operatingCashFlow": -2024,
+      "netIncome": -25107
+    },
+    {
+      "period": "9M 2026",
+      "revenue": 33242,
+      "operatingIncome": -1260,
+      "adjOperatingIncome": 4081,
+      "pretaxIncome": -103622,
+      "operatingCashFlow": 6569,
+      "netIncome": -104039
     }
   ],
   "customers100k": [
@@ -191,12 +228,12 @@
     }
   ],
   "facts": {
-    "asOf": "2026-06-30",
-    "cashB": 112.4,
-    "shortTermInvestmentsB": 19.3,
-    "creditFacilityB": 3.2,
+    "asOf": "2026-09-30",
+    "cashB": 95.6,
+    "shortTermInvestmentsB": 36.3,
+    "creditFacilityB": 15.0,
     "capitalRaisedB": 141.1,
-    "rpoB": 10.8,
+    "rpoB": 13.8,
     "customers1m": {
       "value": 1900,
       "asOf": "2026-09-30",
@@ -219,8 +256,8 @@
       "note": "79% of Q3 2026 revenue came from outside the top five customers, up from 64% in Q1 2026; no customer over 10% of revenue in the nine months to Sep 30, 2026"
     },
     "cspMarketplaceSharePct": {
-      "value": 48,
-      "period": "H1 2026",
+      "value": 44,
+      "period": "9M 2026",
       "history": [
         {
           "period": "2023",
@@ -233,6 +270,10 @@
         {
           "period": "2025",
           "value": 47
+        },
+        {
+          "period": "H1 2026",
+          "value": 48
         }
       ]
     },

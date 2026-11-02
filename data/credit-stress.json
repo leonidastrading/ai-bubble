@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-11-02",
   "notes": "Reported market prices of AI borrowers' credit: 5-year credit default swap (CDS) spreads in basis points and bond prices in cents on the dollar, each from a dated report. Curated weekly; CDS data itself is behind paywalls (ICE, S&P, Bloomberg).",
   "borrowers": [
     {
@@ -22,6 +22,24 @@
           "bps": 1194.5,
           "note": "Intraday record, ICE Data Services via Bloomberg",
           "source": "https://www.bloomberg.com/news/articles/2026-10-15/coreweave-risk-gauge-hits-record-pricing-60-odds-of-default"
+        },
+        {
+          "date": "2026-10-22",
+          "bps": 1167,
+          "note": "Peak, S&P Global Market Intelligence via Benzinga",
+          "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
+        },
+        {
+          "date": "2026-10-26",
+          "bps": 1148,
+          "note": "11:42 GMT, S&P Global Market Intelligence via Benzinga; 835 on Sep 25",
+          "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
+        },
+        {
+          "date": "2026-10-27",
+          "bps": 1041.4,
+          "note": "Markit; 'lowest level in over a week'. Date is the report's; session not stated",
+          "source": "https://cryptobriefing.com/coreweave-cds-spread-narrows-signaling-improved-credit-outlook/"
         }
       ],
       "bonds": [
@@ -32,13 +50,21 @@
           "date": "2026-10-15",
           "note": "Tradeweb via Reuters; about $50B of total debt",
           "source": "https://www.marketscreener.com/news/coreweave-shares-bonds-slide-further-as-ai-debt-fears-mount-ce785dd3dd8cf522"
+        },
+        {
+          "name": "9.625% notes due July 2032",
+          "price": 80.5,
+          "yield": 14.68,
+          "date": "2026-10-21",
+          "note": "Benzinga via Webull; 'roughly unchanged' on the day. 9% notes due Feb 2031 about 83 cents, 14.44%",
+          "source": "https://www.webull.com/news/15787145367661568"
         }
       ]
     },
     {
       "name": "Oracle",
       "ticker": "ORCL",
-      "rating": null,
+      "rating": "BBB- (S&P)",
       "cds": [
         {
           "date": "2026-10-15",
@@ -51,6 +77,12 @@
           "bps": 322,
           "note": "Record, 'on Monday'; Financial Times via Hedgeweek, data provider not named",
           "source": "https://hedgeweek.com/news/ai-debt-concerns-fuel-surge-in-credit-default-swap-trading"
+        },
+        {
+          "date": "2026-10-26",
+          "bps": 304,
+          "note": "S&P Global Market Intelligence via Benzinga; 236 on Sep 25",
+          "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
         }
       ],
       "bonds": []
@@ -91,6 +123,26 @@
           "bps": 232.6,
           "note": "ICE Data Services; Seoul Economic Daily report of Oct 22 (KST), session not stated. Same report: 6.6% 2046 bonds' spread widened to 2.64 pts on Oct 21 (Bloomberg)",
           "source": "https://en.sedaily.com/international/2026/10/22/spacex-bonds-weaken-despite-profit-beat-as-ai-spending"
+        },
+        {
+          "date": "2026-10-26",
+          "bps": 252,
+          "note": "S&P Global Market Intelligence via Benzinga; 181 on Sep 25",
+          "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
+        }
+      ],
+      "bonds": []
+    },
+    {
+      "name": "Meta",
+      "ticker": "META",
+      "rating": null,
+      "cds": [
+        {
+          "date": "2026-10-26",
+          "bps": 121,
+          "note": "S&P Global Market Intelligence via Benzinga; 98 on Sep 25",
+          "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
         }
       ],
       "bonds": []

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-11-02",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -36,13 +36,13 @@
       "id": "AMZN",
       "name": "Amazon",
       "ticker": "AMZN",
-      "shares": 10700000000
+      "shares": 10813100000
     },
     {
       "id": "GOOGL",
       "name": "Alphabet",
       "ticker": "GOOGL",
-      "shares": 12230000000
+      "shares": 12294000000
     },
     {
       "id": "META",
@@ -421,8 +421,8 @@
       "amountB": 44.9,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "At least $44.9B of Azure compute, Nov 2026 to May 2033 (S-1; was $30B in Nov 2025)",
-      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+      "label": "At least $44.9B of Azure compute, Nov 2026 to Jun 2033 (S-1/A; amended Feb–Oct 2026; was $30B in Nov 2025)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -438,11 +438,11 @@
       "from": "AMZN",
       "to": "ANTHROPIC",
       "type": "investment",
-      "amountB": 8,
+      "amountB": 28,
       "date": "2024-11-22",
       "status": "announced",
-      "label": "$8B total investment",
-      "source": "https://sacra.com/c/anthropic/"
+      "label": "$8B through 2024; April 2026 agreement for up to $20B more: $5B invested in the May 2026 Series H, $15B still available in notes or non-voting stock (S-1/A)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -458,21 +458,21 @@
       "from": "GOOGL",
       "to": "ANTHROPIC",
       "type": "investment",
-      "amountB": null,
+      "amountB": 30,
       "date": "2025-01-22",
       "status": "announced",
-      "label": "Equity stake (reported ~14%)",
-      "source": "https://sacra.com/c/anthropic/"
+      "label": "Equity stake (reported ~14%); March 2026 agreement for up to $30B more: $10B invested in the May 2026 Series H, up to $20B more in notes or non-voting stock through 2030 (S-1/A)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
     },
     {
       "from": "ANTHROPIC",
       "to": "GOOGL",
       "type": "services",
-      "amountB": 114.5,
+      "amountB": 121.3,
       "date": "2025-10-23",
       "status": "announced",
-      "label": "At least $114.5B of Google Cloud commitments, Apr 2026 to Jul 2033, owed regardless of usage (S-1); up to 1M TPUs",
-      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+      "label": "At least $121.3B of Google Cloud commitments, Apr 2026 to Jul 2033, owed regardless of usage (S-1/A; up from $114.5B after amendments through Oct 2026); plus an estimated $125–150B of additional TPU compute for 2028–2031; up to 1M TPUs",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -481,8 +481,8 @@
       "amountB": 161.2,
       "date": "2026-09-01",
       "status": "announced",
-      "label": "~$161.2B rent under five-year master equipment leases for Google TPU hardware (S-1); Broadcom has assigned part of one lease to a third party",
-      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+      "label": "~$161.2B rent under five-year master equipment leases for Google TPU hardware (S-1/A); in Oct 2026 Broadcom assigned part of the 2026 lease to a new SPV financed with $63B from BofA, Citi, Morgan Stanley and Blackstone, backed by up to ~$43B of Broadcom residual value support",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
     },
     {
       "from": "ANTHROPIC",

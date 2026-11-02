@@ -1,14 +1,14 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-11-02",
   "notes": "Software share of each public BDC's portfolio at fair value, from its latest 10-Q or earnings presentation. pct is the sum of all software rows when the company splits them; label names the rows used. priorPct is from the same table's comparison column (the last fiscal year-end), not a year earlier.",
   "bdcs": [
     {
       "symbol": "ARCC",
-      "pct": 22.0,
+      "pct": 21.6,
       "label": "Software and Services",
-      "asOf": "2026-06-30",
+      "asOf": "2026-09-30",
       "priorPct": 23.8,
-      "source": "https://www.sec.gov/Archives/edgar/data/0001287750/000162828026050307/arcc-20260630.htm",
+      "source": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067383/arcc-20260930.htm",
       "note": "GICS row. IHAM and SDLP are listed as Financial Services and Investment Funds and not looked through. Prior = Dec 31, 2025."
     },
     {
@@ -58,12 +58,12 @@
     },
     {
       "symbol": "HTGC",
-      "pct": 32.8,
+      "pct": 25.7,
       "label": "Application Software + System Software",
-      "asOf": "2026-06-30",
-      "priorPct": 34.9,
-      "source": "https://www.sec.gov/Archives/edgar/data/1280784/000128078426000042/htgc-20260630.htm",
-      "note": "24.6% + 8.2%, summed. Venture lender to growth-stage tech. Prior = Dec 31, 2025."
+      "asOf": "2026-09-30",
+      "priorPct": 30.3,
+      "source": "https://www.sec.gov/Archives/edgar/data/1280784/000128078426000054/htgc-20260930.htm",
+      "note": "23.2% + 2.5%, summed. From Sep 30, 2026 HTGC split out new Cybersecurity (4.1%), Healthcare Technology & Digital Health (2.8%), Financial Technologies and Energy Technologies rows, partly from the software rows, and restated Dec 31, 2025 (23.4% + 6.9%), so not comparable with the 32.8% reported for Jun 30. Venture lender to growth-stage tech."
     }
   ]
 }

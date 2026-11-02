@@ -69,7 +69,7 @@ export const EXPLAIN: Record<string, Explanation> = {
   },
   anRevenue: {
     what: "Anthropic's revenue and total operating expenses each quarter, from its S-1 (and, after the IPO, its 10-Qs). Most revenue is usage-based API billing, metered in tokens.",
-    why: "This is the first frontier lab whose books are public. Revenue overtaking operating costs in Q2 2026 is the clearest evidence so far that AI demand can pay for itself at a lab level.",
+    why: "This is the first frontier lab whose books are public. Revenue overtook operating costs in Q2 2026, the clearest evidence so far that AI demand can pay for itself at a lab level; Q3 slipped back to a small loss on $5B of costlier short-term compute and $2B of non-cash donation-matching charges.",
     watch: "Quarter-on-quarter growth slowing sharply after a model launch cycle; costs growing faster than revenue again once new committed compute comes online.",
   },
   anCosts: {
@@ -84,7 +84,7 @@ export const EXPLAIN: Record<string, Explanation> = {
   },
   anComputePct: {
     what: "Compute and infrastructure expense divided by revenue, each quarter.",
-    why: "It's the core unit-economics test for an AI lab: above 100% means every dollar of revenue needs more than a dollar of compute. It fell from 251% to 48% in six quarters as revenue outgrew committed capacity.",
+    why: "It's the core unit-economics test for an AI lab: above 100% means every dollar of revenue needs more than a dollar of compute. It fell from 251% (Q1 2025) to 48% (Q2 2026) as revenue outgrew committed capacity, then rose to 58% in Q3 as new capacity arrived, including $5B bought short-term at higher prices.",
     watch: "The ratio rising again, which would mean new capacity arriving faster than customers use it: the overbuild scenario at the lab level.",
   },
   anCommitments: {

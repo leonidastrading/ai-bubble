@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-29",
+  "updated": "2026-11-02",
   "notes": "Millions. Dates are when the figure was announced (day 01 = month only, as noted). Each series is one metric; weekly, monthly and daily users, paid seats and queries are never mixed. Most company figures are floors ('more than X'). Definitions differ: Gemini = app plus web, excluding Search; Meta AI = use across all Meta apps; Microsoft = all first-party Copilots; Grok includes use inside X. Third-party estimates are tagged sourceType third-party. Revenue is excluded.",
   "series": [
     {
@@ -271,6 +271,28 @@
           "value": 10,
           "source": "https://s21.q4cdn.com/399680738/files/content_files/META-Q3-2026-Earnings-Call-Transcript.pdf",
           "note": "Q3 2026 call, Zuckerberg: 'In just a month and a half, more than 10 million people in the US and Canada have set up Muse personal agents'; about 25% use it on any given day. Not a monthly-active count; no Meta AI MAU given on the call"
+        }
+      ]
+    },
+    {
+      "id": "amazon-shopping-assistant-annual",
+      "lab": "Amazon",
+      "product": "Alexa for Shopping (formerly Rufus)",
+      "metric": "Customers who used it over a year",
+      "label": "Amazon shopping assistant (annual)",
+      "group": "users",
+      "points": [
+        {
+          "date": "2026-02-05",
+          "value": 300,
+          "source": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000002/amzn-20251231xex991.htm",
+          "note": "Q4 2025 release: 'Rufus was used by 300 million+ customers' in 2025"
+        },
+        {
+          "date": "2026-10-29",
+          "value": 400,
+          "source": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000038/amzn-20260930xex991.htm",
+          "note": "Q3 2026 release: Alexa for Shopping 'used by 400 million+ customers in the last 12 months', interactions up 570% year over year. Rufus and Alexa+ shopping merged in May 2026. Annual reach, not monthly users"
         }
       ]
     },
