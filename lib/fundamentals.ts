@@ -1,4 +1,5 @@
-import { fetchConcept, type Fact } from "./sec";
+import { fetchConcept, fetchSharesOutstanding, type Fact } from "./sec";
+import { fetchQuote } from "./yahoo";
 
 export type Quarter = { end: string; val: number };
 
@@ -203,6 +204,14 @@ export type PeerQuarter = {
   revenue: number; // USD
   growthYoY: number | null; // %
   operatingMargin: number | null; // %
+  /** Price × shares outstanding, USD; latest quarter only. */
+  marketCap: number | null;
+  /** Market cap ÷ trailing-four-quarter net income; null when there are losses or no data. */
+  pe: number | null;
+  /** Trailing-four-quarter net income was negative. */
+  lossMaking: boolean;
+  /** Market cap ÷ trailing-four-quarter revenue. */
+  ps: number | null;
 };
 
 export const PEERS = [
@@ -216,7 +225,7 @@ export const PEERS = [
   { symbol: "CRWV", name: "CoreWeave" },
 ];
 
-function peerQuarter(symbol: string, name: string, rev: Quarter[], op: Quarter[], end: string): PeerQuarter {
+function peerQuarter(symbol: string, name: string, rev: Quarter[], op: Quarter[], end: string): Omit<PeerQuarter, "marketCap" | "pe" | "ps" | "lossMaking"> {
   const r = rev.find((q) => q.end === end)!;
   const prior = yearAgo(rev, end);
   const o = op.find((q) => q.end === end);
@@ -234,12 +243,34 @@ function peerQuarter(symbol: string, name: string, rev: Quarter[], op: Quarter[]
  * Latest quarter for each peer. For Nvidia, also the quarter when its revenue was closest to `nearRevenue`
  * (Anthropic's latest quarter), to compare companies at the same size.
  */
-export async function fetchPeer(symbol: string, name: string, nearRevenue?: number): Promise<PeerQuarter[]> {
-  const [rev, op] = await Promise.all([mergedQuarters(symbol, REVENUE), mergedQuarters(symbol, ["OperatingIncomeLoss"]).catch(() => [] as Quarter[])]);
-  const out = [peerQuarter(symbol, name, rev, op, rev[rev.length - 1].end)];
+export async function fetchPeer(symbol: string, name: string, nearRevenue?: number, fallbackShares?: number): Promise<PeerQuarter[]> {
+  const [rev, op, net, shares, quote] = await Promise.all([
+    mergedQuarters(symbol, REVENUE),
+    mergedQuarters(symbol, ["OperatingIncomeLoss"]).catch(() => [] as Quarter[]),
+    // Some companies moved their net income to ProfitLoss (Broadcom).
+    mergedQuarters(symbol, ["NetIncomeLoss", "ProfitLoss"]).catch(() => [] as Quarter[]),
+    fetchSharesOutstanding(symbol).catch(() => null),
+    fetchQuote(symbol, name, "5d").catch(() => null),
+  ]);
+  const end = rev[rev.length - 1].end;
+  // Multi-class companies have no single cover-page count (404); fall back to the money web's.
+  const shareCount = shares?.shares ?? fallbackShares ?? null;
+  const marketCap = quote && shareCount ? quote.last * shareCount : null;
+  const ttmOf = (qs: Quarter[]) => ttm(qs).find((q) => q.end === end)?.val ?? null;
+  const ttmRev = ttmOf(rev);
+  const ttmNet = ttmOf(net);
+  const out: PeerQuarter[] = [
+    {
+      ...peerQuarter(symbol, name, rev, op, end),
+      marketCap,
+      pe: marketCap && ttmNet && ttmNet > 0 ? marketCap / ttmNet : null,
+      lossMaking: ttmNet != null && ttmNet <= 0,
+      ps: marketCap && ttmRev ? marketCap / ttmRev : null,
+    },
+  ];
   if (nearRevenue) {
     const near = rev.slice(0, -1).reduce((a, b) => (Math.abs(b.val - nearRevenue) < Math.abs(a.val - nearRevenue) ? b : a));
-    out.push(peerQuarter(symbol, name, rev, op, near.end));
+    out.push({ ...peerQuarter(symbol, name, rev, op, near.end), marketCap: null, pe: null, lossMaking: false, ps: null });
   }
   return out;
 }

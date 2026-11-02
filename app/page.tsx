@@ -349,6 +349,11 @@ export default async function Page() {
     .map((e) => ({ label: dealNames[e.to] ?? e.to, value: e.amountB as number }))
     .sort((a, b) => b.value - a.value);
   const anCommitTotal = anCommitments.reduce((a, b) => a + b.value, 0);
+  // Anthropic's private valuation (money web) and trailing-four-quarter revenue, for market cap and P/S.
+  const anValuation = dealsData.nodes.find((n) => n.id === "ANTHROPIC")?.private;
+  const anTtmRevenue = anQ.length >= 4 ? anQ.slice(-4).reduce((a, q) => a + q.revenue, 0) : null;
+  const capB = (v: number | null) => (v == null ? "—" : v >= 1e12 ? `$${(v / 1e12).toFixed(2)}T` : `$${(v / 1e9).toFixed(0)}B`);
+  const multiple = (v: number | null) => (v == null ? "—" : `${v.toFixed(v < 10 ? 1 : 0)}×`);
   // Anthropic's latest quarter next to public companies' latest (and Nvidia's quarter at the same size).
   const peerRows = [
     {
@@ -358,6 +363,10 @@ export default async function Page() {
       revenue: anLast.revenue * 1e6,
       growthYoY: anYearAgo ? (anLast.revenue / anYearAgo.revenue - 1) * 100 : null,
       operatingMargin: (anLast.operatingIncome / anLast.revenue) * 100,
+      marketCap: anValuation?.valueB ? anValuation.valueB * 1e9 : null,
+      pe: null as number | null,
+      lossMaking: anthropicData.quarters.slice(-4).reduce((a, q) => a + q.netIncome, 0) < 0,
+      ps: anValuation?.valueB && anTtmRevenue ? (anValuation.valueB * 1e9) / (anTtmRevenue * 1e6) : null,
       note: "S-1",
     },
     ...d.peers.map((p, i, all) => {
@@ -369,6 +378,10 @@ export default async function Page() {
         revenue: p.revenue,
         growthYoY: p.growthYoY,
         operatingMargin: p.operatingMargin,
+        marketCap: p.marketCap,
+        pe: p.pe,
+        lossMaking: p.lossMaking,
+        ps: p.ps,
         note: historic ? "Earlier quarter" : p.symbol,
       };
     }),
@@ -899,7 +912,9 @@ export default async function Page() {
           <h3>Compared with public companies</h3>
           <p className="sub">
             Latest quarter of each company from its SEC filings, plus Nvidia&apos;s quarter when its revenue was closest to
-            Anthropic&apos;s today. Growth is against the same quarter a year earlier.
+            Anthropic&apos;s today. Growth is against the same quarter a year earlier. Market cap is today&apos;s price × shares;
+            P/E and P/S use the last four quarters. *Anthropic isn&apos;t listed yet: its latest private valuation
+            {anValuation ? ` (${anValuation.asOf})` : ""}.
           </p>
           <SortableTable
             storageKey="table:anPeers"
@@ -909,16 +924,28 @@ export default async function Page() {
               { label: "Revenue", firstDir: "desc" },
               { label: "Growth vs a year ago", firstDir: "desc" },
               { label: "Operating margin", firstDir: "desc" },
+              { label: "Market cap", title: "Price × shares outstanding; Anthropic: latest private valuation", firstDir: "desc" },
+              { label: "P/E", title: "Market cap ÷ net income over the last four quarters; — when there were losses", firstDir: "desc" },
+              { label: "P/S", title: "Market cap ÷ revenue over the last four quarters", firstDir: "desc" },
             ]}
             rows={peerRows.map((p) => ({
               key: p.key,
-              sort: [p.name, p.end, p.revenue, p.growthYoY, p.operatingMargin],
+              sort: [p.name, p.end, p.revenue, p.growthYoY, p.operatingMargin, p.marketCap, p.pe, p.ps],
               cells: [
                 p.key === "ANT" ? <strong>{p.name}</strong> : <span title={p.note}>{p.name}</span>,
                 p.end,
                 fmtM(Math.round(p.revenue / 1e6)),
                 pctCell(p.growthYoY),
                 pctCell(p.operatingMargin),
+                p.key === "ANT" && anValuation ? (
+                  <a href={anValuation.source ?? undefined} target="_blank" rel="noreferrer" title={`Private valuation, ${anValuation.asOf}`}>
+                    {capB(p.marketCap)}*
+                  </a>
+                ) : (
+                  capB(p.marketCap)
+                ),
+                p.lossMaking ? <span className="faint">loss</span> : multiple(p.pe),
+                multiple(p.ps),
               ],
             }))}
           />

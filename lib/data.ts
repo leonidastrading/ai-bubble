@@ -2,6 +2,7 @@ import { BDCS, CAPEX_COMPANIES, SOFTWARE_GROUP, FRED_SERIES, GPU_MODELS, NEWS_FE
 import { fetchFred, type FredData } from "./fred";
 import { fetchCapex, fetchNvidiaHealth, fetchPeer, PEERS, type CapexRow, type NvidiaHealth, type PeerQuarter } from "./fundamentals";
 import anthropicData from "@/data/anthropic.json";
+import dealsData from "@/data/ai-deals.json";
 import { fetchGpuHistory, fetchGpuPrice, fetchLambdaPrices, fetchRunpodPrices, mergeGpuHistory, type GpuPrice, type GpuWeek, type ListPrices } from "./gpu";
 import { readGpuArchive, readHistory, readPriceLog, readSavedTrends, type PricePoint, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
@@ -218,7 +219,14 @@ export async function getDashboardData(): Promise<DashboardData> {
     settle(fetchRamp()),
     // Nvidia also gets its quarter closest to Anthropic's latest revenue ($ millions in the curated file).
     mapLimit(PEERS, 2, (p) =>
-      settle(fetchPeer(p.symbol, p.name, p.symbol === "NVDA" ? anthropicData.quarters[anthropicData.quarters.length - 1].revenue * 1e6 : undefined)),
+      settle(
+        fetchPeer(
+          p.symbol,
+          p.name,
+          p.symbol === "NVDA" ? anthropicData.quarters[anthropicData.quarters.length - 1].revenue * 1e6 : undefined,
+          dealsData.nodes.find((n) => "ticker" in n && n.ticker === p.symbol && "shares" in n)?.shares as number | undefined,
+        ),
+      ),
     ),
   ]);
   const peers: PeerQuarter[] = [];
