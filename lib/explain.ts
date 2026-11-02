@@ -102,6 +102,11 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Operating cash flow turned positive ($3.9B) in the first half of 2026, which matters more than the headline net loss.",
     watch: "Cash flow turning negative again as prepayments for compute grow.",
   },
+  anPeers: {
+    what: "Anthropic's latest quarter next to large public tech companies' latest quarters (revenue, growth against the same quarter a year earlier, operating margin), from SEC filings and refreshed daily. Nvidia also appears at the quarter when its revenue was closest to Anthropic's today.",
+    why: "No public company combines Anthropic's size, growth and margins. Companies of similar revenue grow 10–30% a year and are solidly profitable; the one that grew comparably fast at this size, Nvidia, sells the chips with margins above 50%, while Anthropic buys the compute.",
+    watch: "Anthropic's growth converging toward its peers' while its margin stays near zero: the profile of a business that has to keep raising money.",
+  },
   anFacts: {
     what: "Other figures from the S-1: cash, contracted future revenue, net revenue retention, customer concentration, the share sold through cloud marketplaces, and revenue per employee.",
     why: "Half the revenue arrives through the same three clouds Anthropic buys most compute from, part of the circular-flow question: the clouds are suppliers, investors, lenders and distributors at once.",

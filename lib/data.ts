@@ -1,6 +1,7 @@
 import { BDCS, CAPEX_COMPANIES, SOFTWARE_GROUP, FRED_SERIES, GPU_MODELS, NEWS_FEEDS, SEC_WATCH, TICKER_GROUPS, TRENDS_GEO, TRENDS_GROUPS } from "./config";
 import { fetchFred, type FredData } from "./fred";
-import { fetchCapex, fetchNvidiaHealth, type CapexRow, type NvidiaHealth } from "./fundamentals";
+import { fetchCapex, fetchNvidiaHealth, fetchPeer, PEERS, type CapexRow, type NvidiaHealth, type PeerQuarter } from "./fundamentals";
+import anthropicData from "@/data/anthropic.json";
 import { fetchGpuHistory, fetchGpuPrice, fetchLambdaPrices, fetchRunpodPrices, mergeGpuHistory, type GpuPrice, type GpuWeek, type ListPrices } from "./gpu";
 import { readGpuArchive, readHistory, readPriceLog, readSavedTrends, type PricePoint, type Snapshot } from "./history";
 import { mapLimit, settle } from "./http";
@@ -73,6 +74,8 @@ export type DashboardData = {
   dcCounts: { dcmap: DcMapCounts | null; kadoa: KadoaCounts | null };
   /** Ramp AI Index: business AI adoption and spend (85,000+ US firms). */
   ramp: RampIndex | null;
+  /** Latest quarter of public companies for comparison with Anthropic (SEC XBRL). */
+  peers: PeerQuarter[];
   /** Blob contents as read, so the refresh can write back without reading again. */
   saved: { trends: Record<string, TrendsData>; gpuArchive: GpuWeek[] };
   history: Snapshot[];
@@ -193,7 +196,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR, peerResults] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -213,7 +216,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     settle(fetchDcMap()),
     settle(fetchKadoa()),
     settle(fetchRamp()),
+    // Nvidia also gets its quarter closest to Anthropic's latest revenue ($ millions in the curated file).
+    mapLimit(PEERS, 2, (p) =>
+      settle(fetchPeer(p.symbol, p.name, p.symbol === "NVDA" ? anthropicData.quarters[anthropicData.quarters.length - 1].revenue * 1e6 : undefined)),
+    ),
   ]);
+  const peers: PeerQuarter[] = [];
+  peerResults.forEach((r, i) => {
+    if (r.ok) peers.push(...r.data);
+    else errors.push(`Peer ${PEERS[i].symbol}: ${r.error}`);
+  });
   if (!rampR.ok) errors.push(`Ramp AI Index: ${rampR.error}`);
   if (!dcMapR.ok) errors.push(`Data center counts (dcmap.us): ${dcMapR.error}`);
   if (!kadoaR.ok) errors.push(`Data center counts (Kadoa): ${kadoaR.error}`);
@@ -292,6 +304,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     polymarket,
     dcCounts: { dcmap: dcMapR.ok ? dcMapR.data : null, kadoa: kadoaR.ok ? kadoaR.data : null },
     ramp: rampR.ok ? rampR.data : null,
+    peers,
     saved: { trends: savedTrends, gpuArchive },
     history,
     errors,

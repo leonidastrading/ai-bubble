@@ -349,6 +349,31 @@ export default async function Page() {
     .map((e) => ({ label: dealNames[e.to] ?? e.to, value: e.amountB as number }))
     .sort((a, b) => b.value - a.value);
   const anCommitTotal = anCommitments.reduce((a, b) => a + b.value, 0);
+  // Anthropic's latest quarter next to public companies' latest (and Nvidia's quarter at the same size).
+  const peerRows = [
+    {
+      key: "ANT",
+      name: "Anthropic",
+      end: anLast.end,
+      revenue: anLast.revenue * 1e6,
+      growthYoY: anYearAgo ? (anLast.revenue / anYearAgo.revenue - 1) * 100 : null,
+      operatingMargin: (anLast.operatingIncome / anLast.revenue) * 100,
+      note: "S-1",
+    },
+    ...d.peers.map((p, i, all) => {
+      const historic = all.findIndex((x) => x.symbol === p.symbol) !== i;
+      return {
+        key: `${p.symbol}-${p.end}`,
+        name: historic ? `${p.name}, at the same size` : p.name,
+        end: p.end,
+        revenue: p.revenue,
+        growthYoY: p.growthYoY,
+        operatingMargin: p.operatingMargin,
+        note: historic ? "Earlier quarter" : p.symbol,
+      };
+    }),
+  ];
+  const pctCell = (v: number | null, digits = 0) => (v == null ? "—" : `${v >= 0 ? "+" : "−"}${Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: digits })}%`);
 
   // Two-way deals: a company that funds a buyer that also buys from it.
   const dealLoops = (() => {
@@ -869,6 +894,35 @@ export default async function Page() {
             <PeriodBarChart rows={anCustomers} keys={["Customers paying $100K+ a year"]} unit="num" />
             <Explain id="anCustomers" />
           </div>
+        </div>
+        <div className="card" style={{ marginTop: 14 }}>
+          <h3>Compared with public companies</h3>
+          <p className="sub">
+            Latest quarter of each company from its SEC filings, plus Nvidia&apos;s quarter when its revenue was closest to
+            Anthropic&apos;s today. Growth is against the same quarter a year earlier.
+          </p>
+          <SortableTable
+            storageKey="table:anPeers"
+            columns={[
+              { label: "Company" },
+              { label: "Quarter ending", firstDir: "desc" },
+              { label: "Revenue", firstDir: "desc" },
+              { label: "Growth vs a year ago", firstDir: "desc" },
+              { label: "Operating margin", firstDir: "desc" },
+            ]}
+            rows={peerRows.map((p) => ({
+              key: p.key,
+              sort: [p.name, p.end, p.revenue, p.growthYoY, p.operatingMargin],
+              cells: [
+                p.key === "ANT" ? <strong>{p.name}</strong> : <span title={p.note}>{p.name}</span>,
+                p.end,
+                fmtM(Math.round(p.revenue / 1e6)),
+                pctCell(p.growthYoY),
+                pctCell(p.operatingMargin),
+              ],
+            }))}
+          />
+          <Explain id="anPeers" />
         </div>
         <div className="grid g2" style={{ marginTop: 14 }}>
           <div className="card" style={{ gridColumn: "1 / -1" }}>

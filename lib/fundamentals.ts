@@ -194,3 +194,52 @@ export async function fetchNvidiaHealth(): Promise<NvidiaHealth> {
     series: series.slice(-16),
   };
 }
+
+/** Revenue scale, growth and profitability for comparing a company's latest quarter with Anthropic's. */
+export type PeerQuarter = {
+  symbol: string;
+  name: string;
+  end: string;
+  revenue: number; // USD
+  growthYoY: number | null; // %
+  operatingMargin: number | null; // %
+};
+
+export const PEERS = [
+  { symbol: "NVDA", name: "Nvidia" },
+  { symbol: "AVGO", name: "Broadcom" },
+  { symbol: "ORCL", name: "Oracle" },
+  { symbol: "UBER", name: "Uber" },
+  { symbol: "NFLX", name: "Netflix" },
+  { symbol: "AMD", name: "AMD" },
+  { symbol: "CRM", name: "Salesforce" },
+  { symbol: "CRWV", name: "CoreWeave" },
+];
+
+function peerQuarter(symbol: string, name: string, rev: Quarter[], op: Quarter[], end: string): PeerQuarter {
+  const r = rev.find((q) => q.end === end)!;
+  const prior = yearAgo(rev, end);
+  const o = op.find((q) => q.end === end);
+  return {
+    symbol,
+    name,
+    end,
+    revenue: r.val,
+    growthYoY: prior ? (r.val / prior - 1) * 100 : null,
+    operatingMargin: o ? (o.val / r.val) * 100 : null,
+  };
+}
+
+/**
+ * Latest quarter for each peer. For Nvidia, also the quarter when its revenue was closest to `nearRevenue`
+ * (Anthropic's latest quarter), to compare companies at the same size.
+ */
+export async function fetchPeer(symbol: string, name: string, nearRevenue?: number): Promise<PeerQuarter[]> {
+  const [rev, op] = await Promise.all([mergedQuarters(symbol, REVENUE), mergedQuarters(symbol, ["OperatingIncomeLoss"]).catch(() => [] as Quarter[])]);
+  const out = [peerQuarter(symbol, name, rev, op, rev[rev.length - 1].end)];
+  if (nearRevenue) {
+    const near = rev.slice(0, -1).reduce((a, b) => (Math.abs(b.val - nearRevenue) < Math.abs(a.val - nearRevenue) ? b : a));
+    out.push(peerQuarter(symbol, name, rev, op, near.end));
+  }
+  return out;
+}
