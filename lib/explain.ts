@@ -102,6 +102,21 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "Operating cash flow turned positive ($3.9B) in the first half of 2026, which matters more than the headline net loss.",
     watch: "Cash flow turning negative again as prepayments for compute grow.",
   },
+  anWho: {
+    what: "Share of Anthropic's revenue from customers paying $100K or more a year (its own measure of enterprise customers, which includes AI-native start-ups as well as large companies) versus everyone else: about 40 million individuals, professionals and small businesses. From the S-1. Periods with 9M are the first nine months of the year.",
+    why: "Revenue concentrated in businesses is stickier than consumer subscriptions, but it rests on companies' AI budgets, and some of those big customers are AI start-ups funded by venture capital, which would cut back quickly in a downturn.",
+    watch: "The big-customer share rising further, or the top-five share climbing back toward a third: more of the revenue riding on a few budgets.",
+  },
+  anModel: {
+    what: "Usage-based revenue (billed per token: the API, Claude Code usage beyond plans, enterprise spend commitments) versus subscriptions (monthly or annual plans such as Pro, Max, Team and Enterprise seats), in $ millions.",
+    why: "Usage-based revenue grows fastest when customers build on Claude, but it can shrink just as fast if they cut usage or switch models; subscriptions are steadier but smaller.",
+    watch: "Usage revenue flattening while token prices keep falling (see the Ramp token data): more usage needed for the same revenue.",
+  },
+  anGeo: {
+    what: "Revenue by customer billing address, United States versus the rest of the world, in $ millions.",
+    why: "A higher international share spreads the risk beyond US tech budgets, but adds export-control and regulatory exposure.",
+    watch: "International growth slowing after new export or data rules.",
+  },
   anPeers: {
     what: "Anthropic's latest quarter next to large public tech companies' latest quarters (revenue, growth against the same quarter a year earlier, operating margin), from SEC filings and refreshed daily. Nvidia also appears at the quarter when its revenue was closest to Anthropic's today.",
     why: "No public company combines Anthropic's size, growth and margins. Companies of similar revenue grow 10–30% a year and are solidly profitable; the one that grew comparably fast at this size, Nvidia, sells the chips with margins above 50%, while Anthropic buys the compute.",

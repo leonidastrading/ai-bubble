@@ -349,6 +349,18 @@ export default async function Page() {
     .map((e) => ({ label: dealNames[e.to] ?? e.to, value: e.amountB as number }))
     .sort((a, b) => b.value - a.value);
   const anCommitTotal = anCommitments.reduce((a, b) => a + b.value, 0);
+  // Who pays Anthropic: customer size, pricing model, geography (S-1/A).
+  const anMix = anthropicData.revenueMix;
+  const anMixLast = anMix.periods[anMix.periods.length - 1];
+  const anWho = anMix.periods.map((p) => ({
+    period: p.period,
+    "Customers paying $100K+ a year": p.bigCustomersPct,
+    "Everyone else": 100 - p.bigCustomersPct,
+  }));
+  const anModel = anMix.periods.map((p) => ({ period: p.period, "Usage-based (API, tokens)": p.consumption, Subscriptions: p.subscription }));
+  const anGeo = anMix.periods.map((p) => ({ period: p.period, "United States": p.us, International: p.intl }));
+  const anPct = (a: number, b: number) => Math.round((a / (a + b)) * 100);
+
   // Anthropic's private valuation (money web) and trailing-four-quarter revenue, for market cap and P/S.
   const anValuation = dealsData.nodes.find((n) => n.id === "ANTHROPIC")?.private;
   const anTtmRevenue = anQ.length >= 4 ? anQ.slice(-4).reduce((a, q) => a + q.revenue, 0) : null;
@@ -906,6 +918,47 @@ export default async function Page() {
             </p>
             <PeriodBarChart rows={anCustomers} keys={["Customers paying $100K+ a year"]} unit="num" />
             <Explain id="anCustomers" />
+          </div>
+        </div>
+        <h3 style={{ margin: "18px 0 8px" }}>Who pays Anthropic</h3>
+        <div className="grid g3">
+          <div className="card">
+            <h3>Big customers vs everyone else</h3>
+            <p className="sub">
+              {anMixLast.period}: {anMixLast.bigCustomersPct}% from customers paying $100K+ a year (more than{" "}
+              {anthropicData.customers100k[anthropicData.customers100k.length - 1].value.toLocaleString("en-US")} firms); the rest from about{" "}
+              {(anMix.smallCustomers.count / 1e6).toFixed(0)} million individuals, professionals and small firms
+            </p>
+            <PeriodBarChart rows={anWho} keys={["Customers paying $100K+ a year", "Everyone else"]} unit="%" stacked storageKey="an:who" />
+            <ul className="facts" style={{ marginTop: 8 }}>
+              <li>Government agencies: under {anMix.governmentPct.value}% of revenue in every period.</li>
+              <li>
+                Top five customers: about {anMix.top5Pct.value}% ({anMix.top5Pct.period}); no single customer over 10%.
+              </li>
+              <li>
+                {anMix.policyViolationPct.low}–{anMix.policyViolationPct.high}% of {anMix.policyViolationPct.period} revenue came from
+                customers later found breaking its usage policy or terms, booked before they were cut off.
+              </li>
+            </ul>
+            <Explain id="anWho" />
+          </div>
+          <div className="card">
+            <h3>Usage-based vs subscriptions</h3>
+            <p className="sub">
+              {anMixLast.period}: {anPct(anMixLast.consumption, anMixLast.subscription)}% usage-based (pay per token: API, Claude
+              Code usage, enterprise commitments), {anPct(anMixLast.subscription, anMixLast.consumption)}% subscriptions
+            </p>
+            <PeriodBarChart rows={anModel} keys={["Usage-based (API, tokens)", "Subscriptions"]} stacked storageKey="an:model" />
+            <Explain id="anModel" />
+          </div>
+          <div className="card">
+            <h3>United States vs international</h3>
+            <p className="sub">
+              {anMixLast.period}: {anPct(anMixLast.us, anMixLast.intl)}% US, {anPct(anMixLast.intl, anMixLast.us)}% international (by
+              customer billing address)
+            </p>
+            <PeriodBarChart rows={anGeo} keys={["United States", "International"]} stacked storageKey="an:geo" />
+            <Explain id="anGeo" />
           </div>
         </div>
         <div className="card" style={{ marginTop: 14 }}>

@@ -283,5 +283,72 @@
       "prior": 1.4,
       "note": "TTM revenue per employee"
     }
+  },
+  "revenueMix": {
+    "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+    "notes": "US$ millions. Geography by customer billing address; consumption = usage-based (API tokens, Claude Code usage, enterprise commitments); subscription = monthly/annual plans. bigCustomersPct = share of revenue from customers with $100K+ of revenue on a TTM basis (the S-1's 'enterprise' measure, which includes AI-native companies).",
+    "periods": [
+      {
+        "period": "2023",
+        "us": 34,
+        "intl": 7,
+        "consumption": 39,
+        "subscription": 2,
+        "bigCustomersPct": 90
+      },
+      {
+        "period": "2024",
+        "us": 263,
+        "intl": 123,
+        "consumption": 288,
+        "subscription": 98,
+        "bigCustomersPct": 57
+      },
+      {
+        "period": "2025",
+        "us": 3362,
+        "intl": 1223,
+        "consumption": 3796,
+        "subscription": 789,
+        "bigCustomersPct": 76
+      },
+      {
+        "period": "9M 2025",
+        "us": 1810,
+        "intl": 735,
+        "consumption": 2125,
+        "subscription": 420,
+        "bigCustomersPct": 75
+      },
+      {
+        "period": "9M 2026",
+        "us": 23470,
+        "intl": 9772,
+        "consumption": 26306,
+        "subscription": 6936,
+        "bigCustomersPct": 74
+      }
+    ],
+    "smallCustomers": {
+      "count": 40000000,
+      "sharePct": 26,
+      "period": "TTM to 2026-09-30",
+      "note": "approximately 40 million customers, each with less than $100,000 of revenue on a TTM basis"
+    },
+    "governmentPct": {
+      "value": 2,
+      "note": "less than 2% of revenue in each period presented"
+    },
+    "top5Pct": {
+      "value": 25,
+      "period": "9M 2026",
+      "note": "top five customers approximately 25% of revenue; no single customer over 10%"
+    },
+    "policyViolationPct": {
+      "low": 5,
+      "high": 7,
+      "period": "9M 2026",
+      "note": "revenue from customers later found to be violating the usage policy or commercial terms, recognized before access was restricted"
+    }
   }
 }
