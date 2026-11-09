@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-02",
+  "updated": "2026-11-09",
   "notes": "Reported market prices of AI borrowers' credit: 5-year credit default swap (CDS) spreads in basis points and bond prices in cents on the dollar, each from a dated report. Curated weekly; CDS data itself is behind paywalls (ICE, S&P, Bloomberg).",
   "borrowers": [
     {
@@ -40,6 +40,18 @@
           "bps": 1041.4,
           "note": "Markit; 'lowest level in over a week'. Date is the report's; session not stated",
           "source": "https://cryptobriefing.com/coreweave-cds-spread-narrows-signaling-improved-credit-outlook/"
+        },
+        {
+          "date": "2026-11-05",
+          "bps": 1289,
+          "note": "'Spiked above 1,289' on Thursday, Deutsche Bank data via CNBC; wider than the October peak",
+          "source": "https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html"
+        },
+        {
+          "date": "2026-11-06",
+          "bps": 1155,
+          "note": "'Around 1,155' after an 8% drop on Friday, CNBC (published midday); session not stated. Same report: 9.625% 2032 notes yield above 16%",
+          "source": "https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html"
         }
       ],
       "bonds": [
@@ -58,6 +70,14 @@
           "date": "2026-10-21",
           "note": "Benzinga via Webull; 'roughly unchanged' on the day. 9% notes due Feb 2031 about 83 cents, 14.44%",
           "source": "https://www.webull.com/news/15787145367661568"
+        },
+        {
+          "name": "Unsecured notes due 2031",
+          "price": 79.5,
+          "yield": null,
+          "date": "2026-11-04",
+          "note": "'As low as' 79.5 cents, Trace via Bloomberg, after Democratic governors who back slower data-center builds won; 2030 and 2032 notes yielding above 15%",
+          "source": "https://uk.finance.yahoo.com/news/coreweave-bonds-hit-lows-texas-154016333.html"
         }
       ]
     },
@@ -83,6 +103,24 @@
           "bps": 304,
           "note": "S&P Global Market Intelligence via Benzinga; 236 on Sep 25",
           "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
+        },
+        {
+          "date": "2026-10-28",
+          "bps": 274.4,
+          "note": "274.365; down 22.2 bps on the day, steepest one-day drop in about nine months, after Oracle capped new capital-markets funding. Bloomberg via Seoul Economic Daily",
+          "source": "https://en.sedaily.com/international/2026/11/02/oracle-credit-risk-eases-on-borrowing-cap-as-microsoft-bond"
+        },
+        {
+          "date": "2026-11-02",
+          "bps": 292,
+          "note": "CNBC chart, provider not named; 'up 265% in one year'. Same day Oracle filed to sell $20B of stock and bonds; its 4.95% 2031 notes yielded 7.276%",
+          "source": "https://www.cnbc.com/2026/11/02/oracle-files-to-sell-20-billion-in-new-stock-bonds-to-finance-ai-buildout.html"
+        },
+        {
+          "date": "2026-11-06",
+          "bps": 298,
+          "note": "'Roughly 298', CNBC; date is the report's, session not stated",
+          "source": "https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html"
         }
       ],
       "bonds": []
@@ -103,6 +141,12 @@
           "bps": 432,
           "note": "Widest since Nov 2022; Bloomberg data via The Edge Malaysia. More than 130 bps above Nissan, the next-widest major Japanese company",
           "source": "https://theedgemalaysia.com/node/822480"
+        },
+        {
+          "date": "2026-11-06",
+          "bps": 466,
+          "note": "Intraday, widest since October 2022 (457.5 at 06:53 GMT), Markit via Reuters; shares closed down 10.8%",
+          "source": "https://www.thestar.com.my/tech/tech-news/2026/11/06/softbank-credit-risk-jumps-to-4-year-high-as-ai-fears-roil-market"
         }
       ],
       "bonds": []
@@ -129,6 +173,12 @@
           "bps": 252,
           "note": "S&P Global Market Intelligence via Benzinga; 181 on Sep 25",
           "source": "https://www.tradingview.com/news/benzinga:595e6852b094b:0-coreweave-debt-fears-hit-a-record-some-are-whispering-lehman/"
+        },
+        {
+          "date": "2026-11-05",
+          "bps": 284.3,
+          "note": "Record; widened up to 14.6 bps on Thursday as Tesla and SpaceX fell after the midterms. 24/7 Wall St., provider not named",
+          "source": "https://247wallst.com/investing/2026/11/06/tesla-and-spacex-have-lost-457-billion-in-two-days/"
         }
       ],
       "bonds": []

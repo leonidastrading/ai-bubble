@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-02",
+  "updated": "2026-11-09",
   "notes": "Millions. Dates are when the figure was announced (day 01 = month only, as noted). Each series is one metric; weekly, monthly and daily users, paid seats and queries are never mixed. Most company figures are floors ('more than X'). Definitions differ: Gemini = app plus web, excluding Search; Meta AI = use across all Meta apps; Microsoft = all first-party Copilots; Grok includes use inside X. Third-party estimates are tagged sourceType third-party. Revenue is excluded.",
   "series": [
     {

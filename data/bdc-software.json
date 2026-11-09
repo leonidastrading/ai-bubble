@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-02",
+  "updated": "2026-11-09",
   "notes": "Software share of each public BDC's portfolio at fair value, from its latest 10-Q or earnings presentation. pct is the sum of all software rows when the company splits them; label names the rows used. priorPct is from the same table's comparison column (the last fiscal year-end), not a year earlier.",
   "bdcs": [
     {
@@ -13,29 +13,29 @@
     },
     {
       "symbol": "OBDC",
-      "pct": 11.6,
+      "pct": 11.8,
       "label": "Internet software and services",
-      "asOf": "2026-06-30",
+      "asOf": "2026-09-30",
       "priorPct": 11.1,
-      "source": "https://www.sec.gov/Archives/edgar/data/1655888/000165588826000056/obdc-20260630.htm",
+      "source": "https://www.sec.gov/Archives/edgar/data/1655888/000165588826000069/obdc-20260930.htm",
       "note": "A separate Healthcare technology row (5.8%) is not included. Prior = Dec 31, 2025."
     },
     {
       "symbol": "BXSL",
-      "pct": 18.9,
+      "pct": 18.7,
       "label": "Software",
-      "asOf": "2026-06-30",
+      "asOf": "2026-09-30",
       "priorPct": 20.5,
-      "source": "https://www.sec.gov/Archives/edgar/data/1736035/000173603526000016/bxsl-20260630.htm",
-      "note": "IT Services (4.7%) and Health Care Technology (4.5%) are separate rows, not included. Prior = Dec 31, 2025."
+      "source": "https://www.sec.gov/Archives/edgar/data/1736035/000173603526000020/bxsl-20260930.htm",
+      "note": "IT Services (4.8%) and Health Care Technology (4.6%) are separate rows, not included. Prior = Dec 31, 2025."
     },
     {
       "symbol": "FSK",
-      "pct": 17.7,
+      "pct": 18.1,
       "label": "Software & Services",
-      "asOf": "2026-06-30",
+      "asOf": "2026-09-30",
       "priorPct": 16.4,
-      "source": "https://www.sec.gov/Archives/edgar/data/1422183/000162828026053783/fsk-20260630.htm",
+      "source": "https://www.sec.gov/Archives/edgar/data/1422183/000162828026070499/fsk-20260930.htm",
       "note": "The Credit Opportunities Partners JV (14.4%) is a separate row and not looked through. Prior = Dec 31, 2025."
     },
     {
@@ -49,12 +49,12 @@
     },
     {
       "symbol": "MAIN",
-      "pct": 5.1,
+      "pct": 5.0,
       "label": "Internet Software & Services + Software",
-      "asOf": "2026-06-30",
+      "asOf": "2026-09-30",
       "priorPct": 5.6,
-      "source": "https://www.sec.gov/Archives/edgar/data/1396440/000139644026000094/main-20260630.htm",
-      "note": "3.0% + 2.1%, summed. Covers the LMM, private loan and middle-market portfolio. IT Services (2.4%) not included. Prior = Dec 31, 2025."
+      "source": "https://www.sec.gov/Archives/edgar/data/1396440/000139644026000159/main-20260930.htm",
+      "note": "2.8% + 2.2%, summed. Covers the LMM, private loan and middle-market portfolio. IT Services (2.3%) not included. Prior = Dec 31, 2025 (3.4% + 2.2%)."
     },
     {
       "symbol": "HTGC",
