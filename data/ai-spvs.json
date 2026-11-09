@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-02",
+  "updated": "2026-11-09",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -143,6 +143,11 @@
           "date": "2026-09-24",
           "text": "Oracle invokes force majeure to shield itself from payments if delays push the facility beyond 2028; Oracle says the project remains on schedule",
           "source": "https://www.krwg.org/krwg-news/2026-09-25/oracle-cites-force-majeure-on-project-jupiter-seeking-protection-from-loan-debt"
+        },
+        {
+          "date": "2026-11-05",
+          "text": "Bloomberg: ING auctions a ~$500M portfolio of a dozen data-center loans, including a $25M position tied to the Stargate New Mexico campus; bids due Nov 19",
+          "source": "https://www.thestandard.com.hk/finance/article/347740/ING-puts-500-million-of-data-center-loans-up-for-sale-Bloomberg-News-reports"
         }
       ]
     },
@@ -177,6 +182,11 @@
           "date": "2026-10-11",
           "text": "Bloomberg: JPMorgan, MUFG and other lenders still distributing the $38B after more than six months; some are selling pieces to non-bank buyers at a discount",
           "source": "https://startupfortune.com/banks-are-now-trying-to-offload-the-ai-data-center-debt-they-just-underwrote/"
+        },
+        {
+          "date": "2026-11-05",
+          "text": "ING's ~$500M data-center loan auction also includes debt linked to Vantage Data Centers (facility not specified); bids due Nov 19",
+          "source": "https://www.thestandard.com.hk/finance/article/347740/ING-puts-500-million-of-data-center-loans-up-for-sale-Bloomberg-News-reports"
         }
       ]
     },
@@ -602,12 +612,13 @@
         "Goldman Sachs (sole structuring agent)",
         "BlackRock",
         "Goldman Sachs Asset Management",
-        "KKR"
+        "KKR",
+        "PIMCO"
       ],
       "debtB": 40,
       "equityB": null,
       "rating": null,
-      "terms": "Apollo-managed lessor buys GPU pods (Nvidia Vera Rubin) and leases them to SpaceX in tranches of about five to five and a quarter years; quarterly rent of 1/20 of financed cost plus a fixed rate set at pricing; ~$40B aggregate principal; committed by financing parties led by Apollo and Goldman Sachs, with anchor commitments from BlackRock, Goldman Sachs Asset Management and KKR-advised accounts; expected to close before year-end, with leases starting in H1 2027 as GPUs are delivered. FT had reported the package as ~$30B of investment-grade bonds plus ~$10B of loans",
+      "terms": "SPV managed by Apollo-backed Atlas SP buys GPU pods (Nvidia Vera Rubin) and leases them to SpaceX in tranches of about five to five and a quarter years, with no residual value guarantee from SpaceX; quarterly rent of 1/20 of financed cost plus a fixed rate set at pricing; ~$40B aggregate principal, which with a $7B lease prepayment funds ~$47.3B of Rubin chips; committed by financing parties led by Apollo and Goldman Sachs, with anchor commitments from BlackRock, Goldman Sachs Asset Management and KKR-advised accounts; includes a Goldman-led $8.3B senior secured loan to be sold down to banks and Rule 144A bond tranches (PIMCO reportedly buying $4B of the A2 mezzanine tranche; junior tranche talked as high as 8.75%); expected to close before year-end, with leases starting in H1 2027 as GPUs are delivered",
       "date": "2026-10-24",
       "status": "raising",
       "stress": null,
@@ -627,6 +638,16 @@
           "date": "2026-10-26",
           "text": "SpaceX/Apollo release: financing led by Apollo and Goldman Sachs (sole structuring agent); BlackRock, GSAM and KKR-advised accounts made anchor commitments; for Nvidia Vera Rubin chips",
           "source": "https://www.apollo.com/insights-news/pressreleases/2026/10/spacex-secures--40-billion-in-the-largest-gpu-financing-ever"
+        },
+        {
+          "date": "2026-10-31",
+          "text": "Bloomberg/Semafor: PIMCO to buy $4B of the A2 tranche; junior tranche could carry up to 8.75% (from 8.3% a week earlier), vs 6.65% on SpaceX's costliest June bonds; fixed lease rate still to be set at pricing",
+          "source": "https://finance.yahoo.com/markets/stocks/articles/spacex-reportedly-faces-higher-borrowing-173003427.html"
+        },
+        {
+          "date": "2026-11-06",
+          "text": "Goldman and Apollo begin selling pieces ahead of formal syndication: Goldman-led $8.3B senior secured loan to banks, bond tranches to asset managers; SPV managed by Apollo-backed Atlas SP; no residual value guarantee from SpaceX",
+          "source": "https://finance.yahoo.com/technology/ai/articles/goldman-sachs-apollo-changes-position-151700645.html"
         }
       ]
     },

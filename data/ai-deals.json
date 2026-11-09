@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-02",
+  "updated": "2026-11-09",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -12,9 +12,9 @@
       "id": "OPENAI",
       "name": "OpenAI",
       "private": {
-        "valueB": 852,
-        "asOf": "2026-03-31",
-        "source": "https://valueaddvc.com/blog/openai-valuation-2026-852-billion-after-the-122b-raise"
+        "valueB": 1250,
+        "asOf": "2026-11-06",
+        "source": "https://gvwire.com/2026/11/06/openai-secures-11-billion-funding-at-1-25-trillion-valuation-bloomberg-news-reports/"
       }
     },
     {
@@ -90,7 +90,7 @@
       "id": "IREN",
       "name": "IREN",
       "ticker": "IREN",
-      "shares": 394100000
+      "shares": 424400000
     },
     {
       "id": "SPCX",
@@ -120,9 +120,9 @@
       "id": "NSCALE",
       "name": "Nscale",
       "private": {
-        "valueB": null,
-        "asOf": null,
-        "source": null
+        "valueB": 14.6,
+        "asOf": "2026-03-27",
+        "source": "https://valueaddvc.com/blog/nscale-ipo-2026-valuation"
       }
     },
     {
@@ -321,7 +321,7 @@
       "amountB": 23,
       "date": "2025-10-15",
       "status": "reported",
-      "label": "~200,000 GB300 GPUs across UK, Norway, Portugal, Texas",
+      "label": "~200,000 GB300 GPUs across UK, Norway, Portugal, Texas; in Oct 2026 Microsoft confirmed it exited the Loughton (UK) site over grid delays, and it declined an option for a second Barstow, Texas phase (FT, Nov 5); existing Texas contract unaffected",
       "source": "https://introl.com/blog/microsoft-60-billion-neocloud-spending-capacity-crunch-december-2025"
     },
     {
@@ -361,7 +361,7 @@
       "amountB": 9.7,
       "date": "2025-11-03",
       "status": "announced",
-      "label": "$9.7B over five years, 20% prepaid",
+      "label": "$9.7B over five years, 20% prepaid; Horizon 1 delivered to Microsoft in Q3 2026",
       "source": "https://introl.com/blog/microsoft-60-billion-neocloud-spending-capacity-crunch-december-2025"
     },
     {
@@ -633,6 +633,26 @@
       "status": "announced",
       "label": "Expanded ~$21B agreement for capacity through Dec 2032, including early Vera Rubin deployments",
       "source": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000154/ex991.htm"
+    },
+    {
+      "from": "META",
+      "to": "AMD",
+      "type": "hardware",
+      "amountB": null,
+      "date": "2026-02-24",
+      "status": "announced",
+      "label": "Up to 6 GW of AMD Instinct GPUs across multiple generations; first 1 GW (custom MI450 in Helios racks) ships from 2H 2026; value undisclosed (press estimates $60–100B+)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000045/pressreleasedatedfebruary2.htm"
+    },
+    {
+      "from": "AMD",
+      "to": "META",
+      "type": "investment",
+      "amountB": 1,
+      "date": "2026-02-24",
+      "status": "announced",
+      "label": "Warrant for up to 160M AMD shares at $0.01, vesting with Meta's GPU purchases (none vested as of Sept 26, 2026 per AMD 10-Q); plus a $1B investment in Meta's Oct 2026 equity offering",
+      "source": "https://ir.amd.com/news-events/press-releases/detail/1302/amd-and-meta-advance-strategic-partnership-to-power-metas-superintelligence-infrastructure"
     }
   ]
 }
