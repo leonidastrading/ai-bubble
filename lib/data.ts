@@ -17,6 +17,7 @@ import { fetchTrends, type TrendsData } from "./trends";
 import { fetchDcMap, fetchKadoa, type DcMapCounts, type KadoaCounts } from "./dccount";
 import { fetchUsdAiDeposits } from "./onchain";
 import { fetchRamp, type RampIndex } from "./ramp";
+import { fetchAiShare, type AiShare } from "./sp500-ai";
 import { fetchPolymarket, type PolyEvent } from "./polymarket";
 import { computeValuation, fetchMarginDebt, fetchMultpl, type Valuation } from "./valuation";
 import { fetchQuote, type Point, type Quote } from "./yahoo";
@@ -75,6 +76,8 @@ export type DashboardData = {
   dcCounts: { dcmap: DcMapCounts | null; kadoa: KadoaCounts | null };
   /** Ramp AI Index: business AI adoption and spend (85,000+ US firms). */
   ramp: RampIndex | null;
+  /** Share of the S&P 500 tied to AI (Eisman's breakdown), from SPY and sector-fund holdings. */
+  aiShare: AiShare | null;
   /** Latest quarter of public companies for comparison with Anthropic (SEC XBRL). */
   peers: PeerQuarter[];
   /** Blob contents as read, so the refresh can write back without reading again. */
@@ -197,7 +200,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR, peerResults] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR, peerResults, aiShareR] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -228,7 +231,9 @@ export async function getDashboardData(): Promise<DashboardData> {
         ),
       ),
     ),
+    settle(fetchAiShare()),
   ]);
+  if (!aiShareR.ok) errors.push(`S&P 500 AI share (SSGA holdings): ${aiShareR.error}`);
   const peers: PeerQuarter[] = [];
   peerResults.forEach((r, i) => {
     if (r.ok) peers.push(...r.data);
@@ -312,6 +317,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     polymarket,
     dcCounts: { dcmap: dcMapR.ok ? dcMapR.data : null, kadoa: kadoaR.ok ? kadoaR.data : null },
     ramp: rampR.ok ? rampR.data : null,
+    aiShare: aiShareR.ok ? aiShareR.data : null,
     peers,
     saved: { trends: savedTrends, gpuArchive },
     history,
@@ -347,6 +353,7 @@ export function toSnapshot(d: DashboardData): Snapshot {
       }),
       ...(d.dcCounts.kadoa && { kadoa: { operational: d.dcCounts.kadoa.operational, construction: d.dcCounts.kadoa.construction } }),
     },
+    aiShare: d.aiShare ? { total: +d.aiShare.totalAi.toFixed(2), groups: Object.fromEntries(d.aiShare.groups.map((g) => [g.id, +g.weight.toFixed(2)])) } : undefined,
     ramp: d.ramp?.tokens.week
       ? {
           week: d.ramp.tokens.week,

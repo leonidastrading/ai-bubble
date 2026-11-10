@@ -21,6 +21,8 @@ export type Snapshot = {
     dcmap?: { operational: number; construction: number; planned: number; paused: number };
     kadoa?: { operational: number; construction: number };
   };
+  /** Share of the S&P 500 tied to AI, total and by group (added Nov 2026). */
+  aiShare?: { total: number; groups: Record<string, number> };
   /** Ramp AI Index: latest weekly token-spend shares and AI share of business spend (added Nov 2026). */
   ramp?: { week: string; tokenSpend: Record<string, number>; aiShareOfSpend: number | null };
   signals: Record<string, number>;

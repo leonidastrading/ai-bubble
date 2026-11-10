@@ -154,6 +154,13 @@ export default async function Page() {
   }));
 
   // Capex as % of revenue per company, one slot per calendar quarter.
+  // Share of the S&P 500 tied to AI (after Eisman): live breakdown and saved daily history.
+  const aiShare = d.aiShare;
+  const aiShareRows = d.history
+    .filter((h) => h.aiShare)
+    .map((h) => ({ t: h.date, "AI-exposed share": h.aiShare!.total, "Information Technology": h.aiShare!.groups.tech ?? null }));
+  const AI_SEG = ["var(--s1)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)", "var(--s7)"];
+
   // Capital cycle (after Burry): net investment (capex minus depreciation) as a % of GDP vs the Nasdaq.
   const cycle = (() => {
     const gdp = new Map((d.fred.GDP?.points ?? []).map((p) => [p.t, p.v]));
@@ -2550,6 +2557,87 @@ export default async function Page() {
           Step 6: AI names are a large share of S&amp;P 500 weight, so their fall drags the index. The Fed can cut, but that
           can&apos;t restore earnings that were never going to arrive.
         </p>
+        {aiShare && (
+          <div className="card" style={{ marginBottom: 14 }}>
+            <h3>How much of the S&amp;P 500 is an AI bet</h3>
+            <p className="sub">
+              <span style={{ color: "var(--text)", fontWeight: 600 }}>{aiShare.totalAi.toFixed(0)}%</span> of the index by weight
+              {aiShare.asOf && ` (${aiShare.asOf})`}: the tech sector, the tech-like giants, and the utilities, industrials and
+              financials whose growth now rests on the buildout. Steve Eisman&apos;s version of this chart, with broader industrial and
+              financial groups, put it at 65%.
+            </p>
+            <div style={{ display: "flex", height: 34, borderRadius: 6, overflow: "hidden", margin: "6px 0 4px" }} role="img" aria-label="S&P 500 weight by group">
+              {aiShare.groups.map((g, i) => (
+                <div
+                  key={g.id}
+                  title={`${g.label}: ${g.weight.toFixed(1)}%`}
+                  style={{
+                    width: `${g.weight}%`,
+                    background: g.ai ? AI_SEG[i % AI_SEG.length] : g.id === "staples" ? "var(--panel-2)" : "var(--border)",
+                    borderRight: "1px solid var(--bg)",
+                    color: g.ai ? "#fff" : "var(--muted)",
+                    fontSize: 11,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {g.weight >= 4 ? `${g.weight.toFixed(0)}%` : ""}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--muted)", marginBottom: 10 }}>
+              <span>← AI-exposed: {aiShare.totalAi.toFixed(1)}%</span>
+              <span>Not counted as AI: {(100 - aiShare.totalAi).toFixed(1)}% →</span>
+            </div>
+            <SortableTable
+              storageKey="table:aiShare"
+              columns={[
+                { label: "Group" },
+                { label: "Weight", firstDir: "desc" },
+                { label: "Largest members", align: "left" },
+              ]}
+              rows={aiShare.groups.map((g, i) => ({
+                key: g.id,
+                sort: [g.label, g.weight, g.members[0]?.ticker ?? ""],
+                cells: [
+                  <span>
+                    <i
+                      style={{
+                        display: "inline-block",
+                        width: 10,
+                        height: 10,
+                        borderRadius: 2,
+                        marginRight: 6,
+                        background: g.ai ? AI_SEG[i % AI_SEG.length] : g.id === "staples" ? "var(--panel-2)" : "var(--border)",
+                        border: "1px solid var(--border)",
+                      }}
+                    />
+                    <span title={g.detail}>{g.label}</span>
+                  </span>,
+                  `${g.weight.toFixed(1)}%`,
+                  <span className="faint" title={g.members.map((m) => `${m.ticker} ${m.weight.toFixed(2)}%`).join(", ")}>
+                    {g.members
+                      .slice(0, 5)
+                      .map((m) => `${m.ticker} ${m.weight.toFixed(1)}%`)
+                      .join(" · ")}
+                    {g.members.length > 5 ? ` · +${g.members.length - 5} more` : ""}
+                  </span>,
+                ],
+              }))}
+            />
+            {aiShareRows.length >= 2 ? (
+              <TimeLinesChart rows={aiShareRows} keys={["AI-exposed share", "Information Technology"]} unit="%" dateLabel="Day of" ranges={["3M", "6M", "1Y", "2Y"]} defaultRange="1Y" storageKey="aiShare:hist" />
+            ) : (
+              <p className="sub" style={{ marginTop: 8 }}>
+                The dashboard saves this breakdown every day; the trend chart appears after the second daily reading.
+              </p>
+            )}
+            <Explain id="aiShare" />
+          </div>
+        )}
         <div className="grid g3">
           <div className="card">
             <h3>Equal-weight ÷ cap-weight S&amp;P 500</h3>
