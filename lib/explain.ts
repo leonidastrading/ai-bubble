@@ -67,6 +67,11 @@ export const EXPLAIN: Record<string, Explanation> = {
     why: "The dot-com bust was mostly an equity loss: companies had raised money by selling stock, so banks came through. The housing bust was a debt loss: mortgages sat on bank and investor balance sheets, which is why it became a banking crisis. The AI buildout started on cash and equity and is now moving to debt.",
     watch: "Corporate debt and bank business loans rising toward or past their 2000 and 2008 peaks while AI capex keeps growing. That would mean an AI bust looks more like 2008 than 2000 for lenders.",
   },
+  capitalCycle: {
+    what: "Net investment, capital spending minus depreciation, as a share of GDP. Bars: all US business, from the national accounts (BEA via FRED, quarterly, shown from 1985). Line: Microsoft, Alphabet, Amazon, Meta and Oracle combined, trailing twelve months, from their SEC filings, from late 2021 (Alphabet reports depreciation in SEC data only from then; where a company tags it only annually, quarters in between are interpolated). The Nasdaq is on the right axis (log scale). Modeled on Michael Burry's S&P 500 version of this chart.",
+    why: "Capital cycles outlast bull markets: when companies race to add capacity, returns on that capital fall a few years later, and markets have topped near peaks in net investment (2000, 2006–07, the 2014 shale peak). High spending certainty didn't prevent those tops.",
+    watch: "Net investment rolling over from a peak while the market is still near its high, the pattern before past tops; and the hyperscaler line flattening as depreciation from recent spending catches up with new capex.",
+  },
   anRevenue: {
     what: "Anthropic's revenue and total operating expenses each quarter, from its S-1 (and, after the IPO, its 10-Qs). Most revenue is usage-based API billing, metered in tokens.",
     why: "This is the first frontier lab whose books are public. Revenue overtook operating costs in Q2 2026, the clearest evidence so far that AI demand can pay for itself at a lab level; Q3 slipped back to a small loss on $5B of costlier short-term compute and $2B of non-cash donation-matching charges.",

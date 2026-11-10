@@ -10,6 +10,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Line,
   LineChart,
   ReferenceLine,
@@ -422,6 +423,89 @@ export function PeriodBarChart({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Capital cycle: net investment as a % of GDP (bars, plus an optional second series as a line) against a stock
+ * index on a log scale, with dated markers for past market tops.
+ */
+export function CapitalCycleChart({
+  rows,
+  barKey,
+  lineKey,
+  indexKey,
+  markers,
+  storageKey,
+}: {
+  rows: Record<string, number | string | null>[];
+  barKey: string;
+  lineKey?: string;
+  indexKey: string;
+  markers: { t: string; label: string }[];
+  storageKey?: string;
+}) {
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, "All", ["10Y", "25Y", "All"]);
+  const data = useMemo(() => withTs(sliceByRange(rows as (Record<string, number | string | null> & { t: string })[], range)), [rows, range]);
+  const start = data[0]?.ts ?? 0;
+  const keys = [barKey, ...(lineKey ? [lineKey] : []), indexKey];
+  const color = (k: string) => (k === barKey ? "var(--s1)" : k === lineKey ? "var(--s3)" : "var(--s2)");
+  return (
+    <div>
+      <div className="card-head" style={{ justifyContent: "flex-end" }}>
+        <RangePicker value={range} onChange={setRange} options={["10Y", "25Y", "All"]} />
+      </div>
+      <div style={{ height: 300 }}>
+        <ResponsiveContainer>
+          <ComposedChart data={data} margin={{ top: 18, right: 4, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke="var(--grid)" vertical={false} />
+            <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
+            <YAxis yAxisId="pct" width={40} tickFormatter={(v: number) => `${v}%`} {...axisProps} />
+            <YAxis yAxisId="idx" orientation="right" scale="log" domain={["auto", "auto"]} width={48} allowDataOverflow tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : `${Math.round(v)}`)} {...axisProps} />
+            {markers
+              .filter((m) => Date.parse(`${m.t}T00:00:00Z`) >= start)
+              .map((m) => (
+                <ReferenceLine
+                  key={m.t}
+                  yAxisId="pct"
+                  x={Date.parse(`${m.t}T00:00:00Z`)}
+                  stroke="var(--stress)"
+                  strokeDasharray="4 3"
+                  label={{ value: m.label, position: "insideTopRight", fill: "var(--faint)", fontSize: 10, angle: -90, offset: 8 }}
+                />
+              ))}
+            <Tooltip
+              content={({ active, payload, label }) =>
+                active && payload?.length ? (
+                  <div className="tt">
+                    <div className="tt-date">{isoDay(Number(label)).slice(0, 7)}</div>
+                    {payload
+                      .filter((p) => p.value != null)
+                      .map((p) => (
+                        <div className="tt-row" key={String(p.dataKey)}>
+                          <span style={{ color: p.color }}>{String(p.dataKey)}</span>
+                          <span>{p.dataKey === indexKey ? Math.round(Number(p.value)).toLocaleString("en-US") : `${Number(p.value).toFixed(2)}%`}</span>
+                        </div>
+                      ))}
+                  </div>
+                ) : null
+              }
+            />
+            <Bar yAxisId="pct" dataKey={barKey} fill={color(barKey)} fillOpacity={0.55} isAnimationActive={false} />
+            {lineKey && <Line yAxisId="pct" type="monotone" dataKey={lineKey} stroke={color(lineKey)} strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />}
+            <Line yAxisId="idx" type="monotone" dataKey={indexKey} stroke={color(indexKey)} strokeWidth={1.4} dot={false} connectNulls isAnimationActive={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="legend">
+        {keys.map((k) => (
+          <button key={k} aria-pressed>
+            <i style={{ background: color(k) }} />
+            {k}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

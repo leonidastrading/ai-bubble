@@ -183,7 +183,9 @@ export const FRED_SERIES: FredSeries[] = [
   { id: "B985RC1Q027SBEA", title: "Business investment: software", unit: "$B", group: "gdp", years: 50 },
   { id: "TLPWRCONS", title: "Construction spending: power", unit: "$M", group: "gdp", years: 20 },
   { id: "A679RC1Q027SBEA", title: "Investment in IT equipment & software", unit: "$B", group: "gdp", years: 50, hidden: true },
-  { id: "GDP", title: "GDP", unit: "$B", group: "gdp", years: 50, hidden: true },
+  { id: "GDP", title: "GDP", unit: "$B", group: "gdp", years: 70, hidden: true },
+  { id: "W790RC1Q027SBEA", title: "Net domestic business investment", unit: "$B", group: "gdp", years: 70, hidden: true },
+  { id: "NASDAQCOM", title: "Nasdaq Composite", unit: "", group: "valuation", years: 40, hidden: true },
   // Inputs for the classic bubble gauges (lib/valuation.ts); not shown as cards.
   { id: "GS10", title: "10-year Treasury yield (monthly)", unit: "%", group: "valuation", years: 65, hidden: true },
   { id: "GS2", title: "2-year Treasury yield (monthly)", unit: "%", group: "valuation", years: 52, hidden: true },

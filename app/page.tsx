@@ -5,7 +5,7 @@ import { ResetSettings } from "@/components/reset-settings";
 import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { stressColor, toScore } from "@/lib/stress-color";
-import { HBarChart, HistoryChart, MultiSeriesChart, PeriodBarChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
+import { CapitalCycleChart, HBarChart, HistoryChart, MultiSeriesChart, PeriodBarChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import softwareData from "@/data/bdc-software.json";
 import dcData from "@/data/datacenters.json";
@@ -154,6 +154,61 @@ export default async function Page() {
   }));
 
   // Capex as % of revenue per company, one slot per calendar quarter.
+  // Capital cycle (after Burry): net investment (capex minus depreciation) as a % of GDP vs the Nasdaq.
+  const cycle = (() => {
+    const gdp = new Map((d.fred.GDP?.points ?? []).map((p) => [p.t, p.v]));
+    const qStart = (end: string) => `${end.slice(0, 4)}-${String(Math.floor((Number(end.slice(5, 7)) - 1) / 3) * 3 + 1).padStart(2, "0")}-01`;
+    const rows = new Map<string, Record<string, number | string | null>>();
+    const row = (t: string) => rows.get(t) ?? rows.set(t, { t }).get(t)!;
+    const ECON = "Net business investment, all US business";
+    const HYPER = "Big 5 hyperscalers: capex minus depreciation";
+    const INDEX = "Nasdaq Composite (right, log)";
+    const econ: { t: string; v: number }[] = [];
+    for (const p of d.fred.W790RC1Q027SBEA?.points ?? []) {
+      const g = gdp.get(p.t);
+      if (g) {
+        row(p.t)[ECON] = +((p.v / g) * 100).toFixed(2);
+        econ.push({ t: p.t, v: (p.v / g) * 100 });
+      }
+    }
+    // Sum the five companies' trailing-twelve-month net investment by calendar quarter, where all five report.
+    const byQ = new Map<string, number[]>();
+    for (const c of d.capex) for (const q of c.netInvestmentTtm) (byQ.get(qStart(q.end)) ?? byQ.set(qStart(q.end), []).get(qStart(q.end))!).push(q.val);
+    let hyperLast: { t: string; v: number } | null = null;
+    for (const [t, vals] of [...byQ].sort(([a], [b]) => a.localeCompare(b))) {
+      const g = gdp.get(t);
+      if (vals.length === d.capex.length && g) {
+        const v = (vals.reduce((a, b) => a + b, 0) / 1e9 / g) * 100;
+        row(t)[HYPER] = +v.toFixed(2);
+        hyperLast = { t, v };
+      }
+    }
+    // Nasdaq: last close of each month, plotted at the first of the month.
+    const nas = d.fred.NASDAQCOM?.points ?? [];
+    for (const p of nas) row(`${p.t.slice(0, 7)}-01`)[INDEX] = p.v;
+    const record = nas.length ? nas.reduce((a, b) => (b.v > a.v ? b : a)) : null;
+    const peakIn = (a: string, b: string) => econ.filter((x) => x.t >= a && x.t < b).reduce<{ t: string; v: number } | null>((m, x) => (!m || x.v > m.v ? x : m), null);
+    return {
+      // From 1985, where the Nasdaq history starts (Burry's version starts in 1990).
+      rows: [...rows.values()].filter((r) => String(r.t) >= "1985-01-01").sort((a, b) => String(a.t).localeCompare(String(b.t))),
+      keys: { ECON, HYPER, INDEX },
+      econLast: econ[econ.length - 1] ?? null,
+      hyperLast,
+      record,
+      peaks: [
+        { label: "2000", p: peakIn("1997-01-01", "2002-01-01") },
+        { label: "2006", p: peakIn("2004-01-01", "2009-01-01") },
+        { label: "2015", p: peakIn("2012-01-01", "2017-01-01") },
+      ],
+      markers: [
+        { t: "2000-03-01", label: "Nasdaq peak, Mar 2000" },
+        { t: "2007-10-01", label: "S&P 500 peak, Oct 2007" },
+        { t: "2014-07-01", label: "Shale peak, Jul 2014" },
+        ...(record && record.t > "2020-01-01" ? [{ t: `${record.t.slice(0, 7)}-01`, label: `Nasdaq record, ${record.t.slice(0, 7)}` }] : []),
+      ],
+    };
+  })();
+
   const capexRows = quarterRows(
     d.capex.map((c) => ({
       key: c.symbol,
@@ -720,6 +775,39 @@ export default async function Page() {
           Step 1 of the scenario: revenue has to grow into the buildout. If trailing capex keeps growing much faster than
           revenue, the bet is being extended, not paid off. From 10-Q/10-K filings (SEC XBRL), trailing twelve months.
         </p>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>Capital cycle: net investment vs the market</h3>
+          <p className="sub">
+            Capex minus depreciation as a share of GDP: how much new capacity companies are adding beyond replacing what wears
+            out.{" "}
+            {cycle.econLast && (
+              <>
+                All US business: <span style={{ color: "var(--text)", fontWeight: 600 }}>{cycle.econLast.v.toFixed(2)}%</span> (
+                {cycle.econLast.t.slice(0, 7)}) vs{" "}
+                {cycle.peaks
+                  .filter((x) => x.p)
+                  .map((x) => `${x.p!.v.toFixed(1)}% before the ${x.label} top`)
+                  .join(", ")}
+                .{" "}
+              </>
+            )}
+            {cycle.hyperLast && (
+              <>
+                Big 5 hyperscalers alone: <span style={{ color: "var(--text)", fontWeight: 600 }}>{cycle.hyperLast.v.toFixed(2)}%</span>{" "}
+                of GDP.
+              </>
+            )}
+          </p>
+          <CapitalCycleChart
+            rows={cycle.rows}
+            barKey={cycle.keys.ECON}
+            lineKey={cycle.keys.HYPER}
+            indexKey={cycle.keys.INDEX}
+            markers={cycle.markers}
+            storageKey="cycle"
+          />
+          <Explain id="capitalCycle" />
+        </div>
         <div className="grid g2">
           <div className="card">
             <h3>Capex as % of revenue</h3>

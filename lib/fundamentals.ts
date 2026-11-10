@@ -101,6 +101,42 @@ async function mergedQuarters(symbol: string, concepts: string[]): Promise<Quart
 }
 
 const REVENUE = ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet"];
+/**
+ * Trailing-twelve-month depreciation at any quarter end. Some companies (Microsoft before 2024, Alphabet before 2023)
+ * tag depreciation only in annual reports, so between fiscal year-ends it is interpolated linearly; it is never
+ * extrapolated beyond the first or last reported figure.
+ */
+async function depreciationTtm(symbol: string, quarters: Quarter[]): Promise<(end: string) => number | null> {
+  const known = new Map(ttm(quarters).map((q) => [q.end, q.val]));
+  const annual = await Promise.all(
+    DEPRECIATION.map((c) =>
+      fetchConcept(symbol, [c], "USD", false)
+        .then((r) => dedupeAnnual(r.facts))
+        .catch(() => [] as Quarter[]),
+    ),
+  );
+  for (const list of annual) for (const q of list) if (!known.has(q.end)) known.set(q.end, q.val);
+  const pts = [...known.entries()].map(([end, val]) => ({ t: Date.parse(end), val })).sort((a, b) => a.t - b.t);
+  return (end: string) => {
+    const t = Date.parse(end);
+    const exact = known.get(end);
+    if (exact != null) return exact;
+    const after = pts.findIndex((p) => p.t > t);
+    if (after <= 0) return null;
+    const a = pts[after - 1];
+    const b = pts[after];
+    if ((b.t - a.t) / DAY > 400) return null; // a gap too long to interpolate across
+    return a.val + ((b.val - a.val) * (t - a.t)) / (b.t - a.t);
+  };
+}
+
+/** Full-year duration facts (one per fiscal year end, latest filing wins). */
+function dedupeAnnual(facts: Fact[]): Quarter[] {
+  return dedupe(facts.filter((f) => f.start && days(f.start, f.end) >= 350 && days(f.start, f.end) <= 380)).map((f) => ({ end: f.end, val: f.val }));
+}
+
+// Broadest first, so a company's history stays on one measure where it can (Amazon reports both).
+const DEPRECIATION = ["DepreciationDepletionAndAmortization", "DepreciationAmortizationAndOther", "DepreciationAndAmortization", "Depreciation"];
 const CAPEX = [
   "PaymentsToAcquirePropertyPlantAndEquipment",
   "PaymentsToAcquireProductiveAssets",
@@ -117,10 +153,17 @@ export type CapexRow = {
   capexYoY: number | null;
   revenueYoY: number | null;
   series: { end: string; capexTtm: number; revenueTtm: number }[];
+  /** Trailing-twelve-month capex minus depreciation, full history (for the capital-cycle chart). */
+  netInvestmentTtm: Quarter[];
 };
 
 export async function fetchCapex(symbol: string, name: string): Promise<CapexRow> {
-  const [revQ, capQ] = await Promise.all([mergedQuarters(symbol, REVENUE), mergedQuarters(symbol, CAPEX)]);
+  const [revQ, capQ, depQ] = await Promise.all([
+    mergedQuarters(symbol, REVENUE),
+    mergedQuarters(symbol, CAPEX),
+    mergedQuarters(symbol, DEPRECIATION).catch(() => [] as Quarter[]),
+  ]);
+  const depByEnd = await depreciationTtm(symbol, depQ);
   const revT = ttm(revQ);
   const capT = ttm(capQ);
   const capByEnd = new Map(capT.map((q) => [q.end, q.val]));
@@ -141,6 +184,10 @@ export async function fetchCapex(symbol: string, name: string): Promise<CapexRow
     capexYoY: capPrev ? (last.capexTtm / capPrev - 1) * 100 : null,
     revenueYoY: revPrev ? (last.revenueTtm / revPrev - 1) * 100 : null,
     series: series.filter((p) => days(p.end, last.end) <= 5 * 366),
+    netInvestmentTtm: capT.flatMap((q) => {
+      const dep = depByEnd(q.end);
+      return dep == null ? [] : [{ end: q.end, val: q.val - dep }];
+    }),
   };
 }
 
