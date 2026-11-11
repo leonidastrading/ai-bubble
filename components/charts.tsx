@@ -521,6 +521,7 @@ export function EpisodeChart({
   lineLabel,
   highLabel,
   lowLabel,
+  secondary,
   storageKey,
 }: {
   points: Point[];
@@ -528,18 +529,28 @@ export function EpisodeChart({
   lineLabel: string;
   highLabel: string;
   lowLabel: string;
+  /** A second series on its own right-hand axis, on the same dates. */
+  secondary?: { points: Point[]; label: string };
   storageKey?: string;
 }) {
   const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, "All", ["5Y", "10Y", "All"]);
   const data = useMemo(() => {
     const ep = new Map(episodes.map((e) => [e.date, e]));
+    const sec = new Map((secondary?.points ?? []).map((p) => [p.t, p.v]));
     return withTs(
       sliceByRange(points, range).map((p) => {
         const e = ep.get(p.t);
-        return { t: p.t, [lineLabel]: p.v, high: e?.kind === "high" ? p.v : null, low: e?.kind === "low" ? p.v : null, detail: e?.detail ?? null };
+        return {
+          t: p.t,
+          [lineLabel]: p.v,
+          ...(secondary ? { [secondary.label]: sec.get(p.t) ?? null } : {}),
+          high: e?.kind === "high" ? p.v : null,
+          low: e?.kind === "low" ? p.v : null,
+          detail: e?.detail ?? null,
+        };
       }),
     );
-  }, [points, episodes, range, lineLabel]);
+  }, [points, episodes, range, lineLabel, secondary]);
   return (
     <div>
       <div className="card-head" style={{ justifyContent: "flex-end" }}>
@@ -550,7 +561,8 @@ export function EpisodeChart({
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid stroke="var(--grid)" vertical={false} />
             <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
-            <YAxis scale="log" domain={["auto", "auto"]} allowDataOverflow width={44} tickFormatter={(v: number) => `$${Math.round(v)}`} {...axisProps} />
+            <YAxis yAxisId="main" scale="log" domain={["auto", "auto"]} allowDataOverflow width={44} tickFormatter={(v: number) => `$${Math.round(v)}`} {...axisProps} />
+            {secondary && <YAxis yAxisId="sec" orientation="right" domain={["auto", "auto"]} width={40} tickFormatter={(v: number) => v.toFixed(0)} {...axisProps} />}
             <Tooltip
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
@@ -562,14 +574,23 @@ export function EpisodeChart({
                       <span>{lineLabel}</span>
                       <span>${Number(row[lineLabel]).toFixed(2)}</span>
                     </div>
+                    {secondary && row[secondary.label] != null && (
+                      <div className="tt-row">
+                        <span style={{ color: "var(--s1)" }}>{secondary.label}</span>
+                        <span>{Number(row[secondary.label]).toFixed(2)}</span>
+                      </div>
+                    )}
                     {row.detail && <div style={{ marginTop: 4, maxWidth: 240 }}>{String(row.detail)}</div>}
                   </div>
                 );
               }}
             />
-            <Line type="monotone" dataKey={lineLabel} stroke="var(--faint)" strokeWidth={1.3} dot={false} isAnimationActive={false} />
-            <Scatter dataKey="high" fill="var(--calm)" stroke="var(--bg)" isAnimationActive={false} />
-            <Scatter dataKey="low" fill="var(--stress)" stroke="var(--bg)" isAnimationActive={false} />
+            {secondary && (
+              <Line yAxisId="sec" type="monotone" dataKey={secondary.label} stroke="var(--s1)" strokeWidth={1.2} strokeOpacity={0.8} dot={false} isAnimationActive={false} />
+            )}
+            <Line yAxisId="main" type="monotone" dataKey={lineLabel} stroke="var(--faint)" strokeWidth={1.3} dot={false} isAnimationActive={false} />
+            <Scatter yAxisId="main" dataKey="high" fill="var(--calm)" stroke="var(--bg)" isAnimationActive={false} />
+            <Scatter yAxisId="main" dataKey="low" fill="var(--stress)" stroke="var(--bg)" isAnimationActive={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -578,6 +599,12 @@ export function EpisodeChart({
           <i style={{ background: "var(--faint)" }} />
           {lineLabel}
         </button>
+        {secondary && (
+          <button aria-pressed>
+            <i style={{ background: "var(--s1)" }} />
+            {secondary.label} (right)
+          </button>
+        )}
         <button aria-pressed>
           <i style={{ background: "var(--calm)" }} />
           {highLabel}
