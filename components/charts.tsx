@@ -533,7 +533,7 @@ export function EpisodeChart({
   secondary?: { points: Point[]; label: string; pct?: boolean };
   storageKey?: string;
 }) {
-  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, "All", ["5Y", "10Y", "All"]);
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, "All", ["1Y", "5Y", "10Y", "All"]);
   const data = useMemo(() => {
     const ep = new Map(episodes.map((e) => [e.date, e]));
     const sec = new Map((secondary?.points ?? []).map((p) => [p.t, p.v]));
@@ -561,7 +561,7 @@ export function EpisodeChart({
   return (
     <div>
       <div className="card-head" style={{ justifyContent: "flex-end" }}>
-        <RangePicker value={range} onChange={setRange} options={["5Y", "10Y", "All"]} />
+        <RangePicker value={range} onChange={setRange} options={["1Y", "5Y", "10Y", "All"]} />
       </div>
       <div style={{ height: 300 }}>
         <ResponsiveContainer>

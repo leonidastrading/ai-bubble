@@ -63,8 +63,8 @@ export async function fetchRotation(): Promise<Rotation> {
   const spyVsHigh = vsHigh[n - 1];
   const regime = now >= high ? (spyVsHigh <= -5 ? "unwind" : "broadening") : now <= low ? "megacap" : "normal";
   const marked = new Set(episodes.map((e) => e.date));
-  // Weekly points keep the chart light; episode days and the latest day are always kept.
-  const kept = days.filter((d, i) => i % 5 === 0 || marked.has(d.t) || i === n - 1);
+  // Weekly points keep the chart light; the last year is daily (for the 1Y view), and episode days are always kept.
+  const kept = days.filter((d, i) => i % 5 === 0 || i >= n - 260 || marked.has(d.t));
   const spy = kept.map((d) => ({ t: d.t, v: +d.spy.toFixed(2) }));
   const megacapEdge = kept.map((d) => ({ t: d.t, v: 1 / d.ratio }));
   return {
