@@ -529,21 +529,28 @@ export function EpisodeChart({
   lineLabel: string;
   highLabel: string;
   lowLabel: string;
-  /** A second series on its own right-hand axis, on the same dates. */
-  secondary?: { points: Point[]; label: string };
+  /** A second series on its own right-hand axis, on the same dates; `pct` shows it as % change from the start of the visible range. */
+  secondary?: { points: Point[]; label: string; pct?: boolean };
   storageKey?: string;
 }) {
   const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, "All", ["5Y", "10Y", "All"]);
   const data = useMemo(() => {
     const ep = new Map(episodes.map((e) => [e.date, e]));
     const sec = new Map((secondary?.points ?? []).map((p) => [p.t, p.v]));
+    const visible = sliceByRange(points, range);
+    const base = secondary?.pct ? visible.map((p) => sec.get(p.t)).find((v) => v != null) : undefined;
+    const secValue = (t: string) => {
+      const v = sec.get(t);
+      if (v == null) return null;
+      return base ? +((v / base - 1) * 100).toFixed(2) : v;
+    };
     return withTs(
-      sliceByRange(points, range).map((p) => {
+      visible.map((p) => {
         const e = ep.get(p.t);
         return {
           t: p.t,
           [lineLabel]: p.v,
-          ...(secondary ? { [secondary.label]: sec.get(p.t) ?? null } : {}),
+          ...(secondary ? { [secondary.label]: secValue(p.t) } : {}),
           high: e?.kind === "high" ? p.v : null,
           low: e?.kind === "low" ? p.v : null,
           detail: e?.detail ?? null,
@@ -562,7 +569,17 @@ export function EpisodeChart({
             <CartesianGrid stroke="var(--grid)" vertical={false} />
             <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
             <YAxis yAxisId="main" scale="log" domain={["auto", "auto"]} allowDataOverflow width={44} tickFormatter={(v: number) => `$${Math.round(v)}`} {...axisProps} />
-            {secondary && <YAxis yAxisId="sec" orientation="right" domain={["auto", "auto"]} width={40} tickFormatter={(v: number) => v.toFixed(0)} {...axisProps} />}
+            {secondary && (
+              <YAxis
+                yAxisId="sec"
+                orientation="right"
+                domain={["auto", "auto"]}
+                width={44}
+                tickFormatter={(v: number) => (secondary.pct ? `${v > 0 ? "+" : ""}${v.toFixed(0)}%` : v.toFixed(0))}
+                {...axisProps}
+              />
+            )}
+            {secondary?.pct && <ReferenceLine yAxisId="sec" y={0} stroke="var(--s1)" strokeOpacity={0.35} strokeDasharray="3 3" />}
             <Tooltip
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
@@ -577,7 +594,9 @@ export function EpisodeChart({
                     {secondary && row[secondary.label] != null && (
                       <div className="tt-row">
                         <span style={{ color: "var(--s1)" }}>{secondary.label}</span>
-                        <span>{Number(row[secondary.label]).toFixed(2)}</span>
+                        <span>
+                          {secondary.pct ? `${Number(row[secondary.label]) > 0 ? "+" : ""}${Number(row[secondary.label]).toFixed(1)}%` : Number(row[secondary.label]).toFixed(2)}
+                        </span>
                       </div>
                     )}
                     {row.detail && <div style={{ marginTop: 4, maxWidth: 240 }}>{String(row.detail)}</div>}

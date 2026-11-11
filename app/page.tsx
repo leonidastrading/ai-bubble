@@ -2678,7 +2678,7 @@ export default async function Page() {
               points={rot.spy}
               episodes={rotEpisodes}
               lineLabel="SPY"
-              secondary={{ points: rot.ratio, label: "RSP ÷ SPY × 100" }}
+              secondary={{ points: rot.megacapEdge, label: "SPY vs equal-weight, % since range start", pct: true }}
               highLabel={`High: average stock beats SPY by ${rot.thresholds.high.toFixed(1)}%+ in 3 weeks (top 2%)`}
               lowLabel={`Low: SPY beats the average stock by ${Math.abs(rot.thresholds.low).toFixed(1)}%+ (bottom 2%)`}
               storageKey="rotation"

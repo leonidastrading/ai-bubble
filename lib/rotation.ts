@@ -31,8 +31,8 @@ export type Rotation = {
   episodes: RotationEpisode[];
   /** Weekly SPY closes (plus every episode day) for the chart. */
   spy: Point[];
-  /** RSP ÷ SPY × 100 on the same dates. */
-  ratio: Point[];
+  /** SPY ÷ RSP on the same dates (rises when the mega-caps beat the average stock). */
+  megacapEdge: Point[];
 };
 
 export async function fetchRotation(): Promise<Rotation> {
@@ -66,7 +66,7 @@ export async function fetchRotation(): Promise<Rotation> {
   // Weekly points keep the chart light; episode days and the latest day are always kept.
   const kept = days.filter((d, i) => i % 5 === 0 || marked.has(d.t) || i === n - 1);
   const spy = kept.map((d) => ({ t: d.t, v: +d.spy.toFixed(2) }));
-  const ratio = kept.map((d) => ({ t: d.t, v: +(d.ratio * 100).toFixed(3) }));
+  const megacapEdge = kept.map((d) => ({ t: d.t, v: 1 / d.ratio }));
   return {
     asOf: days[n - 1].t,
     change: now,
@@ -76,6 +76,6 @@ export async function fetchRotation(): Promise<Rotation> {
     regime,
     episodes,
     spy,
-    ratio,
+    megacapEdge,
   };
 }
