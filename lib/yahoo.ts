@@ -73,3 +73,31 @@ export async function fetchQuote(symbol: string, name: string, range = "2y"): Pr
     drawdown: (last / high52 - 1) * 100,
   };
 }
+
+/**
+ * Daily adjusted closes from a start date. Yahoo returns only monthly bars for range=max, so long daily history
+ * needs explicit period bounds.
+ */
+export async function fetchDailySince(symbol: string, since: string): Promise<Point[]> {
+  const p1 = Math.floor(Date.parse(`${since}T00:00:00Z`) / 1000);
+  // Round the end to the day so the cached URL changes once a day, not on every request.
+  const p2 = Math.floor(Date.now() / 86_400_000 + 1) * 86_400;
+  const path = `/v8/finance/chart/${encodeURIComponent(symbol)}?period1=${p1}&period2=${p2}&interval=1d&events=div`;
+  let res: Response;
+  try {
+    res = await cachedFetch(`https://query1.finance.yahoo.com${path}`, { retries: 1, timeoutMs: 20000 });
+  } catch {
+    res = await cachedFetch(`https://query2.finance.yahoo.com${path}`, { retries: 2, timeoutMs: 20000 });
+  }
+  const json = (await res.json()) as ChartResponse;
+  const r = json.chart.result?.[0];
+  if (!r?.timestamp) throw new Error(json.chart.error?.description ?? `No data for ${symbol}`);
+  const closes = r.indicators.adjclose?.[0]?.adjclose ?? r.indicators.quote[0].close;
+  const points: Point[] = [];
+  r.timestamp.forEach((ts, i) => {
+    const v = closes[i];
+    if (v != null && Number.isFinite(v)) points.push({ t: new Date(ts * 1000).toISOString().slice(0, 10), v });
+  });
+  if (points.length < 500) throw new Error(`Too little history for ${symbol} (${points.length} days)`);
+  return points;
+}

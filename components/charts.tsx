@@ -15,6 +15,7 @@ import {
   LineChart,
   ReferenceLine,
   ResponsiveContainer,
+  Scatter,
   Tooltip,
   XAxis,
   YAxis,
@@ -505,6 +506,86 @@ export function CapitalCycleChart({
             {k}
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A price line (log scale) with marked episodes on it: green "high" markers and red "low" markers.
+ * Each episode carries its own detail for the tooltip.
+ */
+export function EpisodeChart({
+  points,
+  episodes,
+  lineLabel,
+  highLabel,
+  lowLabel,
+  storageKey,
+}: {
+  points: Point[];
+  episodes: { date: string; kind: "high" | "low"; detail: string }[];
+  lineLabel: string;
+  highLabel: string;
+  lowLabel: string;
+  storageKey?: string;
+}) {
+  const [range, setRange] = usePersistedChoice<RangeKey>(storageKey && `${storageKey}:range`, "All", ["5Y", "10Y", "All"]);
+  const data = useMemo(() => {
+    const ep = new Map(episodes.map((e) => [e.date, e]));
+    return withTs(
+      sliceByRange(points, range).map((p) => {
+        const e = ep.get(p.t);
+        return { t: p.t, [lineLabel]: p.v, high: e?.kind === "high" ? p.v : null, low: e?.kind === "low" ? p.v : null, detail: e?.detail ?? null };
+      }),
+    );
+  }, [points, episodes, range, lineLabel]);
+  return (
+    <div>
+      <div className="card-head" style={{ justifyContent: "flex-end" }}>
+        <RangePicker value={range} onChange={setRange} options={["5Y", "10Y", "All"]} />
+      </div>
+      <div style={{ height: 300 }}>
+        <ResponsiveContainer>
+          <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke="var(--grid)" vertical={false} />
+            <XAxis {...timeAxis(data)} minTickGap={40} {...axisProps} />
+            <YAxis scale="log" domain={["auto", "auto"]} allowDataOverflow width={44} tickFormatter={(v: number) => `$${Math.round(v)}`} {...axisProps} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const row = payload[0].payload as Record<string, number | string | null>;
+                return (
+                  <div className="tt">
+                    <div className="tt-date">{String(row.t)}</div>
+                    <div className="tt-row">
+                      <span>{lineLabel}</span>
+                      <span>${Number(row[lineLabel]).toFixed(2)}</span>
+                    </div>
+                    {row.detail && <div style={{ marginTop: 4, maxWidth: 240 }}>{String(row.detail)}</div>}
+                  </div>
+                );
+              }}
+            />
+            <Line type="monotone" dataKey={lineLabel} stroke="var(--faint)" strokeWidth={1.3} dot={false} isAnimationActive={false} />
+            <Scatter dataKey="high" fill="var(--calm)" stroke="var(--bg)" isAnimationActive={false} />
+            <Scatter dataKey="low" fill="var(--stress)" stroke="var(--bg)" isAnimationActive={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="legend">
+        <button aria-pressed>
+          <i style={{ background: "var(--faint)" }} />
+          {lineLabel}
+        </button>
+        <button aria-pressed>
+          <i style={{ background: "var(--calm)" }} />
+          {highLabel}
+        </button>
+        <button aria-pressed>
+          <i style={{ background: "var(--stress)" }} />
+          {lowLabel}
+        </button>
       </div>
     </div>
   );

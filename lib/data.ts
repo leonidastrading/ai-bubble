@@ -18,6 +18,7 @@ import { fetchDcMap, fetchKadoa, type DcMapCounts, type KadoaCounts } from "./dc
 import { fetchUsdAiDeposits } from "./onchain";
 import { fetchRamp, type RampIndex } from "./ramp";
 import { fetchAiShare, type AiShare } from "./sp500-ai";
+import { fetchRotation, type Rotation } from "./rotation";
 import { fetchPolymarket, type PolyEvent } from "./polymarket";
 import { computeValuation, fetchMarginDebt, fetchMultpl, type Valuation } from "./valuation";
 import { fetchQuote, type Point, type Quote } from "./yahoo";
@@ -78,6 +79,8 @@ export type DashboardData = {
   ramp: RampIndex | null;
   /** Share of the S&P 500 tied to AI (Eisman's breakdown), from SPY and sector-fund holdings. */
   aiShare: AiShare | null;
+  /** Breadth rotation: extreme three-week moves in RSP ÷ SPY since 2003. */
+  rotation: Rotation | null;
   /** Latest quarter of public companies for comparison with Anthropic (SEC XBRL). */
   peers: PeerQuarter[];
   /** Blob contents as read, so the refresh can write back without reading again. */
@@ -200,7 +203,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (base) gpuChange30d = (h100.median / base - 1) * 100;
   }
 
-  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR, peerResults, aiShareR] = await Promise.all([
+  const [networkResult, offBalanceResults, runpodR, lambdaR, gpuHistR, gpuArchive, dcR, eciR, orR, btosR, priceLog, capeR, peR, marginR, usdAiR, polymarket, dcMapR, kadoaR, rampR, peerResults, aiShareR, rotationR] = await Promise.all([
     settle(getNetwork(quotes, errors)),
     mapLimit(CAPEX_COMPANIES, 1, (c) => settle(fetchOffBalance(c.symbol))),
     settle(fetchRunpodPrices()),
@@ -232,7 +235,9 @@ export async function getDashboardData(): Promise<DashboardData> {
       ),
     ),
     settle(fetchAiShare()),
+    settle(fetchRotation()),
   ]);
+  if (!rotationR.ok) errors.push(`Breadth rotation (RSP/SPY history): ${rotationR.error}`);
   if (!aiShareR.ok) errors.push(`S&P 500 AI share (SSGA holdings): ${aiShareR.error}`);
   const peers: PeerQuarter[] = [];
   peerResults.forEach((r, i) => {
@@ -318,6 +323,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     dcCounts: { dcmap: dcMapR.ok ? dcMapR.data : null, kadoa: kadoaR.ok ? kadoaR.data : null },
     ramp: rampR.ok ? rampR.data : null,
     aiShare: aiShareR.ok ? aiShareR.data : null,
+    rotation: rotationR.ok ? rotationR.data : null,
     peers,
     saved: { trends: savedTrends, gpuArchive },
     history,

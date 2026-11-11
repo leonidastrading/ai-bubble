@@ -5,7 +5,7 @@ import { ResetSettings } from "@/components/reset-settings";
 import { SortableTable } from "@/components/sortable-table";
 import { DEAL_TYPES } from "@/lib/deal-types";
 import { stressColor, toScore } from "@/lib/stress-color";
-import { CapitalCycleChart, HBarChart, HistoryChart, MultiSeriesChart, PeriodBarChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
+import { CapitalCycleChart, EpisodeChart, HBarChart, HistoryChart, MultiSeriesChart, PeriodBarChart, RelativeChart, SeriesChart, TimeLinesChart, TrendsChart } from "@/components/charts";
 import { FRED_SERIES, SEC_WATCH, SOFTWARE_GROUP, TICKER_GROUPS, type FredSeries } from "@/lib/config";
 import softwareData from "@/data/bdc-software.json";
 import dcData from "@/data/datacenters.json";
@@ -154,6 +154,24 @@ export default async function Page() {
   }));
 
   // Capex as % of revenue per company, one slot per calendar quarter.
+  // Breadth rotation: extreme three-week moves in equal- vs cap-weight, marked on SPY.
+  const rot = d.rotation;
+  const rotPct = (v: number | null) => (v == null ? "—" : `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)}%`);
+  const rotEpisodes =
+    rot?.episodes.map((e) => ({
+      date: e.date,
+      kind: e.kind,
+      detail: `${e.kind === "high" ? "Rotation out of mega-caps" : "Mega-caps pulling away"}: RSP ÷ SPY ${rotPct(e.change)} in 3 weeks, SPY ${rotPct(e.spyVsHigh)} vs its 1-yr high. SPY next 1m ${rotPct(e.fwd1m)}, 3m ${rotPct(e.fwd3m)}, 6m ${rotPct(e.fwd6m)}.`,
+    })) ?? [];
+  const rotRegime = rot
+    ? {
+        broadening: "Fast broadening: a big move out of the mega-caps with the S&P near its high, historically benign.",
+        unwind: "Mega-cap unwind: a big move out of the mega-caps while the S&P is falling, the warning case.",
+        megacap: "Mega-caps pulling away: the giants are beating the average stock unusually fast.",
+        normal: "Nothing extreme: the three-week move is inside the normal range.",
+      }[rot.regime]
+    : "";
+
   // Share of the S&P 500 tied to AI (after Eisman): live breakdown and saved daily history.
   const aiShare = d.aiShare;
   const aiShareRows = d.history
@@ -2648,6 +2666,55 @@ export default async function Page() {
             <FredCard key={s.id} s={s} data={d.fred[s.id]} />
           ))}
         </div>
+        {rot && (
+          <div className="card" style={{ marginTop: 14 }}>
+            <h3>Breadth rotation: extreme highs and lows, on SPY</h3>
+            <p className="sub">
+              Three-week change in equal-weight ÷ cap-weight (RSP ÷ SPY, dividend-adjusted), daily since 2003. Now{" "}
+              <span style={{ color: "var(--text)", fontWeight: 600 }}>{rotPct(rot.change)}</span> ({rot.asOf}), higher than{" "}
+              {rot.percentile.toFixed(1)}% of all three-week windows; SPY {rotPct(rot.spyVsHigh)} vs its 1-yr high. {rotRegime}
+            </p>
+            <EpisodeChart
+              points={rot.spy}
+              episodes={rotEpisodes}
+              lineLabel="SPY"
+              highLabel={`High: average stock beats SPY by ${rot.thresholds.high.toFixed(1)}%+ in 3 weeks (top 2%)`}
+              lowLabel={`Low: SPY beats the average stock by ${Math.abs(rot.thresholds.low).toFixed(1)}%+ (bottom 2%)`}
+              storageKey="rotation"
+            />
+            <SortableTable
+              storageKey="table:rotation"
+              columns={[
+                { label: "Date", firstDir: "desc" },
+                { label: "Kind", align: "left" },
+                { label: "3-week move", firstDir: "desc" },
+                { label: "SPY vs 1-yr high", firstDir: "asc" },
+                { label: "SPY +1m", firstDir: "desc" },
+                { label: "+3m", firstDir: "desc" },
+                { label: "+6m", firstDir: "desc" },
+              ]}
+              rows={[...rot.episodes].reverse().map((e) => {
+                const tone = (v: number | null) => (v == null ? undefined : { color: v >= 0 ? "var(--calm)" : "var(--stress)" });
+                return {
+                  key: `${e.kind}-${e.date}`,
+                  sort: [e.date, e.kind, e.change, e.spyVsHigh, e.fwd1m, e.fwd3m, e.fwd6m],
+                  cells: [
+                    e.date,
+                    <span style={{ color: e.kind === "high" ? "var(--calm)" : "var(--stress)" }}>
+                      {e.kind === "high" ? "High: out of mega-caps" : "Low: into mega-caps"}
+                    </span>,
+                    rotPct(e.change),
+                    rotPct(e.spyVsHigh),
+                    <span style={tone(e.fwd1m)}>{rotPct(e.fwd1m)}</span>,
+                    <span style={tone(e.fwd3m)}>{rotPct(e.fwd3m)}</span>,
+                    <span style={tone(e.fwd6m)}>{rotPct(e.fwd6m)}</span>,
+                  ],
+                };
+              })}
+            />
+            <Explain id="rotation" />
+          </div>
+        )}
       </section>
 
       <section id="gdp">
