@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-09",
+  "updated": "2026-11-16",
   "ticker": "ANT",
   "filed": "2026-10-26",
-  "status": "S-1/A filed 2026-11-02 with Q3 2026 results; price range and share count still blank; not yet public",
-  "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+  "status": "S-1/A No. 2 filed 2026-11-10: 825,000,000 Class A shares (801,351,354 new, 23,648,646 from selling stockholders; 123,750,000-share underwriter option) at $70.00-$78.00, Nasdaq 'ANT', plus a $26.0B concurrent Class N private placement at the IPO price (Google, NVIDIA, AMD, Broadcom, Micron, Microsoft, TSMC). 13,086,672,593 shares outstanding after the offering. Roadshow from Nov 10; pricing expected Nov 18 and trading Nov 19 per the IPO-website FWP. Not yet priced",
+  "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
   "notes": "US$ millions from Anthropic's S-1 (unaudited quarters). Net loss is dominated by non-cash changes in the fair value of convertible notes, derivatives and SAFEs, which grow as the company's valuation rises. Adjusted operating income excludes stock-based compensation, non-cash charitable contributions and the $1.5B Bartz copyright settlement (Q3 2025). After the IPO, append each quarter from the 10-Q.",
   "quarters": [
     {
@@ -234,6 +234,11 @@
     "creditFacilityB": 15.0,
     "capitalRaisedB": 141.1,
     "rpoB": 13.8,
+    "runRateRevenueB": {
+      "value": 81,
+      "asOf": "2026-10-31",
+      "note": "'approximately $81 billion as of October 31, 2026, up $10 billion from September 30, 2026' (S-1/A No. 2)"
+    },
     "customers1m": {
       "value": 1900,
       "asOf": "2026-09-30",
@@ -350,5 +355,20 @@
       "period": "9M 2026",
       "note": "revenue from customers later found to be violating the usage policy or commercial terms, recognized before access was restricted"
     }
+  },
+  "ipo": {
+    "priceLow": 70.0,
+    "priceHigh": 78.0,
+    "priced": null,
+    "sharesOffered": 825000000,
+    "underwriterOption": 123750000,
+    "sharesOutstandingAfter": 13086672593,
+    "privatePlacementB": 26.0,
+    "netProceedsMidB": 84.6,
+    "expectedPricing": "2026-11-18",
+    "expectedTrading": "2026-11-19",
+    "exchange": "Nasdaq",
+    "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+    "note": "Terms from S-1/A No. 2 (Nov 10); expected pricing and trading dates from the company's IPO-website free writing prospectus (Nov 12). Set 'priced' to the IPO price once the 424B4 is filed."
   }
 }

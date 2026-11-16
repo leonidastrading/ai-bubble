@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-09",
+  "updated": "2026-11-16",
   "notes": "Reported market prices of AI borrowers' credit: 5-year credit default swap (CDS) spreads in basis points and bond prices in cents on the dollar, each from a dated report. Curated weekly; CDS data itself is behind paywalls (ICE, S&P, Bloomberg).",
   "borrowers": [
     {
@@ -52,6 +52,12 @@
           "bps": 1155,
           "note": "'Around 1,155' after an 8% drop on Friday, CNBC (published midday); session not stated. Same report: 9.625% 2032 notes yield above 16%",
           "source": "https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html"
+        },
+        {
+          "date": "2026-11-10",
+          "bps": 1152,
+          "note": "'Around 1,152' on Tuesday morning before Q3 results after the close, CNBC; provider not named. Same report: 1,278 at Thursday's (Nov 5) close",
+          "source": "https://www.cnbc.com/2026/11/10/coreweave-earnings-preview-debt-capex.html"
         }
       ],
       "bonds": [
@@ -78,6 +84,14 @@
           "date": "2026-11-04",
           "note": "'As low as' 79.5 cents, Trace via Bloomberg, after Democratic governors who back slower data-center builds won; 2030 and 2032 notes yielding above 15%",
           "source": "https://uk.finance.yahoo.com/news/coreweave-bonds-hit-lows-texas-154016333.html"
+        },
+        {
+          "name": "9.75% notes due 2031",
+          "price": 82.25,
+          "yield": null,
+          "date": "2026-11-12",
+          "note": "Up 0.3 pt on Thursday morning after Q3 results, Bloomberg data via Stocktwits; CNBC put the same notes' yield at 15.5% on Nov 10, down from 16.7% on Nov 5. CoreWeave said it will not issue unsecured debt at current yields",
+          "source": "https://finance.yahoo.com/markets/stocks/articles/coreweave-bonds-signal-cooling-investor-192736400.html"
         }
       ]
     },

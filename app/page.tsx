@@ -969,6 +969,10 @@ export default async function Page() {
         <p className="blurb">
           The first frontier lab to open its books. From its S-1 (filed {anthropicData.filed}, proposed ticker{" "}
           {anthropicData.ticker}); after the IPO, each quarter is added from its 10-Q. US$, quarters unaudited.{" "}
+          {anthropicData.ipo &&
+            (anthropicData.ipo.priced
+              ? `IPO priced at $${anthropicData.ipo.priced}. `
+              : `IPO range $${anthropicData.ipo.priceLow}–$${anthropicData.ipo.priceHigh} a share, about ${capB(anthropicData.ipo.priceLow * anthropicData.ipo.sharesOutstandingAfter)}–${capB(anthropicData.ipo.priceHigh * anthropicData.ipo.sharesOutstandingAfter)} for all ${(anthropicData.ipo.sharesOutstandingAfter / 1e9).toFixed(1)}B shares; pricing expected ${anthropicData.ipo.expectedPricing}, trading ${anthropicData.ipo.expectedTrading}. `)}
           <a href={anthropicData.source} target="_blank" rel="noreferrer">
             Filing
           </a>
@@ -1148,6 +1152,19 @@ export default async function Page() {
               <li>
                 Contracted revenue not yet recognized (remaining performance obligations): ${anthropicData.facts.rpoB}B.
               </li>
+              {anthropicData.facts.runRateRevenueB && (
+                <li>
+                  Run-rate revenue about ${anthropicData.facts.runRateRevenueB.value}B ({anthropicData.facts.runRateRevenueB.asOf}): the
+                  last 28 days of usage fees × 13 plus monthly subscriptions × 12, the company&apos;s own annualized measure.
+                </li>
+              )}
+              {anthropicData.ipo && (
+                <li>
+                  IPO: {(anthropicData.ipo.sharesOffered / 1e6).toFixed(0)}M Class A shares on the {anthropicData.ipo.exchange}, plus a $
+                  {anthropicData.ipo.privatePlacementB}B private placement at the IPO price (Google, Nvidia, AMD, Broadcom, Micron,
+                  Microsoft, TSMC); net proceeds about ${anthropicData.ipo.netProceedsMidB}B at the midpoint.
+                </li>
+              )}
               <li>
                 Net revenue retention about {anthropicData.facts.netRevenueRetentionPct.value}%: existing customers spent about 9× what
                 they did a year earlier.
