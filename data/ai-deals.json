@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-09",
+  "updated": "2026-11-16",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -78,13 +78,13 @@
       "id": "CRWV",
       "name": "CoreWeave",
       "ticker": "CRWV",
-      "shares": 520000000
+      "shares": 556100000
     },
     {
       "id": "NBIS",
       "name": "Nebius",
       "ticker": "NBIS",
-      "shares": 271900000
+      "shares": 292900000
     },
     {
       "id": "IREN",
@@ -107,7 +107,7 @@
       "id": "CBRS",
       "name": "Cerebras",
       "ticker": "CBRS",
-      "shares": 237600000
+      "shares": 243000000
     },
     {
       "id": "SFTBY",
@@ -401,7 +401,7 @@
       "amountB": 10,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "Up to $10B investment",
+      "label": "Up to $10B investment; in Nov 2026 Nvidia agreed to buy ~$10B of Anthropic Class N stock at the IPO price in the private placement concurrent with the IPO (S-1/A No. 2, Nov 10)",
       "source": "https://www.cnbc.com/2025/11/18/anthropic-ai-azure-microsoft-nvidia.html"
     },
     {
@@ -411,18 +411,18 @@
       "amountB": 5,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "Up to $5B investment",
+      "label": "Up to $5B investment; in Nov 2026 Microsoft agreed to buy ~$1B of Class N stock in the private placement concurrent with Anthropic's IPO (S-1/A No. 2, Nov 10)",
       "source": "https://www.cnbc.com/2025/11/18/anthropic-ai-azure-microsoft-nvidia.html"
     },
     {
       "from": "ANTHROPIC",
       "to": "MSFT",
       "type": "services",
-      "amountB": 44.9,
+      "amountB": 47.2,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "At least $44.9B of Azure compute, Nov 2026 to Jun 2033 (S-1/A; amended Feb–Oct 2026; was $30B in Nov 2025)",
-      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
+      "label": "At least $47.2B and up to $49.2B of Azure compute, Nov 2026 to Jun 2033 (S-1/A No. 2; amended Feb–Nov 2026; was $30B in Nov 2025)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -461,8 +461,8 @@
       "amountB": 30,
       "date": "2025-01-22",
       "status": "announced",
-      "label": "Equity stake (reported ~14%); March 2026 agreement for up to $30B more: $10B invested in the May 2026 Series H, up to $20B more in notes or non-voting stock through 2030 (S-1/A)",
-      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm"
+      "label": "Equity stake (reported ~14%); March 2026 agreement for up to $30B more: $10B invested in the May 2026 Series H; in Nov 2026 Google agreed to fund $10B of the rest by buying Class N stock at the IPO price in the concurrent private placement, leaving $10B available in notes or non-voting stock through 2030 (S-1/A No. 2)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm"
     },
     {
       "from": "ANTHROPIC",
@@ -530,9 +530,9 @@
       "type": "services",
       "amountB": 20,
       "date": "2026-01-14",
-      "status": "reported",
-      "label": "750 MW of inference capacity over three years",
-      "source": "https://computeprices.com/deals/openai-cerebras-2026-01"
+      "status": "announced",
+      "label": "Master Relationship Agreement (Dec 2025): OpenAI committed to buy 750 MW of inference capacity over three to four years (extendable to five), plus an option for 1.25 GW more by 2030; OpenAI funded a ~$1B secured working-capital loan and received a warrant (Cerebras 10-Q); value ~$20B per press reports; Cerebras RPO $26.1B at Sept 30",
+      "source": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm"
     },
     {
       "from": "SFTBY",
@@ -541,8 +541,8 @@
       "amountB": 30,
       "date": "2026-10-01",
       "status": "reported",
-      "label": "Lead investor; final $10B paid Oct 2026, bond-funded",
-      "source": "https://ai-circular-economy.com/"
+      "label": "Lead investor; final $10B paid Oct 2026, bond-funded. SoftBank's cumulative OpenAI investment was $54.6B (fair value $99.6B) at Sept 30 (Q2 results, Nov 10); reportedly also in the Nov 2026 $11B tranche at $1.25T",
+      "source": "https://www.cnbc.com/2026/11/10/softbank-2q-earnings-tech-selloff.html"
     },
     {
       "from": "NVDA",
@@ -571,7 +571,7 @@
       "amountB": 42,
       "date": "2026-10-01",
       "status": "announced",
-      "label": "Up to $42B of convertible notes to finance about a third of Anthropic's $125.2B TPU lease; convertible into Anthropic shares; none sold before the IPO (S-1)",
+      "label": "Up to $42B of convertible notes to finance about a third of Anthropic's $125.2B TPU lease; convertible into Anthropic shares; none sold before the IPO (S-1); Broadcom also agreed in Nov 2026 to buy ~$1B of Class N stock in the private placement concurrent with the IPO (S-1/A No. 2)",
       "source": "https://www.thestar.com.my/tech/tech-news/2026/10/01/exclusive-broadcom-to-lend-anthropic-up-to-42-billion-to-lease-its-chips-filing-says"
     },
     {
@@ -591,8 +591,8 @@
       "amountB": 41.3,
       "date": "2026-08-31",
       "status": "announced",
-      "label": "~$41.3B into 2034 across three agreements (May, June, Aug 2026) for Nvidia GPU capacity; the ~$35B August deal is for a Nueces County, Texas site (S-1)",
-      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+      "label": "~$41.3B into 2034 across three agreements (May, June, Aug 2026) for Nvidia GPU capacity; the ~$34.9B August deal is for a Nueces County, Texas site. Lambda missed the deadline to secure the facility lease, so the August agreement is now terminable by either party; no notice given and Anthropic says it does not intend to terminate (S-1/A No. 2, Nov 10)",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm"
     },
     {
       "from": "AMD",
@@ -601,7 +601,7 @@
       "amountB": 5,
       "date": "2026-07-22",
       "status": "announced",
-      "label": "Up to $5B strategic equity investment",
+      "label": "Up to $5B strategic equity investment; in Nov 2026 AMD agreed to buy ~$2.5B of Class N stock in the private placement concurrent with Anthropic's IPO, cutting the remaining commitment to $2.5B (S-1/A No. 2, Nov 10)",
       "source": "https://ir.amd.com/news-events/press-releases/detail/1292"
     },
     {

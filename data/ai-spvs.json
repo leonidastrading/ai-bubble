@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-09",
+  "updated": "2026-11-16",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -693,6 +693,85 @@
         "note": "Term SOFR + 2.75%, rising 0.25% every 90 days after signing to a 3.50% cap",
         "source": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm"
       }
+    },
+    {
+      "id": "galaxy-helios-2",
+      "name": "Galaxy Helios Data Centers II LLC",
+      "project": "Helios campus Phase II, Dickens County, Texas (260 MW critical IT)",
+      "type": "data-center",
+      "tenants": [
+        "CoreWeave"
+      ],
+      "equity": [
+        {
+          "name": "Galaxy Digital",
+          "share": 1
+        }
+      ],
+      "lenders": [
+        "144A noteholders (Morgan Stanley lead initial purchaser)"
+      ],
+      "debtB": 3.507,
+      "equityB": null,
+      "rating": "B+",
+      "terms": "Project-level 9.875% senior secured notes due Aug 1, 2031, issued at 99.5 by an indirect wholly owned Galaxy subsidiary; secured by substantially all issuer and guarantor assets and the issuer's equity, not by Galaxy's parent; fund part of two buildings (eight data halls, 400 MW utility / 260 MW critical IT) and debt service reserves; amortize from at least ten months after completion; CoreWeave is the tenant",
+      "date": "2026-07-28",
+      "status": "closed",
+      "stress": {
+        "price": 89.25,
+        "asOf": "2026-11-05",
+        "note": "B+ notes fell to 89.25 cents (yield ~13%) during the post-midterm AI selloff",
+        "source": "https://finimize.com/content/bond-investors-are-rethinking-ai-data-center-debt"
+      },
+      "source": "https://www.sec.gov/Archives/edgar/data/1859392/000185939226000079/glxy-20260728.htm",
+      "events": [
+        {
+          "date": "2026-07-23",
+          "text": "$3.507B of 9.875% senior secured notes due 2031 priced",
+          "source": "https://www.sec.gov/Archives/edgar/data/1859392/000185939226000074/exhibit991-pressreleasepri.htm"
+        },
+        {
+          "date": "2026-07-28",
+          "text": "Offering closed at 99.5% of principal (8-K)",
+          "source": "https://www.sec.gov/Archives/edgar/data/1859392/000185939226000079/glxy-20260728.htm"
+        },
+        {
+          "date": "2026-11-05",
+          "text": "Notes trade at 89.25 cents, about 13% yield, as data-center bond spreads widen",
+          "source": "https://finimize.com/content/bond-investors-are-rethinking-ai-data-center-debt"
+        }
+      ]
+    },
+    {
+      "id": "bxdc-amazon",
+      "name": "BXDC–Amazon sale-leaseback JVs",
+      "project": "13 newly built powered-shell data centers on two campuses (647 MW): Northern Indiana (over two-thirds) and Mississippi",
+      "type": "data-center",
+      "tenants": [
+        "Amazon"
+      ],
+      "equity": [
+        {
+          "name": "Blackstone Digital Infrastructure Trust",
+          "share": 0.751
+        }
+      ],
+      "lenders": [],
+      "debtB": null,
+      "equityB": null,
+      "rating": null,
+      "terms": "Sale-leaseback: BXDC agreed to buy a 75.1% controlling interest in two JVs owning the campuses at $5.0B aggregate gross value (100% share); triple-net leases, 12-year initial term with two 10-year renewals, 2.75% annual escalators, 7.0% initial cap rate; lease obligations guaranteed by the tenant's AA-rated parent; JV partner for the remaining stake not named in the filing; financing not disclosed; not yet closed",
+      "date": "2026-11-16",
+      "status": "reported",
+      "stress": null,
+      "source": "https://www.sec.gov/Archives/edgar/data/2100161/000210016126000015/bxdc-transactionsummary.htm",
+      "events": [
+        {
+          "date": "2026-11-16",
+          "text": "BXDC announces its first investment: 13 data centers across two campuses via a sale-leaseback with Amazon (Q3 release and transaction summary, 8-K)",
+          "source": "https://www.sec.gov/Archives/edgar/data/2100161/000210016126000015/exhibit991-20260930.htm"
+        }
+      ]
     }
   ]
 }
