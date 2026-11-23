@@ -1176,7 +1176,9 @@ export default async function Page() {
                 <li>
                   IPO: {(anthropicData.ipo.sharesOffered / 1e6).toFixed(0)}M Class A shares on the {anthropicData.ipo.exchange}, plus a $
                   {anthropicData.ipo.privatePlacementB}B private placement at the IPO price (Google, Nvidia, AMD, Broadcom, Micron,
-                  Microsoft, TSMC); net proceeds about ${anthropicData.ipo.netProceedsMidB}B at the midpoint.
+                  Microsoft, TSMC); net proceeds about ${anthropicData.ipo.netProceedsMidB}B
+                  {anthropicData.ipo.priced ? ` at the $${anthropicData.ipo.priced} IPO price` : " at the midpoint of the range"}.
+                  {anthropicData.ipo.listed && ` Trading since ${anthropicData.ipo.listed}.`}
                 </li>
               )}
               <li>

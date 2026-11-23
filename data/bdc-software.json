@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-23",
   "notes": "Software share of each public BDC's portfolio at fair value, from its latest 10-Q or earnings presentation. pct is the sum of all software rows when the company splits them; label names the rows used. priorPct is from the same table's comparison column (the last fiscal year-end), not a year earlier.",
   "bdcs": [
     {
@@ -40,12 +40,12 @@
     },
     {
       "symbol": "GBDC",
-      "pct": 26.0,
+      "pct": 27.1,
       "label": "Software",
-      "asOf": "2026-06-30",
+      "asOf": "2026-09-30",
       "priorPct": 27.2,
-      "source": "https://www.sec.gov/Archives/edgar/data/0001476765/000147676526000048/gbdc-20260630.htm",
-      "note": "Fiscal Q3 2026. Prior = Sep 30, 2025 fiscal year-end."
+      "source": "https://www.sec.gov/Archives/edgar/data/1476765/000147676526000085/gbdc-20260930.htm",
+      "note": "FY2026 10-K (fiscal year ended Sep 30, 2026): Software $2,112.2M of $7,799.2M at fair value. Healthcare Technology (3.5%) and IT Services (3.7%) are separate rows, not included. Prior = Sep 30, 2025 fiscal year-end. 26.0% at Jun 30, 2026 (fiscal Q3 10-Q)."
     },
     {
       "symbol": "MAIN",

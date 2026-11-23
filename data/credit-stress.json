@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-23",
   "notes": "Reported market prices of AI borrowers' credit: 5-year credit default swap (CDS) spreads in basis points and bond prices in cents on the dollar, each from a dated report. Curated weekly; CDS data itself is behind paywalls (ICE, S&P, Bloomberg).",
   "borrowers": [
     {
@@ -58,6 +58,12 @@
           "bps": 1152,
           "note": "'Around 1,152' on Tuesday morning before Q3 results after the close, CNBC; provider not named. Same report: 1,278 at Thursday's (Nov 5) close",
           "source": "https://www.cnbc.com/2026/11/10/coreweave-earnings-preview-debt-capex.html"
+        },
+        {
+          "date": "2026-11-20",
+          "bps": 1232.6,
+          "note": "Widened as much as 76.2 bps on Friday; AI Weekly summary of a Bloomberg report, provider not named. CNBC on Nov 18 put the spread 'recently between 1,100-1,200'",
+          "source": "https://aiweekly.co/alerts/coreweave-five-year-cds-blows-out-to-1233bp-as-ai-credit-trade-cracks-oracle"
         }
       ],
       "bonds": [
@@ -135,6 +141,12 @@
           "bps": 298,
           "note": "'Roughly 298', CNBC; date is the report's, session not stated",
           "source": "https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html"
+        },
+        {
+          "date": "2026-11-20",
+          "bps": 327.9,
+          "note": "Highest since Oct 20; AI Weekly summary of a Bloomberg report (Nov 20), provider not named, session not stated",
+          "source": "https://aiweekly.co/alerts/coreweave-five-year-cds-blows-out-to-1233bp-as-ai-credit-trade-cracks-oracle"
         }
       ],
       "bonds": []
