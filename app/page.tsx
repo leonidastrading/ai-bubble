@@ -441,8 +441,16 @@ export default async function Page() {
   const anGeo = anMix.periods.map((p) => ({ period: p.period, "United States": p.us, International: p.intl }));
   const anPct = (a: number, b: number) => Math.round((a / (a + b)) * 100);
 
-  // Anthropic's private valuation (money web) and trailing-four-quarter revenue, for market cap and P/S.
-  const anValuation = dealsData.nodes.find((n) => n.id === "ANTHROPIC")?.private;
+  // Anthropic's value from the money web (live market value once its node has a ticker, else its private
+  // valuation) and trailing-four-quarter revenue, for market cap and P/S.
+  const anNode = d.network?.nodes.find((n) => n.id === "ANTHROPIC");
+  const anPrivate = dealsData.nodes.find((n) => n.id === "ANTHROPIC")?.private;
+  const anValuation =
+    anNode?.valueB != null
+      ? { valueB: anNode.valueB, asOf: anNode.asOf, source: anNode.source, listed: anNode.basis === "market" }
+      : anPrivate
+        ? { valueB: anPrivate.valueB, asOf: anPrivate.asOf, source: anPrivate.source, listed: false }
+        : null;
   const anTtmRevenue = anQ.length >= 4 ? anQ.slice(-4).reduce((a, q) => a + q.revenue, 0) : null;
   const capB = (v: number | null) => (v == null ? "—" : v >= 1e12 ? `$${(v / 1e12).toFixed(2)}T` : `$${(v / 1e9).toFixed(0)}B`);
   const multiple = (v: number | null) => (v == null ? "—" : `${v.toFixed(v < 10 ? 1 : 0)}×`);
@@ -1083,8 +1091,8 @@ export default async function Page() {
           <p className="sub">
             Latest quarter of each company from its SEC filings, plus Nvidia&apos;s quarter when its revenue was closest to
             Anthropic&apos;s today. Growth is against the same quarter a year earlier. Market cap is today&apos;s price × shares;
-            P/E and P/S use the last four quarters. *Anthropic isn&apos;t listed yet: its latest private valuation
-            {anValuation ? ` (${anValuation.asOf})` : ""}.
+            P/E and P/S use the last four quarters.
+            {anValuation && !anValuation.listed && ` *Anthropic isn't listed yet: its latest private valuation (${anValuation.asOf}).`}
           </p>
           <SortableTable
             storageKey="table:anPeers"
@@ -1094,7 +1102,7 @@ export default async function Page() {
               { label: "Revenue", firstDir: "desc" },
               { label: "Growth vs a year ago", firstDir: "desc" },
               { label: "Operating margin", firstDir: "desc" },
-              { label: "Market cap", title: "Price × shares outstanding; Anthropic: latest private valuation", firstDir: "desc" },
+              { label: "Market cap", title: "Price × shares outstanding; Anthropic: its latest private valuation until it lists", firstDir: "desc" },
               { label: "P/E", title: "Market cap ÷ net income over the last four quarters; — when there were losses", firstDir: "desc" },
               { label: "P/S", title: "Market cap ÷ revenue over the last four quarters", firstDir: "desc" },
             ]}
@@ -1108,8 +1116,14 @@ export default async function Page() {
                 pctCell(p.growthYoY),
                 pctCell(p.operatingMargin),
                 p.key === "ANT" && anValuation ? (
-                  <a href={anValuation.source ?? undefined} target="_blank" rel="noreferrer" title={`Private valuation, ${anValuation.asOf}`}>
-                    {capB(p.marketCap)}*
+                  <a
+                    href={anValuation.source ?? undefined}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={anValuation.listed ? `Market value, ${anValuation.asOf}` : `Private valuation, ${anValuation.asOf}`}
+                  >
+                    {capB(p.marketCap)}
+                    {anValuation.listed ? "" : "*"}
                   </a>
                 ) : (
                   capB(p.marketCap)
