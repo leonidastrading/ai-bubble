@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-23",
   "notes": "Special purpose vehicles that hold AI data centers or GPUs and carry the debt that paid for them, keeping it off the tenant's balance sheet. Amounts are USD billions as reported; null = undisclosed. status: closed (financing completed), raising (in market), reported (press reports, terms unconfirmed). 'stress' records the latest reported secondary price of the SPV's loans or bonds, in cents on the dollar (100 = par). Reviewed weekly with data/ai-deals.json.",
   "spvs": [
     {
@@ -127,10 +127,10 @@
       "date": "2025-11-11",
       "status": "closed",
       "stress": {
-        "price": 90,
-        "asOf": "2026-09-25",
-        "note": "Loan quoted at 89–91 cents after Oracle's force majeure notice",
-        "source": "https://www.roic.ai/news/oracle-invokes-force-majeure-on-project-jupiter-as-ai-data-center-financing-stumbles-09-24-2026"
+        "price": 85,
+        "asOf": "2026-11-17",
+        "note": "HSBC sold a ~$300M slice of the $18B construction loan at prices in the mid-80s, several weeks earlier, shortly after Oracle's force majeure notice (Bloomberg). The 85 is approximate (midpoint of 'mid-80s'); Bisnow reported 'less than 90 cents': https://www.bisnow.com/news/national/data-center-capital-markets/hsbc-sells-300m-of-data-center-debt-at-steep-discount",
+        "source": "https://www.thestar.com.my/business/business-news/2026/11/17/hsbc-sold-us300mil-troubled-data-centre-loan-at-discount"
       },
       "source": "https://www.datacenterdynamics.com/en/news/oracle-revealed-as-tenant-of-project-jupiter-data-center-campus-in-new-mexico/",
       "events": [
@@ -148,6 +148,11 @@
           "date": "2026-11-05",
           "text": "Bloomberg: ING auctions a ~$500M portfolio of a dozen data-center loans, including a $25M position tied to the Stargate New Mexico campus; bids due Nov 19",
           "source": "https://www.thestandard.com.hk/finance/article/347740/ING-puts-500-million-of-data-center-loans-up-for-sale-Bloomberg-News-reports"
+        },
+        {
+          "date": "2026-11-17",
+          "text": "Bloomberg: HSBC sold a ~$300M slice of the ~$18B Project Jupiter construction loan (marketed as Project Miner, ~20 banks) at prices in the mid-80s, shortly after Oracle's force majeure notice; buyer not named",
+          "source": "https://www.thestar.com.my/business/business-news/2026/11/17/hsbc-sold-us300mil-troubled-data-centre-loan-at-discount"
         }
       ]
     },

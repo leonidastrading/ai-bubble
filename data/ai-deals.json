@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-23",
   "notes": "Arrows point the way money flows (payer -> recipient). Amounts are headline USD billions as announced or reported; null = undisclosed. status: announced (company statement), reported (press reports, not confirmed), loi (letter of intent / not definitive). Public market values are computed live from price x shares; 'shares' is a fallback when SEC filings don't report a single share count. Private valuations are the latest priced round.",
   "nodes": [
     {
@@ -20,6 +20,8 @@
     {
       "id": "ANTHROPIC",
       "name": "Anthropic",
+      "ticker": "ANT",
+      "shares": 13219642276,
       "private": {
         "valueB": 965,
         "asOf": "2026-05-28",
@@ -401,7 +403,7 @@
       "amountB": 10,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "Up to $10B investment; in Nov 2026 Nvidia agreed to buy ~$10B of Anthropic Class N stock at the IPO price in the private placement concurrent with the IPO (S-1/A No. 2, Nov 10)",
+      "label": "Up to $10B investment; in Nov 2026 Nvidia agreed to buy ~$10B of Anthropic Class N stock at the IPO price in the private placement concurrent with the IPO (S-1/A No. 2, Nov 10); priced at $83/share, 120,481,927 shares (424B4, Nov 19)",
       "source": "https://www.cnbc.com/2025/11/18/anthropic-ai-azure-microsoft-nvidia.html"
     },
     {
@@ -411,7 +413,7 @@
       "amountB": 5,
       "date": "2025-11-18",
       "status": "announced",
-      "label": "Up to $5B investment; in Nov 2026 Microsoft agreed to buy ~$1B of Class N stock in the private placement concurrent with Anthropic's IPO (S-1/A No. 2, Nov 10)",
+      "label": "Up to $5B investment; in Nov 2026 Microsoft agreed to buy ~$1B of Class N stock in the private placement concurrent with Anthropic's IPO (S-1/A No. 2, Nov 10); priced at $83/share, 12,048,192 shares (424B4, Nov 19)",
       "source": "https://www.cnbc.com/2025/11/18/anthropic-ai-azure-microsoft-nvidia.html"
     },
     {
@@ -461,7 +463,7 @@
       "amountB": 30,
       "date": "2025-01-22",
       "status": "announced",
-      "label": "Equity stake (reported ~14%); March 2026 agreement for up to $30B more: $10B invested in the May 2026 Series H; in Nov 2026 Google agreed to fund $10B of the rest by buying Class N stock at the IPO price in the concurrent private placement, leaving $10B available in notes or non-voting stock through 2030 (S-1/A No. 2)",
+      "label": "Equity stake (reported ~14%); March 2026 agreement for up to $30B more: $10B invested in the May 2026 Series H; in Nov 2026 Google agreed to fund $10B of the rest by buying Class N stock at the IPO price in the concurrent private placement (priced at $83: 120,481,927 shares, 424B4, Nov 19), leaving $10B available in notes or non-voting stock through 2030 (S-1/A No. 2)",
       "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm"
     },
     {
@@ -571,7 +573,7 @@
       "amountB": 42,
       "date": "2026-10-01",
       "status": "announced",
-      "label": "Up to $42B of convertible notes to finance about a third of Anthropic's $125.2B TPU lease; convertible into Anthropic shares; none sold before the IPO (S-1); Broadcom also agreed in Nov 2026 to buy ~$1B of Class N stock in the private placement concurrent with the IPO (S-1/A No. 2)",
+      "label": "Up to $42B of convertible notes to finance about a third of Anthropic's $125.2B TPU lease; convertible into Anthropic shares; none sold before the IPO (S-1); Broadcom also agreed in Nov 2026 to buy ~$1B of Class N stock in the private placement concurrent with the IPO (S-1/A No. 2); priced at $83/share, 12,048,192 shares (424B4, Nov 19)",
       "source": "https://www.thestar.com.my/tech/tech-news/2026/10/01/exclusive-broadcom-to-lend-anthropic-up-to-42-billion-to-lease-its-chips-filing-says"
     },
     {
@@ -601,7 +603,7 @@
       "amountB": 5,
       "date": "2026-07-22",
       "status": "announced",
-      "label": "Up to $5B strategic equity investment; in Nov 2026 AMD agreed to buy ~$2.5B of Class N stock in the private placement concurrent with Anthropic's IPO, cutting the remaining commitment to $2.5B (S-1/A No. 2, Nov 10)",
+      "label": "Up to $5B strategic equity investment; in Nov 2026 AMD agreed to buy ~$2.5B of Class N stock in the private placement concurrent with Anthropic's IPO, cutting the remaining commitment to $2.5B (S-1/A No. 2, Nov 10); priced at $83/share, 30,120,481 shares (424B4, Nov 19)",
       "source": "https://ir.amd.com/news-events/press-releases/detail/1292"
     },
     {
